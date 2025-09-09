@@ -472,20 +472,37 @@
 
         /* Stili per la sezione di condivisione (immagine) */
         .share-container {
-            background-color: #334155;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            margin-top: 2rem;
-            display: none; /* Inizialmente nascosto */
-            animation: fadeIn 0.5s ease-out forwards;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         .share-container.is-visible {
-            display: block;
+            opacity: 1;
+            visibility: visible;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .share-content {
+            background-color: #1e293b;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .share-container.is-visible .share-content {
+            transform: scale(1);
         }
         .share-summary {
             background-color: #1e293b;
@@ -562,6 +579,35 @@
         }
         .scorers-table tr:hover {
             background-color: #334155;
+        }
+        
+        /* Stili per il campo note */
+        .notes-container {
+            margin-top: 1.5rem;
+            width: 100%;
+            text-align: left;
+        }
+        .notes-container h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+        .notes-container textarea {
+            width: 100%;
+            min-height: 100px;
+            background-color: #2b384a;
+            border: 1px solid #475569;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: #e2e8f0;
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        .notes-container textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
         }
     </style>
 </head>
@@ -738,6 +784,12 @@
         </div>
     </div>
     
+    <!-- Sezione Note -->
+    <div class="notes-container">
+        <h3>Note Aggiuntive</h3>
+        <textarea id="match-notes" placeholder="Inserisci qui le tue note sulla partita..."></textarea>
+    </div>
+    
     <!-- Pulsanti di azione a livello di pagina -->
     <div class="flex justify-center items-center mt-8 gap-4 flex-wrap">
         <button id="reset-button" class="btn btn-reset flex items-center justify-center gap-2">
@@ -767,24 +819,26 @@
 </div>
 
 <!-- Sezione per la condivisione, inizialmente nascosta -->
-<div id="share-section" class="share-container">
-    <div id="share-content-to-capture">
-        <h2 class="text-xl font-bold mb-4">Riepilogo Partita</h2>
-        <div class="share-summary">
-            <div id="share-summary-content">
-                <!-- Il contenuto verrà generato da JavaScript -->
+<div id="share-modal" class="modal-overlay">
+    <div class="share-content">
+        <div id="share-content-to-capture">
+            <h2 class="text-xl font-bold mb-4">Riepilogo Partita</h2>
+            <div class="share-summary">
+                <div id="share-summary-content">
+                    <!-- Il contenuto verrà generato da JavaScript -->
+                </div>
             </div>
         </div>
-    </div>
-    <img id="screenshot-preview" class="image-preview hidden">
-    <div class="flex justify-center mt-6 gap-4">
-        <a id="download-link" href="#" class="btn btn-share w-full" download="riepilogo-partita.png">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Scarica Immagine
-        </a>
-        <button id="close-share-button" class="btn bg-gray-500 hover:bg-gray-600 w-full">Chiudi</button>
+        <img id="screenshot-preview" class="image-preview hidden">
+        <div class="flex justify-center mt-6 gap-4">
+            <a id="download-link" href="#" class="btn btn-share w-full" download="riepilogo-partita.png">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Scarica Immagine
+            </a>
+            <button id="close-share-button" class="btn bg-gray-500 hover:bg-gray-600 w-full">Chiudi</button>
+        </div>
     </div>
 </div>
 
@@ -798,6 +852,20 @@
         <button id="cancel-player-selection-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
     </div>
 </div>
+
+<!-- Nuovo popup per l'inserimento del numero di maglia -->
+<div id="jersey-number-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">Numero di maglia</div>
+        <p class="text-gray-400 mb-6">Inserisci il numero di maglia del marcatore.</p>
+        <input type="number" id="jersey-number-input" class="modal-input" placeholder="Numero maglia" min="1" max="99">
+        <div class="flex justify-center gap-4 mt-4">
+            <button id="confirm-jersey-number-button" class="btn btn-goal px-8">Conferma</button>
+            <button id="cancel-jersey-number-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+        </div>
+    </div>
+</div>
+
 
 <!-- Popup di conferma generale per la rimozione -->
 <div id="remove-modal" class="modal-overlay">
@@ -907,6 +975,7 @@
     const team2NameElement = document.getElementById('team2-name');
     const dateDisplay = document.getElementById('current-date');
     const statsTeam2Title = document.getElementById('stats-team2-title');
+    const matchNotesTextarea = document.getElementById('match-notes');
 
     const goalsTeam1Display = document.getElementById('goals-team1');
     const shotsTeam1Display = document.getElementById('shots-team1');
@@ -922,7 +991,6 @@
     const shotsTeam1TakenDisplay = document.getElementById('shots-team1-taken');
     const cornersTeam1TakenDisplay = document.getElementById('corners-team1-taken');
 
-
     const scorersList1 = document.getElementById('scorers-list-1');
     const scorersList2 = document.getElementById('scorers-list-2');
     
@@ -930,7 +998,8 @@
     const saveShareButton = document.getElementById('save-share-button');
     const showHistoryButton = document.getElementById('show-history-button');
     
-    const shareSection = document.getElementById('share-section');
+    // Elementi del popup di condivisione
+    const shareModal = document.getElementById('share-modal');
     const shareContentToCapture = document.getElementById('share-content-to-capture');
     const screenshotPreview = document.getElementById('screenshot-preview');
     const downloadLink = document.getElementById('download-link');
@@ -945,6 +1014,15 @@
     const playerModal = document.getElementById('player-modal');
     const playerListContainer = document.getElementById('player-list');
     const cancelPlayerSelectionButton = document.getElementById('cancel-player-selection-button');
+
+    // Elementi del nuovo popup per l'inserimento del numero di maglia
+    const jerseyNumberModal = document.getElementById('jersey-number-modal');
+    const jerseyNumberInput = document.getElementById('jersey-number-input');
+    const confirmJerseyNumberButton = document.getElementById('confirm-jersey-number-button');
+    const cancelJerseyNumberButton = document.getElementById('cancel-jersey-number-button');
+    
+    // Variabili per gestire il goal della squadra 2
+    let pendingTeam2Quarter = null;
 
     // Elementi del popup di conferma rimozione
     const removeModal = document.getElementById('remove-modal');
@@ -1124,6 +1202,21 @@
         playerModal.classList.remove('is-active');
     }
 
+    // Funzione per mostrare il popup per l'inserimento del numero di maglia
+    function showJerseyNumberModal(quarter) {
+        pendingTeam2Quarter = quarter;
+        jerseyNumberModal.classList.add('is-active');
+        jerseyNumberInput.focus();
+    }
+    
+    // Funzione per nascondere il popup per l'inserimento del numero di maglia
+    function hideJerseyNumberModal() {
+        jerseyNumberModal.classList.remove('is-active');
+        jerseyNumberInput.value = '';
+        pendingTeam2Quarter = null;
+    }
+
+
     // Funzione per mostrare il popup di conferma rimozione
     function showRemoveModal(type, team) {
         let text = '';
@@ -1210,18 +1303,23 @@
     }
 
     // Funzione per aggiungere un goal per la squadra 2
-    function addGoalTeam2(quarter) {
+    function addGoalTeam2(player, quarter, elapsedSeconds) {
         scoreTeam2++;
-        const elapsedSeconds = lastSetSeconds - totalSeconds;
         const minutes = Math.floor(elapsedSeconds / 60);
         const seconds = elapsedSeconds % 60;
         const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         const newScorer = document.createElement('div');
         newScorer.classList.add('scorer-list-item');
-        newScorer.textContent = `Goal (${quarter}, ${timeString})`;
+        newScorer.textContent = `${player} (${quarter}, ${timeString})`;
         scorersList2.appendChild(newScorer);
-        team2Scorers.push({ player: 'Sconosciuto', quarter: quarter, time: timeString });
+        team2Scorers.push({ player: player, quarter: quarter, time: timeString });
+
+        scoreTeam2Display.classList.add('is-pulsing');
+        setTimeout(() => {
+            scoreTeam2Display.classList.remove('is-pulsing');
+        }, 1000);
         updateScores();
+        vibratePhone();
     }
     
     // Funzione per resettare il gioco e mostrare il popup iniziale
@@ -1235,6 +1333,7 @@
         cornersTeam2 = 0;
         team1Scorers = [];
         team2Scorers = [];
+        matchNotesTextarea.value = ''; // Resetta le note
 
         // Aggiorna le visualizzazioni
         updateScores();
@@ -1254,7 +1353,7 @@
         resetTimer();
 
         hideResetModal();
-        shareSection.classList.remove('is-visible');
+        hideShareModal();
 
         // Mostra il popup iniziale
         initialSetupModal.classList.add('is-active');
@@ -1264,6 +1363,7 @@
     function saveMatch() {
         const team1Name = 'POLIS';
         const team2Name = team2NameElement.textContent;
+        const notes = matchNotesTextarea.value.trim();
         const history = loadMatchHistory();
 
         const match = {
@@ -1277,7 +1377,8 @@
             corners2: cornersTeam2,
             date: new Date().toISOString(), // Salva la data in formato ISO per l'ordinamento
             scorers1: team1Scorers,
-            scorers2: team2Scorers
+            scorers2: team2Scorers,
+            notes: notes // Salva anche le note
         };
         history.push(match);
         localStorage.setItem('polis_match_history', JSON.stringify(history));
@@ -1348,7 +1449,8 @@
                 const formattedDate = new Date(match.date).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 
                 const team1ScorersText = match.scorers1.length > 0 ? `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter}, ${s.time})`).join(', ')}</span>` : '';
-                const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter}, ${s.time})`).join(', ')}</span>` : '';
+                const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `${s.player} (${s.quarter}, ${s.time})`).join(', ')}</span>` : '';
+                const notesText = match.notes ? `<br><span>Note: ${match.notes}</span>` : '';
 
                 historyItem.innerHTML = `
                     <div class="history-item-header">
@@ -1374,6 +1476,7 @@
                         </div>
                         ${team1ScorersText}
                         ${team2ScorersText}
+                        ${notesText}
                     </div>
                 `;
                 historyList.appendChild(historyItem);
@@ -1444,12 +1547,27 @@
         timerSetupModal.classList.remove('is-active');
     }
 
+    // Funzione per mostrare il popup di condivisione
+    function showShareModal() {
+        generateShareContent();
+        shareModal.classList.add('is-visible');
+        setTimeout(() => {
+            captureAndDisplay();
+        }, 100);
+    }
+    
+    // Funzione per nascondere il popup di condivisione
+    function hideShareModal() {
+        shareModal.classList.remove('is-visible');
+    }
+
     // Funzione per generare il contenuto HTML per la condivisione
     function generateShareContent() {
         const team1Name = 'POLIS';
         const team2Name = team2NameElement.textContent;
         const scorers1 = team1Scorers.map(s => `${s.player} (${s.quarter}, ${s.time})`);
-        const scorers2 = team2Scorers.map(s => `Goal (${s.quarter}, ${s.time})`);
+        const scorers2 = team2Scorers.map(s => `${s.player} (${s.quarter}, ${s.time})`);
+        const notes = matchNotesTextarea.value.trim();
 
         let content = `
             <p class="font-bold text-lg mb-2 text-center">${team1Name} vs ${team2Name}</p>
@@ -1464,13 +1582,19 @@
         if (scorers2.length > 0) {
             content += `<div class="share-scorers"><h4>Marcatori ${team2Name}:</h4><p>${scorers2.join(', ')}</p></div>`;
         }
+        if (notes.length > 0) {
+            content += `<div class="share-scorers"><h4>Note:</h4><p>${notes}</p></div>`;
+        }
 
         document.getElementById('share-summary-content').innerHTML = content;
     }
 
     // Funzione per catturare e visualizzare l'immagine
     function captureAndDisplay() {
+        // Temporaneamente mostra il contenuto da catturare
         shareContentToCapture.style.display = 'block';
+        shareContentToCapture.style.maxWidth = '400px';
+
         html2canvas(shareContentToCapture, {
             backgroundColor: '#1e293b'
         }).then(canvas => {
@@ -1478,13 +1602,13 @@
             screenshotPreview.src = imageData;
             downloadLink.href = imageData;
             screenshotPreview.classList.remove('hidden');
-            shareContentToCapture.style.display = 'none';
+            shareContentToCapture.style.display = 'none'; // Nascondi nuovamente il contenuto
         });
     }
 
     // Listener per il pulsante "Chiudi" della sezione di condivisione
     closeShareButton.addEventListener('click', () => {
-        shareSection.classList.remove('is-visible');
+        hideShareModal();
     });
 
     // Aggiungi un listener di eventi a tutti i bottoni
@@ -1501,7 +1625,7 @@
                     if (team === '1') {
                         showPlayerModal(quarter);
                     } else if (team === '2') {
-                        addGoalTeam2(quarter);
+                        showJerseyNumberModal(quarter); // Mostra il pop-up per la Squadra 2
                     }
                 } else if (type === 'corner') {
                     if (team === '1') {
@@ -1534,6 +1658,25 @@
                 showRemoveModal(type, team);
             }
         });
+    });
+    
+    // Listener per la conferma del numero di maglia
+    confirmJerseyNumberButton.addEventListener('click', () => {
+        const jerseyNumber = jerseyNumberInput.value.trim();
+        if (jerseyNumber !== '') {
+            vibratePhone();
+            const elapsedSeconds = lastSetSeconds - totalSeconds;
+            addGoalTeam2(jerseyNumber, pendingTeam2Quarter, elapsedSeconds);
+            hideJerseyNumberModal();
+        } else {
+            jerseyNumberInput.focus();
+        }
+    });
+
+    // Listener per l'annullamento dell'inserimento del numero di maglia
+    cancelJerseyNumberButton.addEventListener('click', () => {
+        vibratePhone();
+        hideJerseyNumberModal();
     });
 
     // Aggiungi listener per i pulsanti del popup di conferma rimozione
@@ -1581,7 +1724,7 @@
             team2Scorers.forEach(s => {
                 const newScorer = document.createElement('div');
                 newScorer.classList.add('scorer-list-item');
-                newScorer.textContent = `Goal (${s.quarter}, ${s.time})`;
+                newScorer.textContent = `${s.player} (${s.quarter}, ${s.time})`;
                 scorersList2.appendChild(newScorer);
             });
         }
@@ -1618,16 +1761,12 @@
     saveShareButton.addEventListener('click', () => {
         vibratePhone();
         saveMatch();
-        generateShareContent();
-        shareSection.classList.add('is-visible');
-        setTimeout(() => {
-            captureAndDisplay();
-        }, 100);
+        showShareModal();
     });
 
     // Listener per il pulsante "Chiudi" della sezione di condivisione
     closeShareButton.addEventListener('click', () => {
-        shareSection.classList.remove('is-visible');
+        hideShareModal();
     });
 
     // Listener per il pulsante "Visualizza Storico"
