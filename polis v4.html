@@ -135,6 +135,7 @@
         }
         .btn-stats-add {
             background: linear-gradient(to right, #f97316, #ea580c);
+            padding: 1rem 1.5rem; /* Aumento la dimensione dei pulsanti stats */
         }
         .btn-remove-goal {
             background-color: #ef4444;
@@ -297,6 +298,9 @@
             }
             .btn-goal {
                 padding: 0.75rem 1rem; /* Nuovo padding per pulsanti più grandi su mobile */
+            }
+            .btn-stats-add {
+                padding: 0.75rem 1rem; /* Nuovo padding per i pulsanti stats su mobile */
             }
             .btn-remove-goal {
                 height: 2.5rem;
@@ -1023,21 +1027,21 @@
 
     // Funzione per aggiornare le statistiche visualizzate
     function updateStats() {
+        // Aggiorna le statistiche della squadra 1
         goalsTeam1Display.textContent = scoreTeam1;
         goalsTeam2TakenDisplay.textContent = scoreTeam2;
-        
         shotsTeam1Display.textContent = shotsTeam1;
+        shotsTeam2TakenDisplay.textContent = shotsTeam2;
         cornersTeam1Display.textContent = cornersTeam1;
-
+        cornersTeam2TakenDisplay.textContent = cornersTeam2;
+    
+        // Aggiorna le statistiche della squadra 2
         goalsTeam2Display.textContent = scoreTeam2;
         goalsTeam1TakenDisplay.textContent = scoreTeam1;
-
         shotsTeam2Display.textContent = shotsTeam2;
+        shotsTeam1TakenDisplay.textContent = shotsTeam1;
         cornersTeam2Display.textContent = cornersTeam2;
-        
-        shotsTeam1TakenDisplay.textContent = shotsTeam2;
-        cornersTeam1TakenDisplay.textContent = cornersTeam2;
-
+        cornersTeam1TakenDisplay.textContent = cornersTeam1;
     }
 
     // Funzione per far vibrare il dispositivo
