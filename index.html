@@ -1004,6 +1004,7 @@
     let timerInterval = null;
     let isRunning = false;
     let lastSetSeconds = 20 * 60;
+    let startTime = 0; // Timestamp di inizio del timer
 
 
     // Lista dei giocatori
@@ -1108,7 +1109,9 @@
             playerButton.classList.add('player-btn');
             playerButton.addEventListener('click', () => {
                 vibratePhone();
-                addGoalTeam1(player, quarter);
+                // Calcola il tempo di gioco attuale
+                const elapsedSeconds = lastSetSeconds - totalSeconds;
+                addGoalTeam1(player, quarter, elapsedSeconds);
                 hidePlayerModal();
             });
             playerListContainer.appendChild(playerButton);
@@ -1186,13 +1189,16 @@
     }
 
     // Funzione per aggiungere un goal per la squadra 1
-    function addGoalTeam1(player, quarter) {
+    function addGoalTeam1(player, quarter, elapsedSeconds) {
         scoreTeam1++;
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         const newScorer = document.createElement('div');
         newScorer.classList.add('scorer-list-item');
-        newScorer.textContent = `${player} (${quarter})`;
+        newScorer.textContent = `${player} (${quarter}, ${timeString})`;
         scorersList1.appendChild(newScorer);
-        team1Scorers.push({ player: player, quarter: quarter });
+        team1Scorers.push({ player: player, quarter: quarter, time: timeString });
 
         scoreTeam1Display.classList.add('is-pulsing');
         setTimeout(() => {
@@ -1206,11 +1212,15 @@
     // Funzione per aggiungere un goal per la squadra 2
     function addGoalTeam2(quarter) {
         scoreTeam2++;
+        const elapsedSeconds = lastSetSeconds - totalSeconds;
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         const newScorer = document.createElement('div');
         newScorer.classList.add('scorer-list-item');
-        newScorer.textContent = `Goal (${quarter})`;
+        newScorer.textContent = `Goal (${quarter}, ${timeString})`;
         scorersList2.appendChild(newScorer);
-        team2Scorers.push({ player: 'Sconosciuto', quarter: quarter });
+        team2Scorers.push({ player: 'Sconosciuto', quarter: quarter, time: timeString });
         updateScores();
     }
     
@@ -1337,8 +1347,8 @@
                 historyItem.classList.add('history-item');
                 const formattedDate = new Date(match.date).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 
-                const team1ScorersText = match.scorers1.length > 0 ? `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter})`).join(', ')}</span>` : '';
-                const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter})`).join(', ')}</span>` : '';
+                const team1ScorersText = match.scorers1.length > 0 ? `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter}, ${s.time})`).join(', ')}</span>` : '';
+                const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter}, ${s.time})`).join(', ')}</span>` : '';
 
                 historyItem.innerHTML = `
                     <div class="history-item-header">
@@ -1399,6 +1409,7 @@
     function startTimer() {
         if (isRunning) return;
         isRunning = true;
+        startTime = Date.now();
         timerDisplay.classList.add('timer-running'); // Aggiunge l'animazione
         timerInterval = setInterval(() => {
             totalSeconds--;
@@ -1437,8 +1448,8 @@
     function generateShareContent() {
         const team1Name = 'POLIS';
         const team2Name = team2NameElement.textContent;
-        const scorers1 = team1Scorers.map(s => `${s.player} (${s.quarter})`);
-        const scorers2 = team2Scorers.map(s => `Goal (${s.quarter})`);
+        const scorers1 = team1Scorers.map(s => `${s.player} (${s.quarter}, ${s.time})`);
+        const scorers2 = team2Scorers.map(s => `Goal (${s.quarter}, ${s.time})`);
 
         let content = `
             <p class="font-bold text-lg mb-2 text-center">${team1Name} vs ${team2Name}</p>
@@ -1562,7 +1573,7 @@
             team1Scorers.forEach(s => {
                 const newScorer = document.createElement('div');
                 newScorer.classList.add('scorer-list-item');
-                newScorer.textContent = `${s.player} (${s.quarter})`;
+                newScorer.textContent = `${s.player} (${s.quarter}, ${s.time})`;
                 scorersList1.appendChild(newScorer);
             });
         } else if (team === 2) {
@@ -1570,7 +1581,7 @@
             team2Scorers.forEach(s => {
                 const newScorer = document.createElement('div');
                 newScorer.classList.add('scorer-list-item');
-                newScorer.textContent = `Goal (${s.quarter})`;
+                newScorer.textContent = `Goal (${s.quarter}, ${s.time})`;
                 scorersList2.appendChild(newScorer);
             });
         }
