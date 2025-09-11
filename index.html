@@ -649,6 +649,37 @@
             font-size: 0.9em;
         }
         
+        /* NUOVO: Stile per l'animazione della bandierina del corner */
+        @keyframes corner-swoosh {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2) rotate(-15deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.3) rotate(30deg) translateY(-80px);
+            }
+        }
+        .corner-flag-animation {
+            position: fixed;
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            /* L'animazione gestisce la visibilità */
+        }
+        .corner-flag-animation.animate {
+            animation: corner-swoosh 1s ease-in-out forwards;
+        }
+        .corner-flag-animation svg {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+        }
+        
     </style>
 </head>
 <body>
@@ -724,14 +755,14 @@
                     <div class="stat-group">
                         <div class="stat-label">Corner</div>
                         <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat('corner', 'polis')">+</button>
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'polis')">+</button>
                             <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'polis')">-</button>
                         </div>
                     </div>
                     <div class="stat-group">
                         <div class="stat-label">Tiri in Porta</div>
                         <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat('shots', 'polis', true)">+</button>
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'polis', true)">+</button>
                             <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'polis')">-</button>
                         </div>
                     </div>
@@ -742,14 +773,14 @@
                     <div class="stat-group">
                         <div class="stat-label">Corner</div>
                         <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat('corner', 'opponent')">+</button>
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'opponent')">+</button>
                             <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'opponent')">-</button>
                         </div>
                     </div>
                     <div class="stat-group">
                         <div class="stat-label">Tiri in Porta</div>
                         <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat('shots', 'opponent', true)">+</button>
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'opponent', true)">+</button>
                             <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'opponent')">-</button>
                         </div>
                     </div>
@@ -884,6 +915,12 @@
     <div id="confetti-container"></div>
     <!-- Contenitore per l'animazione del pallone -->
     <div id="ball-animation"></div>
+    <!-- NUOVO: Contenitore per l'animazione del corner -->
+    <div id="corner-animation" class="corner-flag-animation">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#F6AD55">
+            <path d="M5 21V3.251c0-.414.336-.75.75-.751h11.264c.4-.04.736.295.736.694V12c0 .414-.336.75-.75.75h-2.122l-2.02 2.02a.75.75 0 0 1-1.06 0l-2.02-2.02H5.75a.75.75 0 0 1-.75-.75V21z"/>
+        </svg>
+    </div>
     <!-- Contenitore nascosto per la cattura dell'immagine dello storico -->
     <div id="snapshot-container" style="position: absolute; left: -9999px; top: -9999px;"></div>
 
@@ -1021,15 +1058,38 @@
         }
 
         // Funzione per aggiungere una statistica e scorrere
-        function addStat(type, team, withAnimation = false) {
+        function addStat(event, type, team, withAnimation = false) {
             stats[type][team]++;
             updateAllDisplays();
             scrollToStats(); // Chiama la nuova funzione di scorrimento
             if (withAnimation) {
                 playBallAnimation();
             }
+            if (type === 'corner') {
+                playCornerAnimation(event.target);
+            }
         }
         
+        // NUOVA: Funzione per l'animazione della bandierina del corner
+        function playCornerAnimation(buttonElement) {
+            const cornerAnimation = document.getElementById('corner-animation');
+            
+            // Calcola la posizione del pulsante
+            const rect = buttonElement.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            // Posiziona l'animazione al centro del pulsante
+            cornerAnimation.style.left = `${x}px`;
+            cornerAnimation.style.top = `${y}px`;
+
+            // Aggiunge la classe per avviare l'animazione e la rimuove alla fine
+            cornerAnimation.classList.add('animate');
+            setTimeout(() => {
+                cornerAnimation.classList.remove('animate');
+            }, 1000); // Durata dell'animazione
+        }
+
         // Funzione per l'animazione del pallone
         function playBallAnimation() {
             const ball = document.getElementById('ball-animation');
@@ -1716,3 +1776,4 @@
 
 </body>
 </html>
+
