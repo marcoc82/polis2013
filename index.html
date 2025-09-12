@@ -694,7 +694,7 @@
             <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
             <hr class="my-6">
             <h2 class="text-2xl font-bold mb-4">Benvenuto!</h2>
-            <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria.</p>
+            <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria., poi ricordati di far partire il tempo!</p>
             <input type="text" id="welcome-opponent-name" placeholder="Nome Squadra Avversaria" class="w-full mb-4">
             <button class="btn-green btn-large w-full" onclick="startGame()">Inizia Partita</button>
         </div>
@@ -943,15 +943,15 @@
         let opponentName = 'SQUADRA 2';
         
         // Lista dei giocatori Polis
-        const POLIS_PLAYERS = ["99-ALPA FEDERICO", "78-BECCARIS SEBASTIANO", "32-BEN MABROUK KEVIN", "23-BERLUSCONI NOAH",
-                "1-BERNUCCI ROMEO", "18-BOERO GUGLIELMO", "22-BRIANO COSTANTINO", "28-CABASSI ROBERTO",
-                "7-CALLIKU ANDREA", "4-CAZZULO MICHELE", "46-CONGIU ALESSIO", "20-DHAOUI OMAR",
-                "5-DI DATO SIMONE", "77-DONALD BRYAN", "6-ESPOSITO EMANUELE", "25-GARDELLA ANDREA",
-                "13-GENNARO EDOARDO", "91-GIOIA LEONARDO", "17-KHAY ADAM", "2-LAMKHAYAR AMIN",
-                "29-LANNA MARK", "19-MARCHESE MATTEO", "47-MELLO CHRISTIAN", "61-MELLUSO MATTIA",
-                "14-MONTEFIORI EDOARDO", "3-ODAGLIA ANDREA", "11-PELLICCI FRANCESCO", "90-PIGA GIOVANNI",
-                "45-PINASCO ALESSANDRO", "10-POLLIO CESARE", "9-SCALA FEDERICO", "16-STANCHI FEDERICO",
-                "21-TONINI LORENZO"];
+        const POLIS_PLAYERS = ["99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
+                "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
+                "7 CALLIKU ANDREA", "4 CAZZULO MICHELE", "46 CONGIU ALESSIO", "20 DHAOUI OMAR",
+                "5 DI DATO SIMONE", "77 DONALD BRYAN", "6 ESPOSITO EMANUELE", "25 GARDELLA ANDREA",
+                "13 GENNARO EDOARDO", "91 GIOIA LEONARDO", "17 KHAY ADAM", "2 LAMKHAYAR AMIN",
+                "29 LANNA MARK", "19 MARCHESE MATTEO", "47 MELLO CHRISTIAN", "61 MELLUSO MATTIA",
+                "14 MONTEFIORI EDOARDO", "3 ODAGLIA ANDREA", "11 PELLICCI FRANCESCO", "90 PIGA GIOVANNI",
+                "45 PINASCO ALESSANDRO", "10 POLLIO CESARE", "9 SCALA FEDERICO", "16 STANCHI FEDERICO",
+                "21 TONINI LORENZO"];
         
         // Un'unica variabile per l'azione in sospeso (gol o statistica)
         let pendingAction = { type: null, statType: null, team: null, period: null };
@@ -1788,6 +1788,7 @@
 
 </body>
 </html>
+
 
 
 
