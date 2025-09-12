@@ -676,7 +676,7 @@
             /* L'animazione gestisce la visibilità */
         }
         .corner-flag-animation.animate {
-            animation: corner-swoosh 1s ease-in-out forwards;
+            animation: corner-swoosh 2s ease-in-out forwards;
         }
         .corner-flag-animation svg {
             width: 60px;
@@ -694,7 +694,7 @@
             <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
             <hr class="my-6">
             <h2 class="text-2xl font-bold mb-4">Benvenuto!</h2>
-            <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria., poi ricordati di far partire il tempo!</p>
+            <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria, poi ricordati di far partire il tempo!</p>
             <input type="text" id="welcome-opponent-name" placeholder="Nome Squadra Avversaria" class="w-full mb-4">
             <button class="btn-green btn-large w-full" onclick="startGame()">Inizia Partita</button>
         </div>
@@ -1099,7 +1099,7 @@
             cornerAnimation.classList.add('animate');
             setTimeout(() => {
                 cornerAnimation.classList.remove('animate');
-            }, 1000); // Durata dell'animazione
+            }, 1500); // Durata dell'animazione
         }
 
         // Funzione per l'animazione del pallone
@@ -1788,6 +1788,7 @@
 
 </body>
 </html>
+
 
 
 
