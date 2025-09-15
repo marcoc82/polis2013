@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
         /* Importazione di un font più moderno */
         body {
@@ -23,7 +27,9 @@
             background-color: #1A202C; /* Sfondo scuro per un look moderno */
             color: #E2E8F0; /* Testo chiaro */
         }
-
+        #loading-screen, #match-id-screen, #main-app { position: fixed; top:0; left:0; width:100vw; height:100vh; }
+        #loading-screen, #match-id-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; z-index:999; background: #1A202C; }
+        #main-app { display: none; z-index:10; }
         /* Contenitore principale con stile aggiornato */
         .container {
             background: #2D3748; /* Contenitore leggermente più chiaro */
@@ -692,6 +698,18 @@
     </style>
 </head>
 <body>
+<!-- Schermata di Loading -->
+    <div id="loading-screen">
+        <h2 style="color:#4A90E2;">Connessione...</h2>
+        <pre id="loading-log" style="margin-top:20px; color: #E2E8F0; font-family: monospace; background: #2D3748; padding: 20px; border-radius: 12px;"></pre>
+    </div>
+    <!-- Schermata inserimento ID partita -->
+    <div id="match-id-screen" style="display:none;">
+        <h2 style="color:#4A90E2;">Inserisci ID partita</h2>
+        <input type="text" id="match-id-input" placeholder="ID Partita" style="margin:20px; padding:10px;">
+        <button onclick="connectToMatch()" style="padding:10px 20px;">Entra</button>
+        <div id="id-error" style="color:#F56565; margin-top:10px;"></div>
+    </div>
 
     <div id="welcome-screen">
         <div class="welcome-content">
@@ -1954,5 +1972,6 @@
 </script>
 </body>
 </html>
+
 
 
