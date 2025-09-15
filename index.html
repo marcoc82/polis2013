@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Importazione di un font più moderno */
+         /* Importazione di un font più moderno */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
@@ -683,12 +683,25 @@
             height: 60px;
             filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
         }
-        
+        .scores-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+        }
+        .score {
+            font-size: 5em;
+            font-weight: bold;
+            color: #4A90E2;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 1.7em;
+        }
+        /* --- RESTO CSS INVARIATO --- */
     </style>
 </head>
 <body>
-
-    <!-- Schermata di benvenuto (inizialmente visibile) -->
+    <!-- Schermata di benvenuto -->
     <div id="welcome-screen">
         <div class="welcome-content">
             <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
@@ -699,31 +712,35 @@
             <button class="btn-green btn-large w-full" onclick="startGame()">Inizia Partita</button>
         </div>
     </div>
-    
-    <!-- Contenitore principale dell'app (inizialmente nascosto) -->
     <div id="main-app" class="hidden">
         <div class="container">
             <h1 class="polis-text">Polis 2013</h1>
-            
             <hr>
-
             <p id="date" class="date-text"></p>
-            
             <hr>
-
             <div class="timer-section" style="margin-bottom: 40px;">
                 <h2>Timer</h2>
                 <div id="timer">18:00</div>
                 <div class="controls">
-                    <button class="btn-blue btn-timer" onclick="startTimer()" aria-label="Avvia Timer">►</button>
-                    <button class="btn-grey btn-timer" onclick="pauseTimer()" aria-label="Metti in Pausa Timer">❚❚</button>
+                    <button class="btn-blue btn-timer" onclick="startTimer()">►</button>
+                    <button class="btn-grey btn-timer" onclick="pauseTimer()">❚❚</button>
                     <button class="btn-red btn-timer" onclick="resetTimer()">Reset</button>
                     <button class="btn-yellow btn-timer" onclick="editTimer()">Modifica</button>
                 </div>
             </div>
-
-            <div class="teams-container" style="margin-top: 40px;">
-                <!-- Sezione POLIS -->
+            <!-- --- Punteggi allineati --- -->
+            <div class="scores-row">
+                <div class="team-section">
+                    <div class="team-name">POLIS</div>
+                    <div id="polis-score" class="score">0</div>
+                </div>
+                <div class="team-section">
+                    <div id="opponent-name-display" class="team-name static">SQUADRA 2</div>
+                    <div id="opponent-score" class="score">0</div>
+                </div>
+            </div>
+            <div class="teams-container" style="margin-top: 30px;">
+                       <!-- Sezione POLIS -->
                 <div class="team-section">
                     <div class="team-name">POLIS</div>
                     <div id="polis-score" class="score">0</div>
@@ -752,75 +769,70 @@
                     </div>
                 </div>
             </div>
-            
+            <!-- --- Statistiche con falli --- -->
             <div class="stats-button-container">
-                <!-- Pulsanti Statistiche POLIS -->
-               <div class="team-section">
-    <div class="stat-group">
-        <div class="stat-label">Corner</div>
-        <div class="controls">
-            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'polis')">+</button>
-            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'polis')">-</button>
-        </div>
-    </div>
-    <div class="stat-group">
-        <div class="stat-label">Tiri in Porta</div>
-        <div class="controls">
-            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'polis', true)">+</button>
-            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'polis')">-</button>
-        </div>
-    </div>
-    <div class="stat-group">
-        <div class="stat-label">Falli Fatti</div>
-        <div class="controls">
-            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'polis')">+</button>
-            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'polis')">-</button>
-        </div>
-    </div>
-</div>
-                
-                <!-- Pulsanti Statistiche Squadra Avversaria -->
+                <!-- POLIS -->
                 <div class="team-section">
-    <div class="stat-group">
-        <div class="stat-label">Corner</div>
-        <div class="controls">
-            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'opponent')">+</button>
-            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'opponent')">-</button>
-        </div>
-    </div>
-    <div class="stat-group">
-        <div class="stat-label">Tiri in Porta</div>
-        <div class="controls">
-            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'opponent', true)">+</button>
-            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'opponent')">-</button>
-        </div>
-    </div>
-    <div class="stat-group">
-        <div class="stat-label">Falli Subiti</div>
-        <div class="controls">
-            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'opponent')">+</button>
-            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'opponent')">-</button>
-        </div>
-    </div>
-</div>
+                    <div class="stat-group">
+                        <div class="stat-label">Corner</div>
+                        <div class="controls">
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'polis')">+</button>
+                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'polis')">-</button>
+                        </div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">Tiri in Porta</div>
+                        <div class="controls">
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'polis', true)">+</button>
+                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'polis')">-</button>
+                        </div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">Falli Fatti</div>
+                        <div class="controls">
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'polis')">+</button>
+                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'polis')">-</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- AVVERSARI -->
+                <div class="team-section">
+                    <div class="stat-group">
+                        <div class="stat-label">Corner</div>
+                        <div class="controls">
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'opponent')">+</button>
+                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'opponent')">-</button>
+                        </div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">Tiri in Porta</div>
+                        <div class="controls">
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'opponent', true)">+</button>
+                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'opponent')">-</button>
+                        </div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">Falli Subiti</div>
+                        <div class="controls">
+                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'opponent')">+</button>
+                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'opponent')">-</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
+            <!-- Riepilogo Statistiche -->
             <div class="stats-summary-container" id="stats-summary-container">
                 <h2>Riepilogo Statistiche</h2>
-                <!-- Statistiche POLIS -->
                 <div class="stats-summary-group">
                     <div class="team-name">POLIS</div>
                     <div id="summary-polis" class="summary-details"></div>
                 </div>
-
-                <!-- Statistiche Squadra Avversaria -->
                 <div class="stats-summary-group">
                     <div class="team-name" id="opponent-name-static">SQUADRA 2</div>
                     <div id="summary-opponent" class="summary-details"></div>
                 </div>
             </div>
-            
-            <!-- Nuovo pulsante di reset e salva -->
+             <!-- Nuovo pulsante di reset e salva -->
             <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; margin-top: 20px;">
                 <button class="btn-red btn-large" onclick="showConfirmationModal('reset')">Reset</button>
                 <button class="btn-purple btn-large" onclick="saveGame()">Salva</button>
@@ -834,11 +846,9 @@
             </div>
 
         </div>
-        
-        <!-- Sezione dello storico delle partite -->
+        <!-- Storico partite -->
         <div id="history-section" style="display: none;">
             <hr class="my-6">
-            
             <!-- NUOVA SEZIONE: Classifica Marcatori Generale -->
             <div id="overall-scorers-section" style="display: none;">
                 <h2>Classifica Marcatori Generale Polis</h2>
@@ -846,15 +856,13 @@
             </div>
 
             <hr class="my-6">
-            
             <h2>Storico Partite</h2>
             <div id="history-list"></div>
-            <div id="history-details-section">
+            <div id="history-details-section" style="display:none;">
                 <h3 id="history-details-title"></h3>
                 <div id="history-details-content"></div>
             </div>
         </div>
-        
         <!-- Modal per la modifica del timer -->
         <div id="timerModal" class="modal">
             <div class="modal-content">
@@ -941,22 +949,43 @@
     </div>
     <!-- Contenitore nascosto per la cattura dell'immagine dello storico -->
     <div id="snapshot-container" style="position: absolute; left: -9999px; top: -9999px;"></div>
-
     <script>
-        // Gestione punteggi e statistiche
-        let scores = {
-            polis: 0,
-            opponent: 0
-        };
+        // --- WAKE LOCK ---
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock rilasciato');
+                    });
+                    console.log('Wake Lock attivo!');
+                } catch (err) {
+                    console.log('Wake Lock non disponibile:', err);
+                }
+            }
+        }
+        document.addEventListener("visibilitychange", () => {
+            if (wakeLock !== null && document.visibilityState === "visible") {
+                requestWakeLock();
+            }
+        });
+        window.addEventListener("load", () => {
+            requestWakeLock();
+        });
+        // --- /WAKE LOCK ---
+
+        // Restante JS invariato, con gestione falli inclusa
+        let scores = { polis: 0, opponent: 0 };
         let stats = {
             corner: { polis: 0, opponent: 0 },
             shots: { polis: 0, opponent: 0 },
-            fouls: { polis: 0, opponent: 0 },
-            goals: [] // Array per salvare tutti i gol
+            fouls: { polis: 0, opponent: 0 }, // AGGIUNTO per i falli
+            goals: []
         };
-        
+        let history = [];
         let opponentName = 'SQUADRA 2';
-        
+
         // Lista dei giocatori Polis
         const POLIS_PLAYERS = ["99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
                 "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
@@ -993,15 +1022,12 @@
             document.getElementById('date').innerText = formattedDate;
         }
 
-        // Funzione per aggiornare il riepilogo delle statistiche
+        // AGGIORNATO: riepilogo con falli
         function updateSummaryDisplay(polisStats, opponentStats, allGoals, opponentName) {
             const summaryPolis = document.getElementById('summary-polis');
             const summaryOpponent = document.getElementById('summary-opponent');
-
-            // Funzione per generare il riepilogo dei gol per marcatore, con periodo e minuto
             function getGoalSummary(team) {
                 const teamGoals = allGoals.filter(g => g.team === team);
-                
                 let html = '<ul>';
                 if (teamGoals.length === 0) {
                     html += '<li>Nessun gol segnato.</li>';
@@ -1014,81 +1040,71 @@
                 html += '</ul>';
                 return html;
             }
-            
-            // Funzione per generare il riepilogo dei gol per periodo
-            function getPeriodSummary(team) {
-                const teamGoals = allGoals.filter(g => g.team === team);
-                const summary = teamGoals.reduce((acc, goal) => {
-                    if (goal.period) {
-                        acc[goal.period] = (acc[goal.period] || 0) + 1;
-                    }
-                    return acc;
-                }, {});
-                
-                let html = '<ul>';
-                for (const period in summary) {
-                    html += `<li>${period}: ${summary[period]}</li>`;
-                }
-                html += '</ul>';
-                return html;
-            }
-
-
             summaryPolis.innerHTML = `
                 <div class="stats-grid">
-                    <strong>Gol:</strong> <span>${polisStats.score} Fatti / ${opponentStats.score} Subiti</span>
-                    <strong>Corner:</strong> <span>${polisStats.corner} Fatti / ${opponentStats.corner} Subiti</span>
-                    <strong>Tiri in Porta:</strong> <span>${polisStats.shots} Fatti / ${opponentStats.shots} Subiti</span>
-                    <strong>Falli:</strong> <span>${polisStats.fouls} Fatti / ${opponentStats.fouls} Subiti</span>
-
+                    <strong>Corner:</strong> <span>${polisStats.corner}</span>
+                    <strong>Tiri in Porta:</strong> <span>${polisStats.shots}</span>
+                    <strong>Falli Fatti:</strong> <span>${polisStats.fouls}</span>
                 </div>
-                <h4 class="mt-4">Marcatori Polis</h4>
                 ${getGoalSummary('polis')}
-                <h4 class="mt-4">Gol per Tempo</h4>
-                ${getPeriodSummary('polis')}
             `;
-
             summaryOpponent.innerHTML = `
                 <div class="stats-grid">
-                    <strong>Gol:</strong> <span>${opponentStats.score} Fatti / ${polisStats.score} Subiti</span>
-                    <strong>Corner:</strong> <span>${opponentStats.corner} Fatti / ${polisStats.corner} Subiti</span>
-                    <strong>Tiri in Porta:</strong> <span>${opponentStats.shots} Fatti / ${polisStats.shots} Subiti</span>
-                    <strong>Falli:</strong> <span>${opponentStats.fouls} Fatti / ${polisStats.fouls} Subiti</span>
-
+                    <strong>Corner:</strong> <span>${opponentStats.corner}</span>
+                    <strong>Tiri in Porta:</strong> <span>${opponentStats.shots}</span>
+                    <strong>Falli Subiti:</strong> <span>${opponentStats.fouls}</span>
                 </div>
-                <h4 class="mt-4">Marcatori ${opponentName}</h4>
                 ${getGoalSummary('opponent')}
-                <h4 class="mt-4">Gol per Tempo</h4>
-                ${getPeriodSummary('opponent')}
             `;
         }
-        
-        // Funzione per aggiornare i singoli valori di punteggio
-        function updateMainDisplay() {
-            document.getElementById('polis-score').innerText = scores.polis;
-            document.getElementById('opponent-score').innerText = scores.opponent;
+
+        // AGGIORNATO: salvataggio partita con falli
+        function saveGame() {
+            const partita = {
+                date: new Date().toISOString(),
+                opponent: opponentName,
+                scores: { polis: scores.polis, opponent: scores.opponent },
+                stats: {
+                    corner: { ...stats.corner },
+                    shots: { ...stats.shots },
+                    fouls: { ...stats.fouls },
+                },
+                goals: [...stats.goals]
+            };
+            history.push(partita);
+            localStorage.setItem('polis2013_history', JSON.stringify(history));
+            showHistorySection();
         }
 
-        // Aggiorna tutta l'interfaccia
-        function updateAllDisplays() {
-            opponentNameDisplay.innerText = opponentName;
-            opponentNameStatic.innerText = opponentName;
-
-            const currentPolisStats = {
-                score: scores.polis,
-                corner: stats.corner.polis,
-                shots: stats.shots.polis
-            };
-            const currentOpponentStats = {
-                score: scores.opponent,
-                corner: stats.corner.opponent,
-                shots: stats.shots.opponent
-            };
-            updateMainDisplay();
-            updateSummaryDisplay(currentPolisStats, currentOpponentStats, stats.goals, opponentName);
+        // AGGIORNATO: visualizzazione storico con falli
+        function renderHistoryDetails(idx) {
+            const partita = history[idx];
+            document.getElementById('history-details-section').style.display = '';
+            document.getElementById('history-details-title').textContent = `Dettagli partita vs ${partita.opponent} (${new Date(partita.date).toLocaleDateString('it-IT')})`;
+            document.getElementById('history-details-content').innerHTML = `
+                <div class="details-grid">
+                    <strong>Risultato:</strong> Polis ${partita.scores.polis} - ${partita.opponent} ${partita.scores.opponent}
+                    <strong>Corner Polis:</strong> ${partita.stats.corner.polis}
+                    <strong>Corner Avversari:</strong> ${partita.stats.corner.opponent}
+                    <strong>Tiri in Porta Polis:</strong> ${partita.stats.shots.polis}
+                    <strong>Tiri in Porta Avversari:</strong> ${partita.stats.shots.opponent}
+                    <strong>Falli Fatti Polis:</strong> ${partita.stats.fouls.polis}
+                    <strong>Falli Subiti Avversari:</strong> ${partita.stats.fouls.opponent}
+                </div>
+                <div style="margin-top:15px;">
+                    <strong>Marcatori Polis:</strong>
+                    <ul>
+                        ${partita.goals.filter(g => g.team === 'polis').map(g => `<li>${g.player} (${g.period}) - ${g.elapsedMinute}°</li>`).join('') || '<li>Nessun gol segnato</li>'}
+                    </ul>
+                    <strong>Marcatori Avversari:</strong>
+                    <ul>
+                        ${partita.goals.filter(g => g.team === 'opponent').map(g => `<li>N° ${g.player} (${g.period}) - ${g.elapsedMinute}°</li>`).join('') || '<li>Nessun gol segnato</li>'}
+                    </ul>
+                </div>
+            `;
         }
 
-        // Funzione per aggiungere una statistica e scorrere
+// Funzione per aggiungere una statistica e scorrere
         function addStat(event, type, team, withAnimation = false) {
             stats[type][team]++;
             updateAllDisplays();
@@ -1801,21 +1817,6 @@
         // Inizializza l'app al caricamento della pagina
         document.addEventListener('DOMContentLoaded', () => {
             renderHistory();
-        });
-
-    </script>
-
+        });    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
