@@ -1024,10 +1024,10 @@
 
             summaryPolis.innerHTML = `
                 <div class="stats-grid">
-                    <strong>Gol:</strong> <span>${polisStats.score} Fatti / ${opponentStats.score} Subiti</span>
-                    <strong>Corner:</strong> <span>${polisStats.corner} Fatti / ${opponentStats.corner} Subiti</span>
-                    <strong>Tiri in Porta:</strong> <span>${polisStats.shots} Fatti / ${opponentStats.shots} Subiti</span>
-                    <strong>Falli:</strong> <span>${polisStats.fouls} Fatti / ${opponentStats.fouls} Subiti</span>
+                    <strong>Gol:</strong> <span>${polisStats.score} Fatti  ${opponentStats.score} Subiti</span>
+                    <strong>Corner:</strong> <span>${polisStats.corner} Fatti  ${opponentStats.corner} Subiti</span>
+                    <strong>Tiri in Porta:</strong> <span>${polisStats.shots} Fatti  ${opponentStats.shots} Subiti</span>
+                    <strong>Falli:</strong> <span>${polisStats.fouls} Fatti  ${opponentStats.fouls} Subiti</span>
                 </div>
                 <h4 class="mt-4">Marcatori Polis</h4>
                 ${getGoalSummary('polis')}
@@ -1037,10 +1037,10 @@
 
             summaryOpponent.innerHTML = `
                 <div class="stats-grid">
-                    <strong>Gol:</strong> <span>${opponentStats.score} Fatti / ${polisStats.score} Subiti</span>
-                    <strong>Corner:</strong> <span>${opponentStats.corner} Fatti / ${polisStats.corner} Subiti</span>
-                    <strong>Tiri in Porta:</strong> <span>${opponentStats.shots} Fatti / ${polisStats.shots} Subiti</span>
-                    <strong>Falli:</strong> <span>${opponentStats.fouls} Fatti / ${polisStats.fouls} Subiti</span>
+                    <strong>Gol:</strong> <span>${opponentStats.score} Fatti  ${polisStats.score} Subiti</span>
+                    <strong>Corner:</strong> <span>${opponentStats.corner} Fatti  ${polisStats.corner} Subiti</span>
+                    <strong>Tiri in Porta:</strong> <span>${opponentStats.shots} Fatti  ${polisStats.shots} Subiti</span>
+                    <strong>Falli:</strong> <span>${opponentStats.fouls} Fatti  ${polisStats.fouls} Subiti</span>
                 </div>
                 <h4 class="mt-4">Marcatori ${opponentName}</h4>
                 ${getGoalSummary('opponent')}
@@ -1849,3 +1849,4 @@
 
 </body>
 </html>
+
