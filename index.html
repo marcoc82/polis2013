@@ -12,22 +12,47 @@
     <!-- Firebase SDK -->
     <script type="module" src="./firebase-app-modular.js"></script>
     <style>
-        /* Importazione di un font più moderno */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        /* CSS consolidato da entrambi i file */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            min-height: 10vh;
+            min-height: 100vh;
             margin: 0;
             padding: 20px;
             background-color: #1A202C; /* Sfondo scuro per un look moderno */
             color: #E2E8F0; /* Testo chiaro */
         }
-        #loading-screen, #match-id-screen, #main-app { position: fixed; top:0; left:0; width:100vw; height:100vh; }
-        #loading-screen, #match-id-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; z-index:999; background: #1A202C; }
-        #main-app { display: none; z-index:10; }
+
+        /* Schermate overlay */
+        #loading-screen, #welcome-screen, #main-app { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+        }
+        
+        #loading-screen, #welcome-screen { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 999; 
+            background: #1A202C; 
+        }
+        
+        #main-app { 
+            display: none; 
+            z-index: 10;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
         /* Contenitore principale con stile aggiornato */
         .container {
             background: #2D3748; /* Contenitore leggermente più chiaro */
@@ -36,7 +61,7 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.5); /* Ombra più pronunciata per profondità */
             text-align: center;
             width: 90%;
-            max-width: 600px;
+            max-width: 900px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -54,513 +79,13 @@
             color: #cbd5e0;
         }
 
-        .teams-container {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-            margin-bottom: 20px;
-            align-items: stretch; 
-        }
-
-        /* Sezioni delle squadre con nuovo stile */
-        .team-section {
-            background-color: #4A5568; /* Sfondo scuro per le sezioni */
-            padding: 20px;
-            border-radius: 10px;
-            width: 45%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3); /* Ombra interna */
-        }
-
-        .team-name {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #E2E8F0;
-        }
-        .team-name.static {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #E2E8F0;
-            margin-bottom: 10px;
-            padding: 0.5rem;
-            background-color: transparent;
-            border: none;
-            outline: none;
-        }
-
-        .score {
-            font-size: 5em; /* Punteggio più grande */
-            font-weight: bold;
-            color: #4A90E2; /* Colore di risalto, ora come il timer */
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            margin-top: auto; /* <-- MODIFICA PER ALLINEAMENTO */
-            margin-bottom: auto; /* <-- MODIFICA PER ALLINEAMENTO */
-        }
-
-        /* Stile per i pulsanti dei gol, con spazio e larghezza specifici per il testo su 2 righe */
-        .goal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px; /* Spaziatura aumentata */
-            margin-top: 10px;
-        }
-        .goal-buttons button {
-            /* Larghezza flessibile per farli stare nel contenitore */
-            flex: 1;
-            min-height: 50px; /* Altezza minima per contenere il testo su due righe */
-            padding: 12px 10px; /* Padding ridotto per adattarsi meglio */
-            border-radius: 20px; /* Arrotondamento per un look "rotondo" */
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4); /* Ombra più pronunciata */
-        }
-        .goal-buttons-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stats-button-container {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-            margin-top: 20px;
-            align-items: stretch;
-        }
-
-        .stat-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 10px; /* Aggiunto per spaziare i gruppi di stats */
-        }
-        
-        /* Stile pulsanti più moderni e con transizioni */
-        button {
-            padding: 12px 20px;
-            font-size: 1em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
-
-        button:hover {
-            transform: translateY(-2px); /* Effetto "alza" al passaggio del mouse */
-            box-shadow: 0 6px 10px rgba(0,0,0,0.3);
-        }
-
-        .btn-green {
-            background-color: #48BB78;
-            color: white;
-        }
-        .btn-green:hover {
-            background-color: #38A169;
-        }
-        .btn-red {
-            background-color: #F56565;
-            color: white;
-        }
-        .btn-red:hover {
-            background-color: #E53E3E;
-        }
-        .btn-blue {
-            background-color: #3182CE; /* Colore blu più scuro */
-            color: white;
-        }
-        .btn-blue:hover {
-            background-color: #2C5282; /* Colore blu scuro per l'hover */
-        }
-        .btn-yellow {
-            background-color: #ECC94B;
-            color: black;
-        }
-        .btn-yellow:hover {
-            background-color: #D69E2E;
-        }
-        /* Nuovo stile per il pulsante Pausa grigio */
-        .btn-grey {
-            background-color: #6B7280;
-            color: white;
-        }
-        .btn-grey:hover {
-            background-color: #4B5563;
-        }
-        /* Nuovo stile per i pulsanti arancioni + */
-        .btn-orange {
-            background-color: #F6AD55;
-            color: black;
-            border-radius: 20px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-        }
-        .btn-orange:hover {
-            background-color: #ED8936;
-        }
-        /* Nuovo stile per i pulsanti - più piccoli */
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 0.9em;
-            border-radius: 12px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-        }
-        /* Nuovo stile per il pulsante viola di salvataggio */
-        .btn-purple {
-            background-color: #805AD5;
-            color: white;
-        }
-        .btn-purple:hover {
-            background-color: #6B46C1;
-        }
-        /* Stile per i pulsanti Gol 1, 2, 3 */
-        .btn-goal-n {
-            padding: 12px 10px;
-            min-height: 50px;
-            font-size: 1.1em;
-            border-radius: 20px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-            background-color: #48BB78;
-            color: white;
-            flex: 1;
-            min-width: 80px;
-        }
-        .btn-goal-n:hover {
-            background-color: #38A169;
-        }
-
-        /* Stile per dare la forma a capsula ai tasti -1 Gol */
-        .btn-pill {
-            border-radius: 20px; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4); 
-            padding: 12px 20px;
-        }
-        
-        /* Stile specifico per i pulsanti + delle statistiche */
-        .btn-stat-plus {
-            padding: 16px 24px; /* Aumentato il padding per renderli più grandi */
-            font-size: 1.5em; /* Aumentato il font-size */
-            border-radius: 50%; /* Resi circolari */
-            width: 60px; /* Larghezza fissa */
-            height: 60px; /* Altezza fissa */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        /* Stile specifico per i pulsanti del timer */
-        .btn-timer {
-            padding: 8px 16px; /* Aumenta il padding */
-            font-size: 1em; /* Aumenta il font-size */
-            border-radius: 12px;
-        }
-
-
-        input[type="text"], input[type="number"], select {
-            padding: 8px;
-            border: 1px solid #718096;
-            border-radius: 5px;
-            font-size: 1em;
-            width: 90%;
-            text-align: center;
-            background-color: #2D3748;
-            color: #E2E8F0;
-        }
-
-        /* Spaziatura per il tasto -1 Gol */
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px; /* Spazio aumentato sopra il tasto */
-        }
-
-        /* Stile riepilogo statistiche */
-        .stats-summary-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .stats-summary-container h2 {
-            text-align: center;
-            width: 100%;
-        }
-        .stats-summary-group {
-            background-color: #4A5568;
-            padding: 15px;
-            border-radius: 8px;
-            width: 45%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-        }
-        .summary-details {
-            text-align: left;
-            width: 100%;
-        }
-
-        /* Stile timer */
-        .timer-section {
-            margin-top: 20px;
-        }
-        #timer {
-            font-size: 3em;
-            font-weight: bold;
-            color: #4A90E2; /* Ora è blu oceano */
-            margin-bottom: 10px;
-            /* Ombreggiatura bianca come il titolo */
-        }
-
-        /* Animazione pulsante per il timer */
-        @keyframes pulsate-glow {
-            0% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #4A90E2; }
-            50% { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #4A90E2; }
-            100% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #4A90E2; }
-        }
-
-        /* Classe per applicare l'animazione */
-        .pulsating {
-            animation: pulsate-glow 1.5s ease-in-out infinite;
-        }
-
-        /* Stile per i divisori orizzontali */
-        hr {
-            border-color: rgba(255, 255, 255, 0.1);
-            margin: 20px 0;
-        }
-        
-        /* Stile per le griglie delle statistiche */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 5px 15px;
-            width: 100%;
-        }
-        .stats-grid strong {
-            text-align: left;
-            color: #A0AEC0;
-        }
-        .stats-grid span {
+        .date-display {
             text-align: right;
-            color: #E2E8F0;
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
         }
 
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #2D3748;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            max-width: 350px;
-            text-align: center;
-            border: 1px solid #4A5568;
-        }
-        .modal-inputs {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .modal-inputs input, .modal-inputs select {
-            width: 100%;
-            background-color: #4A5568;
-            color: #E2E8F0;
-            border: 1px solid #718096;
-            padding: 10px;
-        }
-        .modal-footer {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-around;
-        }
-        .modal-message {
-            color: #F56565;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        /* Stili per l'animazione dei coriandoli */
-        #confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 99;
-            overflow: hidden;
-        }
-        .confetti-particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: currentColor; /* Il colore è impostato dinamicamente */
-            opacity: 0;
-            animation: fall 3s forwards;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-100px) rotateZ(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
-        }
-
-        /* Stile per la sezione dello storico */
-        #history-section {
-            margin-top: 30px;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-        }
-        .history-item {
-            background-color: #4A5568;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .history-item-content {
-            flex-grow: 1;
-        }
-        .history-item:hover {
-            background-color: #5A6578;
-        }
-        .history-item h3 {
-            margin: 0 0 5px 0;
-            color: #E2E8F0;
-        }
-        .history-item p {
-            margin: 0;
-            color: #A0AEC0;
-            font-size: 0.9em;
-        }
-        
-        /* Stile per la sezione dettagli dello storico */
-        #history-details-section {
-            display: none;
-            margin-top: 20px;
-            text-align: left;
-        }
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .details-grid strong {
-            color: #4A90E2;
-        }
-
-        .delete-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5em;
-            color: #F56565;
-            transition: transform 0.2s;
-            padding: 0;
-            line-height: 1;
-        }
-        .delete-button:hover {
-            transform: scale(1.1);
-        }
-        
-        /* Stile per i nuovi pulsanti grandi */
-        .btn-large {
-            padding: 16px 32px; /* Aumentato il padding */
-            font-size: 1.2em; /* Aumentato il font size */
-            font-weight: bold; /* Reso il testo più spesso */
-            border-radius: 12px;
-        }
-        
-        /* Nuovo stile per i pulsanti dei modal più grandi */
-        .btn-modal-large {
-            padding: 12px 24px; /* Aumentato il padding per renderli più grandi */
-            font-size: 1.1em; /* Aumentato la dimensione del testo */
-        }
-        
-        /* Classe per il pulsante di condivisione con icona SVG */
-        .btn-share {
-            padding: 16px;
-            font-size: 1em;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            color: white;
-            background-color: #3182CE;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-        }
-        
-        .btn-share svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-        
-        /* Per la disposizione dei pulsanti nello storico */
-        .history-item-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        /* Stile specifico per il punteggio nel riepilogo di condivisione */
-        .snapshot-score {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #4A90E2; /* Blu Polis per il punteggio */
-        }
-        .snapshot-team-name {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-        
-        /* Stile per la lista dei marcatori nell'immagine di condivisione */
-        .snapshot-scorers {
-            text-align: left;
-            margin-top: 10px;
-        }
-        .snapshot-scorers ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        .snapshot-scorers li {
-            font-size: 1em;
-            margin-bottom: 5px;
-            color: #E2E8F0;
-        }
-        
         /* Stile per la schermata di benvenuto */
         #welcome-screen {
             display: flex;
@@ -585,1288 +110,997 @@
             width: 90%;
         }
 
-        /* Stile per l'animazione del pallone */
-        #ball-animation {
-            position: fixed;
-            bottom: -50px; /* Inizia fuori dallo schermo, sotto */
-            left: 50%;
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle at 15px 15px, #fff, #555);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            z-index: 10;
-            opacity: 0;
-            transform: translateX(-50%);
-            pointer-events: none;
-            will-change: transform, opacity;
+        /* Timer styles */
+        .timer-container {
+            background-color: #334155;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .timer-display-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        #timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4A90E2;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+        #timer-display:hover {
+            color: #60a5fa;
+        }
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
         }
 
-        @keyframes shoot-ball {
-            0% {
-                transform: translateX(-50%) translateY(0) scale(0.5);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0) scale(1);
-            }
-            100% {
-                transform: translateX(calc(-50% + var(--target-x, 0px))) translateY(calc(-100vh + 100px)) scale(0.5);
-                opacity: 0;
-            }
+        /* Score display */
+        .score-display {
+            font-size: 6.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
         }
-        
-        /* Nuovo stile per la classifica generale */
-        #overall-scorers-section {
-            margin-top: 20px;
-            width: 90%;
-            max-width: 600px;
-            background-color: #2D3748;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            text-align: left;
+        .score-digit {
+            transition: transform 0.2s ease-in-out;
         }
-        
-        #overall-scorers-section h2 {
-            text-align: center;
-            margin-bottom: 15px;
+        .score-digit:hover {
+            transform: scale(1.1);
         }
-        
-        #overall-scorers-section ul {
-            list-style-type: none;
+
+        /* Animazione per l'effetto di ingrandimento del punteggio */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .score-digit.is-pulsing {
+            animation: pulse 1s ease-in-out;
+        }
+
+        /* Teams container */
+        .teams-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .team {
+            background-color: #334155;
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+        .team-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+        }
+
+        /* Button styles consolidati */
+        .btn {
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-goal {
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            padding: 1.25rem 2.5rem;
+        }
+        .btn-stats-add {
+            background: linear-gradient(to right, #f97316, #ea580c);
+            padding: 1rem 1.5rem;
+        }
+        .btn-remove-goal {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            height: 3rem;
+            width: 3rem;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        
-        #overall-scorers-section li {
-            background-color: #4A5568;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 8px;
+        .btn-remove-goal:hover {
+            background-color: #dc2626;
+        }
+        .btn-remove-stats {
+            background-color: #94a3b8;
+            color: #4a5568;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            height: 3rem;
+        }
+        .btn-remove-stats:hover {
+            background-color: #64748b;
+            color: #f8fafc;
+        }
+
+        /* Timer buttons */
+        .btn-start { background-color: #10b981; }
+        .btn-start:hover { background-color: #059669; }
+        .btn-pause { background-color: #f59e0b; }
+        .btn-pause:hover { background-color: #d97706; }
+        .btn-reset-timer { background-color: #ef4444; }
+        .btn-reset-timer:hover { background-color: #dc2626; }
+
+        /* Large action buttons */
+        .btn-reset {
+            background-color: #dc2626;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 1rem 2rem;
+        }
+        .btn-reset:hover {
+            background-color: #ef4444;
+        }
+        .btn-share {
+            background: linear-gradient(to right, #8b5cf6, #7c3aed);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 1rem 2rem;
+        }
+        .btn-share:hover {
+            background: linear-gradient(to right, #7c3aed, #6d28d9);
+        }
+        .btn-history {
+            background: linear-gradient(to right, #f97316, #ea580c);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 1rem 2rem;
+        }
+        .btn-history:hover {
+            background: linear-gradient(to right, #ea580c, #c55d0a);
+        }
+
+        /* Green button for welcome */
+        .btn-green {
+            background-color: #48BB78;
+            color: white;
+        }
+        .btn-green:hover {
+            background-color: #38A169;
+        }
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 12px;
+        }
+
+        /* Stats container */
+        .stats-container {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .stats-team {
+            background-color: #334155;
+            padding: 1rem;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .stat-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #e2e8f0;
         }
-        
-        .scorer-name {
-            color: #4A90E2;
+
+        /* Scorer list */
+        .scorer-list {
+            text-align: left;
+            padding: 0.5rem 0 0 0;
+            border-top: 1px solid #475569;
+            margin-top: 1rem;
         }
-        
-        .scorer-goals {
-            background-color: #805AD5;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.9em;
+        .scorer-list h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #a0aec0;
         }
-        
-        /* NUOVO: Stile per l'animazione della bandierina del corner */
-        @keyframes corner-swoosh {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.2) rotate(-15deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.3) rotate(30deg) translateY(-80px);
-            }
+        .scorer-list-item {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: #cbd5e1;
         }
-        .corner-flag-animation {
+
+        /* Modal styles */
+        .modal-overlay {
             position: fixed;
-            z-index: 150;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
             opacity: 0;
-            pointer-events: none;
-            /* L'animazione gestisce la visibilità */
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .corner-flag-animation.animate {
-            animation: corner-swoosh 2s ease-in-out forwards;
+        .modal-overlay.is-active {
+            opacity: 1;
+            visibility: visible;
         }
-        .corner-flag-animation svg {
-            width: 60px;
-            height: 60px;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+        .modal-content {
+            background-color: #1e293b;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
         }
-        
+        .modal-overlay.is-active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 2px solid #475569;
+            background-color: #334155;
+            color: #f1f5f9;
+            text-align: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .modal-input:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        /* Player list */
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 40vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1.5rem;
+        }
+        .player-btn {
+            background-color: #334155;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.2s;
+        }
+        .player-btn:hover {
+            background-color: #475569;
+        }
+        .player-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Button grids */
+        .button-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        .button-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Coriandoli */
+        .confetti {
+            position: absolute;
+            z-index: 1000;
+            animation: fall 5s forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotateZ(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Animazione timer */
+        @keyframes timer-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .timer-running {
+            animation: timer-pulse 1s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .teams-container, .stats-container {
+                grid-template-columns: 1fr;
+            }
+            .score-display {
+                font-size: 4rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .polis-text {
+                font-size: 4em;
+            }
+        }
+
+        /* HR styles */
+        hr {
+            border-color: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
-<!-- Schermata di Loading -->
+    <!-- Schermata di Loading -->
     <div id="loading-screen">
         <h2 style="color:#4A90E2;">Connessione...</h2>
         <pre id="loading-log" style="margin-top:20px; color: #E2E8F0; font-family: monospace; background: #2D3748; padding: 20px; border-radius: 12px;"></pre>
     </div>
-    <!-- Schermata inserimento ID partita -->
-    <div id="match-id-screen" style="display:none;">
-        <h2 style="color:#4A90E2;">Inserisci ID partita</h2>
-        <input type="text" id="match-id-input" placeholder="ID Partita" style="margin:20px; padding:10px;">
-        <button onclick="connectToMatch()" style="padding:10px 20px;">Entra</button>
-        <div id="id-error" style="color:#F56565; margin-top:10px;"></div>
-    </div>
 
-    <div id="welcome-screen">
+    <!-- Schermata di benvenuto -->
+    <div id="welcome-screen" style="display: none;">
         <div class="welcome-content">
             <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
             <hr class="my-6">
             <h2 class="text-2xl font-bold mb-4">Benvenuto!</h2>
             <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria, poi ricordati di far partire il tempo!</p>
-            <input type="text" id="welcome-opponent-name" placeholder="Nome Squadra Avversaria" class="w-full mb-4">
-            <button class="btn-green btn-large w-full" onclick="startGame()">Inizia Partita</button>
+            <input type="text" id="welcome-opponent-name" placeholder="Nome Squadra Avversaria" class="w-full mb-4 modal-input">
+            <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
         </div>
     </div>
     
-    <div id="main-app" class="hidden">
+    <!-- App principale -->
+    <div id="main-app">
         <div class="container">
-            <h1 class="polis-text">Polis 2013</h1>
+            <p id="current-date" class="date-display"></p>
+            <h1 class="polis-text" style="font-size: 2.5rem;">POLIS 2013</h1>
             
-            <hr>
-
-            <p id="date" class="date-text"></p>
-            
-            <hr>
-
-            <div class="timer-section" style="margin-bottom: 40px;">
-                <h2>Timer</h2>
-                <div id="timer">18:00</div>
-                <div class="controls">
-                    <button class="btn-blue btn-timer" onclick="startTimer()" aria-label="Avvia Timer">►</button>
-                    <button class="btn-grey btn-timer" onclick="pauseTimer()" aria-label="Metti in Pausa Timer">❚❚</button>
-                    <button class="btn-red btn-timer" onclick="resetTimer()">Reset</button>
-                    <button class="btn-yellow btn-timer" onclick="editTimer()">Modifica</button>
+            <!-- Sezione Timer -->
+            <div class="timer-container">
+                <div class="timer-display-container">
+                    <span id="timer-display">20:00</span>
                 </div>
-            </div>
-
-            <div class="teams-container" style="margin-top: 40px;">
-                <div class="team-section">
-                    <div class="team-name">POLIS</div>
-                    <div id="polis-score" class="score">0</div>
-                    <div class="goal-buttons-container">
-                        <button class="btn-goal-n" onclick="showPlayerModal('polis', '1° T')">Gol 1</button>
-                        <button class="btn-goal-n" onclick="showPlayerModal('polis', '2° T')">Gol 2</button>
-                        <button class="btn-goal-n" onclick="showPlayerModal('polis', '3° T')">Gol 3</button>
-                    </div>
-                    <div class="controls">
-                        <button class="btn-red btn-pill" onclick="showConfirmationModal('remove_stat', 'goal', 'polis')">-1 Gol</button>
-                    </div>
-                </div>
-
-                <div class="team-section">
-                    <div id="opponent-name-display" class="team-name static">SQUADRA 2</div>
-                    <div id="opponent-score" class="score">0</div>
-                    <div class="goal-buttons-container">
-                        <button class="btn-goal-n" onclick="showPlayerModal('opponent', '1° T')">Gol 1</button>
-                        <button class="btn-goal-n" onclick="showPlayerModal('opponent', '2° T')">Gol 2</button>
-                        <button class="btn-goal-n" onclick="showPlayerModal('opponent', '3° T')">Gol 3</button>
-                    </div>
-                    <div class="controls">
-                        <button class="btn-red btn-pill" onclick="showConfirmationModal('remove_stat', 'goal', 'opponent')">-1 Gol</button>
-                    </div>
+                <div class="timer-controls">
+                    <button id="start-timer-button" class="btn btn-start">Avvia</button>
+                    <button id="pause-timer-button" class="btn btn-pause">Pausa</button>
+                    <button id="reset-timer-button" class="btn btn-reset-timer">Reset</button>
                 </div>
             </div>
             
-            <div class="stats-button-container">
-                <div class="team-section">
-                    <div class="stat-group">
-                        <div class="stat-label">Corner</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'polis')">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'polis')">-</button>
+            <!-- Nomi delle squadre sopra il punteggio -->
+            <div class="flex justify-between items-end mb-2">
+                <h2 class="text-3xl font-bold text-gray-200">POLIS</h2>
+                <h2 id="score-team2-name" class="text-3xl font-bold text-gray-200">Squadra 2</h2>
+            </div>
+
+            <div class="score-display">
+                <span id="score-team1" class="score-digit">0</span>
+                <span>-</span>
+                <span id="score-team2" class="score-digit">0</span>
+            </div>
+
+            <div class="teams-container">
+                <!-- Squadra 1 -->
+                <div class="team">
+                    <h2 class="team-title">POLIS</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="flex flex-col items-center">
+                            <button class="btn btn-goal" data-team="1" data-quarter="1°T" data-type="goal" data-action="add">Goal 1°T</button>
+                            <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <button class="btn btn-goal" data-team="1" data-quarter="2°T" data-type="goal" data-action="add">Goal 2°T</button>
+                            <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <button class="btn btn-goal" data-team="1" data-quarter="3°T" data-type="goal" data-action="add">Goal 3°T</button>
+                            <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
                         </div>
                     </div>
-                    <div class="stat-group">
-                        <div class="stat-label">Tiri in Porta</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'polis', true)">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'polis')">-</button>
+                    <div class="button-section">
+                        <div class="button-grid-2">
+                            <button class="btn btn-stats-add" data-team="1" data-type="corner" data-action="add">Corner</button>
+                            <button class="btn btn-stats-add" data-team="1" data-type="shot" data-action="add">Tiri in porta</button>
                         </div>
                     </div>
-                    <div class="stat-group">
-                        <div class="stat-label">Falli</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'polis')">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'polis')">-</button>
+                    <div class="button-section">
+                        <div class="button-grid-2">
+                            <button class="btn btn-remove-stats" data-team="1" data-type="corner" data-action="remove">Rimuovi Corner</button>
+                            <button class="btn btn-remove-stats" data-team="1" data-type="shot" data-action="remove">Rimuovi Tiri</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="team-section">
-                    <div class="stat-group">
-                        <div class="stat-label">Corner</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'opponent')">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'opponent')">-</button>
+                <!-- Squadra 2 -->
+                <div class="team">
+                    <h2 id="team2-name" class="team-title">Squadra 2</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="flex flex-col items-center">
+                            <button class="btn btn-goal" data-team="2" data-quarter="1°T" data-type="goal" data-action="add">Goal 1°T</button>
+                            <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <button class="btn btn-goal" data-team="2" data-quarter="2°T" data-type="goal" data-action="add">Goal 2°T</button>
+                            <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <button class="btn btn-goal" data-team="2" data-quarter="3°T" data-type="goal" data-action="add">Goal 3°T</button>
+                            <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
                         </div>
                     </div>
-                    <div class="stat-group">
-                        <div class="stat-label">Tiri in Porta</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'opponent', true)">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'opponent')">-</button>
+                    <div class="button-section">
+                        <div class="button-grid-2">
+                            <button class="btn btn-stats-add" data-team="2" data-type="corner" data-action="add">Corner</button>
+                            <button class="btn btn-stats-add" data-team="2" data-type="shot" data-action="add">Tiri in porta</button>
                         </div>
                     </div>
-                    <div class="stat-group">
-                        <div class="stat-label">Falli</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'opponent')">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'opponent')">-</button>
+                    <div class="button-section">
+                        <div class="button-grid-2">
+                            <button class="btn btn-remove-stats" data-team="2" data-type="corner" data-action="remove">Rimuovi Corner</button>
+                            <button class="btn btn-remove-stats" data-team="2" data-type="shot" data-action="remove">Rimuovi Tiri</button>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="stats-summary-container" id="stats-summary-container">
-                <h2>Riepilogo Statistiche</h2>
-                <div class="stats-summary-group">
-                    <div class="team-name">POLIS</div>
-                    <div id="summary-polis" class="summary-details"></div>
-                </div>
 
-                <div class="stats-summary-group">
-                    <div class="team-name" id="opponent-name-static">SQUADRA 2</div>
-                    <div id="summary-opponent" class="summary-details"></div>
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; margin-top: 20px;">
-                <button class="btn-red btn-large" onclick="showConfirmationModal('reset')">Reset</button>
-                <button class="btn-purple btn-large" onclick="saveGame()">Salva</button>
-                <button class="btn-share" onclick="shareSummary()" title="Condividi Riepilogo">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                        <polyline points="16 6 12 2 8 6"/>
-                        <line x1="12" y1="2" x2="12" y2="15"/>
-                    </svg>
-                </button>
-            </div>
-
-        </div>
-        
-        <div id="history-section" style="display: none;">
-            <hr class="my-6">
-            
-            <div id="overall-scorers-section" style="display: none;">
-                <h2>Classifica Marcatori Generale Polis</h2>
-                <div id="overall-scorers-list"></div>
-            </div>
-
-            <hr class="my-6">
-            
-            <h2>Storico Partite</h2>
-            <div id="history-list"></div>
-            <div id="history-details-section">
-                <h3 id="history-details-title"></h3>
-                <div id="history-details-content"></div>
-            </div>
-        </div>
-        
-        <div id="timerModal" class="modal">
-            <div class="modal-content">
-                <h2>Modifica Timer</h2>
-                <p>Inserisci il nuovo tempo:</p>
-                <div class="modal-inputs">
-                    <input type="number" id="modalMinutes" min="0" placeholder="Minuti">
-                    <input type="number" id="modalSeconds" min="0" max="59" placeholder="Secondi">
-                </div>
-                <div id="modalMessage" class="modal-message"></div>
-                <div class="modal-footer">
-                    <button class="btn-blue btn-modal-large" onclick="setTimer()">Conferma</button>
-                    <button class="btn-red btn-modal-large" onclick="closeModal('timerModal')">Annulla</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="confirmationModal" class="modal">
-            <div class="modal-content">
-                <h2 id="confirmationTitle">Conferma Azione</h2>
-                <p id="confirmationMessage">Sei sicuro di voler rimuovere questa statistica?</p>
-                <div class="modal-footer">
-                    <button class="btn-green btn-modal-large" id="confirmButton">Conferma</button>
-                    <button class="btn-red btn-modal-large" onclick="closeModal('confirmationModal')">Annulla</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="deleteConfirmationModal" class="modal">
-            <div class="modal-content">
-                <h2>Conferma Eliminazione</h2>
-                <p>Sei sicuro di voler eliminare questa partita dallo storico?</p>
-                <div class="modal-footer">
-                    <button class="btn-green btn-modal-large" id="confirmDeleteButton">Elimina</button>
-                    <button class="btn-red btn-modal-large" onclick="closeModal('deleteConfirmationModal')">Annulla</button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="playerModal" class="modal">
-            <div class="modal-content">
-                <h2>Gol Segnato!</h2>
-                <p id="playerModalLabel">Inserisci i dettagli del marcatore:</p>
-                <div class="modal-inputs">
-                    <div id="polisPlayerInput" style="display: none;">
-                        <p>Nome Marcatore:</p>
-                        <select id="playerSelect" class="bg-gray-700 text-white rounded p-2 mt-2"></select>
+            <!-- Sezione Statistiche -->
+            <div class="stats-container">
+                <!-- Statistiche Squadra 1 -->
+                <div class="stats-team">
+                    <h3 class="team-title">Statistiche POLIS</h3>
+                    <div class="stat-item">
+                        <span>Gol fatti:</span>
+                        <span id="goals-team1">0</span>
                     </div>
-                    <div id="opponentPlayerInput" style="display: none;">
-                        <p>Numero Maglia:</p>
-                        <input type="number" id="playerNumberInput" min="1" placeholder="N° Maglia">
+                    <div class="stat-item">
+                        <span>Gol subiti:</span>
+                        <span id="goals-team2-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tiri fatti:</span>
+                        <span id="shots-team1">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tiri subiti:</span>
+                        <span id="shots-team2-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Corner fatti:</span>
+                        <span id="corners-team1">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Corner subiti:</span>
+                        <span id="corners-team2-taken">0</span>
+                    </div>
+                    <div id="scorers-list-1" class="scorer-list">
+                        <h4>Marcatori:</h4>
                     </div>
                 </div>
-                <div id="periodSelect" style="display: none;">
-                    <p>Periodo:</p>
-                    <select id="periodDropdown" class="bg-gray-700 text-white rounded p-2 mt-2">
-                        <option value="1° T">1° Tempo</option>
-                        <option value="2° T">2° Tempo</option>
-                        <option value="3° T">3° Tempo</option>
-                    </select>
+
+                <!-- Statistiche Squadra 2 -->
+                <div class="stats-team">
+                    <h3 class="team-title" id="stats-team2-title">Statistiche Squadra 2</h3>
+                    <div class="stat-item">
+                        <span>Gol fatti:</span>
+                        <span id="goals-team2">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Gol subiti:</span>
+                        <span id="goals-team1-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tiri fatti:</span>
+                        <span id="shots-team2">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tiri subiti:</span>
+                        <span id="shots-team1-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Corner fatti:</span>
+                        <span id="corners-team2">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Corner subiti:</span>
+                        <span id="corners-team1-taken">0</span>
+                    </div>
+                    <div id="scorers-list-2" class="scorer-list">
+                        <h4>Marcatori:</h4>
+                    </div>
                 </div>
-                <div id="playerModalMessage" class="modal-message"></div>
-                <div class="modal-footer">
-                    <button class="btn-green btn-modal-large" onclick="addGoalAndPlayer()">Conferma</button>
-                    <button class="btn-red btn-modal-large" onclick="closeModal('playerModal')">Annulla</button>
-                </div>
+            </div>
+            
+            <!-- Pulsanti di azione -->
+            <div class="flex justify-center items-center mt-8 gap-4 flex-wrap">
+                <button id="reset-button" class="btn btn-reset flex items-center justify-center gap-2">RESET</button>
+                <button id="save-share-button" class="btn btn-share flex items-center justify-center gap-2">SALVA E CONDIVIDI</button>
+                <button id="show-history-button" class="btn btn-history flex items-center justify-center gap-2">VISUALIZZA STORICO</button>
             </div>
         </div>
     </div>
 
-
-    <div id="confetti-container"></div>
-    <div id="ball-animation"></div>
-    <div id="corner-animation" class="corner-flag-animation">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#F6AD55">
-            <path d="M5 21V3.251c0-.414.336-.75.75-.751h11.264c.4-.04.736.295.736.694V12c0 .414-.336.75-.75.75h-2.122l-2.02 2.02a.75.75 0 0 1-1.06 0l-2.02-2.02H5.75a.75.75 0 0 1-.75-.75V21z"/>
-        </svg>
+    <!-- All modals here -->
+    <!-- Player selection modal -->
+    <div id="player-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Chi ha segnato?</div>
+            <div id="player-list" class="player-list">
+                <!-- Player buttons will be added here via JavaScript -->
+            </div>
+            <button id="cancel-player-selection-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+        </div>
     </div>
-    <div id="snapshot-container" style="position: absolute; left: -9999px; top: -9999px;"></div>
+
+    <!-- Remove confirmation modal -->
+    <div id="remove-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header" id="remove-modal-header"></div>
+            <p class="text-gray-400 mb-6" id="remove-modal-message"></p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-remove-button" class="btn btn-reset px-8">Sì, Rimuovi</button>
+                <button id="cancel-remove-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset confirmation modal -->
+    <div id="reset-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Sei sicuro di voler resettare?</div>
+            <p class="text-gray-400 mb-6">Tutti i dati della partita andranno persi.</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-reset-button" class="btn btn-reset px-8">Sì, Reset</button>
+                <button id="cancel-reset-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer setup modal -->
+    <div id="timer-setup-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Imposta il tempo</div>
+            <div class="flex justify-center gap-2 mb-4">
+                <input type="number" id="timer-minutes-input" class="modal-input w-20" value="20" min="0" max="99">
+                <span class="text-xl font-bold">:</span>
+                <input type="number" id="timer-seconds-input" class="modal-input w-20" value="0" min="0" max="59">
+            </div>
+            <p class="text-gray-400 mb-6">Minuti e Secondi</p>
+            <button id="set-timer-button" class="btn btn-goal px-8">Imposta</button>
+        </div>
+    </div>
 
     <script>
-        // Gestione punteggi e statistiche
-        let scores = {
-            polis: 0,
-            opponent: 0
-        };
-        let stats = {
-            corner: { polis: 0, opponent: 0 },
-            shots: { polis: 0, opponent: 0 },
-            fouls: { polis: 0, opponent: 0 }, // NUOVO: Aggiunta statistica falli
-            goals: [] // Array per salvare tutti i gol
-        };
-        
-        let opponentName = 'SQUADRA 2';
-        
-        // NUOVO: Suono di allarme (incorporato come Base64 per non avere file esterni)
-        const alarmSound = new Audio('data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU3LjU2LjEwMAAAAAAAAAAAAAAA//tAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVXVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV-');
-        
-        // Lista dei giocatori Polis
-        const POLIS_PLAYERS = ["99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
-                "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
-                "7 CALLIKU ANDREA", "4 CAZZULO MICHELE", "46 CONGIU ALESSIO", "20 DHAOUI OMAR",
-                "5 DI DATO SIMONE", "77 DONALD BRYAN", "6 ESPOSITO EMANUELE", "25 GARDELLA ANDREA",
-                "13 GENNARO EDOARDO", "91 GIOIA LEONARDO", "17 KHAY ADAM", "2 LAMKHAYAR AMIN",
-                "29 LANNA MARK", "19 MARCHESE MATTEO", "47 MELLO CHRISTIAN", "61 MELLUSO MATTIA",
-                "14 MONTEFIORI EDOARDO", "3 ODAGLIA ANDREA", "11 PELLICCI FRANCESCO", "90 PIGA GIOVANNI",
-                "45 PINASCO ALESSANDRO", "10 POLLIO CESARE", "9 SCALA FEDERICO", "16 STANCHI FEDERICO",
-                "21 TONINI LORENZO"];
-        
-        // Un'unica variabile per l'azione in sospeso (gol o statistica)
-        let pendingAction = { type: null, statType: null, team: null, period: null };
-        const confirmationModal = document.getElementById('confirmationModal');
-        const confirmationMessage = document.getElementById('confirmationMessage');
-        const confirmButton = document.getElementById('confirmButton');
-        const opponentNameDisplay = document.getElementById('opponent-name-display');
-        const opponentNameStatic = document.getElementById('opponent-name-static');
-        const deleteConfirmationModal = document.getElementById('deleteConfirmationModal');
-        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
-        const periodDropdown = document.getElementById('periodDropdown');
-        const polisPlayerInput = document.getElementById('polisPlayerInput');
-        const opponentPlayerInput = document.getElementById('opponentPlayerInput');
-        const playerSelect = document.getElementById('playerSelect');
-        const playerNumberInput = document.getElementById('playerNumberInput');
+        // Global variables
+        let scoreTeam1 = 0;
+        let scoreTeam2 = 0;
+        let shotsTeam1 = 0;
+        let cornersTeam1 = 0;
+        let shotsTeam2 = 0;
+        let cornersTeam2 = 0;
+        let team1Scorers = [];
+        let team2Scorers = [];
+        let pendingRemovalAction = null;
+        let totalSeconds = 20 * 60;
+        let timerInterval = null;
+        let isRunning = false;
+        let lastSetSeconds = 20 * 60;
 
-        let pendingDeleteId = null;
-        
-        // Funzione per impostare la data corrente
+        // Player list from original
+        const players = [
+            "ALPA FEDERICO", "BECCARIS SEBASTIANO", "BEN MABROUK KEVIN", "BERLUSCONI NOAH",
+            "BERNUCCI ROMEO", "BOERO GUGLIELMO", "BRIANO COSTANTINO", "CABASSI ROBERTO",
+            "CALLIKU ANDREA", "CAZZULO MICHELE", "CONGIU ALESSIO", "DHAOUI OMAR",
+            "DI DATO SIMONE", "DONALD BRYAN", "ESPOSITO EMANUELE", "GARDELLA ANDREA",
+            "GENNARO EDOARDO", "GIOIA LEONARDO", "KHAY ADAM", "LAMKHAYAR AMIN",
+            "LANNA MARK", "MARCHESE MATTEO", "MELLO CHRISTIAN", "MELLUSO MATTIA",
+            "MONTEFIORI EDOARDO", "ODAGLIA ANDREA", "PELLICCI FRANCESCO", "PIGA GIOVANNI",
+            "PINASCO ALESSANDRO", "POLLIO CESARE", "SCALA FEDERICO", "STANCHI FEDERICO",
+            "TONINI LORENZO"
+        ];
+
+        // DOM elements
+        const loadingScreen = document.getElementById('loading-screen');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const mainApp = document.getElementById('main-app');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const welcomeOpponentName = document.getElementById('welcome-opponent-name');
+
+        // Function to be called when Firebase is ready
+        window.onFirebaseReady = function() {
+            console.log('Firebase is ready, transitioning to welcome screen');
+            loadingScreen.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+        };
+
+        // Start game function
+        function startGame() {
+            const opponentName = welcomeOpponentName.value.trim().toUpperCase() || 'SQUADRA 2';
+            
+            // Update opponent names in the interface
+            document.getElementById('score-team2-name').textContent = opponentName;
+            document.getElementById('team2-name').textContent = opponentName;
+            document.getElementById('stats-team2-title').textContent = 'Statistiche ' + opponentName;
+
+            // Hide welcome screen and show main app
+            welcomeScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            
+            // Initialize the app
+            setDate();
+            updateScores();
+            updateTimerDisplay();
+        }
+
+        // Set current date
         function setDate() {
             const today = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = today.toLocaleDateString('it-IT', options);
-            document.getElementById('date').innerText = formattedDate;
+            document.getElementById('current-date').textContent = today.toLocaleDateString('it-IT', options);
         }
 
-        // Funzione per aggiornare il riepilogo delle statistiche
-        function updateSummaryDisplay(polisStats, opponentStats, allGoals, opponentName) {
-            const summaryPolis = document.getElementById('summary-polis');
-            const summaryOpponent = document.getElementById('summary-opponent');
+        // Update scores
+        function updateScores() {
+            document.getElementById('score-team1').textContent = scoreTeam1;
+            document.getElementById('score-team2').textContent = scoreTeam2;
+            updateStats();
+        }
 
-            // Funzione per generare il riepilogo dei gol per marcatore, con periodo e minuto
-            function getGoalSummary(team) {
-                const teamGoals = allGoals.filter(g => g.team === team);
-                
-                let html = '<ul>';
-                if (teamGoals.length === 0) {
-                    html += '<li>Nessun gol segnato.</li>';
-                } else {
-                    teamGoals.forEach(goal => {
-                        const player = (goal.team === 'polis') ? goal.player : `N° ${goal.player}`;
-                        html += `<li>${player} (${goal.period}) - ${goal.elapsedMinute}° minuto</li>`;
-                    });
-                }
-                html += '</ul>';
-                return html;
-            }
+        // Update stats
+        function updateStats() {
+            document.getElementById('goals-team1').textContent = scoreTeam1;
+            document.getElementById('goals-team2-taken').textContent = scoreTeam2;
+            document.getElementById('shots-team1').textContent = shotsTeam1;
+            document.getElementById('shots-team2-taken').textContent = shotsTeam2;
+            document.getElementById('corners-team1').textContent = cornersTeam1;
+            document.getElementById('corners-team2-taken').textContent = cornersTeam2;
             
-            // Funzione per generare il riepilogo dei gol per periodo
-            function getPeriodSummary(team) {
-                const teamGoals = allGoals.filter(g => g.team === team);
-                const summary = teamGoals.reduce((acc, goal) => {
-                    if (goal.period) {
-                        acc[goal.period] = (acc[goal.period] || 0) + 1;
-                    }
-                    return acc;
-                }, {});
-                
-                let html = '<ul>';
-                for (const period in summary) {
-                    html += `<li>${period}: ${summary[period]}</li>`;
-                }
-                html += '</ul>';
-                return html;
-            }
-
-
-            summaryPolis.innerHTML = `
-                <div class="stats-grid">
-                    <strong>Gol:</strong> <span>${polisStats.score} Fatti  ${opponentStats.score} Subiti</span>
-                    <strong>Corner:</strong> <span>${polisStats.corner} Fatti  ${opponentStats.corner} Subiti</span>
-                    <strong>Tiri in Porta:</strong> <span>${polisStats.shots} Fatti  ${opponentStats.shots} Subiti</span>
-                    <strong>Falli:</strong> <span>${polisStats.fouls} Fatti  ${opponentStats.fouls} Subiti</span>
-                </div>
-                <h4 class="mt-4">Marcatori Polis</h4>
-                ${getGoalSummary('polis')}
-                <h4 class="mt-4">Gol per Tempo</h4>
-                ${getPeriodSummary('polis')}
-            `;
-
-            summaryOpponent.innerHTML = `
-                <div class="stats-grid">
-                    <strong>Gol:</strong> <span>${opponentStats.score} Fatti  ${polisStats.score} Subiti</span>
-                    <strong>Corner:</strong> <span>${opponentStats.corner} Fatti  ${polisStats.corner} Subiti</span>
-                    <strong>Tiri in Porta:</strong> <span>${opponentStats.shots} Fatti  ${polisStats.shots} Subiti</span>
-                    <strong>Falli:</strong> <span>${opponentStats.fouls} Fatti  ${polisStats.fouls} Subiti</span>
-                </div>
-                <h4 class="mt-4">Marcatori ${opponentName}</h4>
-                ${getGoalSummary('opponent')}
-                <h4 class="mt-4">Gol per Tempo</h4>
-                ${getPeriodSummary('opponent')}
-            `;
-        }
-        
-        // Funzione per aggiornare i singoli valori di punteggio
-        function updateMainDisplay() {
-            document.getElementById('polis-score').innerText = scores.polis;
-            document.getElementById('opponent-score').innerText = scores.opponent;
+            document.getElementById('goals-team2').textContent = scoreTeam2;
+            document.getElementById('goals-team1-taken').textContent = scoreTeam1;
+            document.getElementById('shots-team2').textContent = shotsTeam2;
+            document.getElementById('shots-team1-taken').textContent = shotsTeam1;
+            document.getElementById('corners-team2').textContent = cornersTeam2;
+            document.getElementById('corners-team1-taken').textContent = cornersTeam1;
         }
 
-        // Aggiorna tutta l'interfaccia
-        function updateAllDisplays() {
-            opponentNameDisplay.innerText = opponentName;
-            opponentNameStatic.innerText = opponentName;
+        // Timer functions
+        function updateTimerDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = formattedTime;
 
-            const currentPolisStats = {
-                score: scores.polis,
-                corner: stats.corner.polis,
-                shots: stats.shots.polis,
-                fouls: stats.fouls.polis // NUOVO
-            };
-            const currentOpponentStats = {
-                score: scores.opponent,
-                corner: stats.corner.opponent,
-                shots: stats.shots.opponent,
-                fouls: stats.fouls.opponent // NUOVO
-            };
-            updateMainDisplay();
-            updateSummaryDisplay(currentPolisStats, currentOpponentStats, stats.goals, opponentName);
-        }
-
-        // Funzione per aggiungere una statistica e scorrere
-        function addStat(event, type, team, withAnimation = false) {
-            stats[type][team]++;
-            updateAllDisplays();
-            scrollToStats(); // Chiama la nuova funzione di scorrimento
-            if (withAnimation) {
-                playBallAnimation();
-            }
-            if (type === 'corner') {
-                playCornerAnimation(event.target);
-            }
-        }
-        
-        // NUOVA: Funzione per l'animazione della bandierina del corner
-        function playCornerAnimation(buttonElement) {
-            const cornerAnimation = document.getElementById('corner-animation');
-            
-            // Calcola la posizione del pulsante
-            const rect = buttonElement.getBoundingClientRect();
-            const x = rect.left + rect.width / 2;
-            const y = rect.top + rect.height / 2;
-            
-            // Posiziona l'animazione al centro del pulsante
-            cornerAnimation.style.left = `${x}px`;
-            cornerAnimation.style.top = `${y}px`;
-
-            // Aggiunge la classe per avviare l'animazione e la rimuove alla fine
-            cornerAnimation.classList.add('animate');
-            setTimeout(() => {
-                cornerAnimation.classList.remove('animate');
-            }, 1500); // Durata dell'animazione
-        }
-
-        // Funzione per l'animazione del pallone
-        function playBallAnimation() {
-            const ball = document.getElementById('ball-animation');
-            
-            // Imposta una posizione orizzontale casuale per l'animazione
-            const targetX = (Math.random() - 0.5) * 200; // da -100 a +100
-            ball.style.setProperty('--target-x', `${targetX}px`);
-
-            ball.style.display = 'block';
-            ball.style.opacity = '1';
-            ball.style.animation = 'none'; // Resetta l'animazione
-            void ball.offsetWidth; // Forza il reflow per riapplicare l'animazione
-            ball.style.animation = 'shoot-ball 1.2s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
-            setTimeout(() => {
-                ball.style.display = 'none';
-            }, 1200);
-        }
-
-        // Funzione per scorrere verso il riepilogo delle statistiche
-        function scrollToStats() {
-            const statsContainer = document.querySelector('.stats-summary-container');
-            if (statsContainer) {
-                statsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-        
-        // Funzione generica per mostrare il modal di conferma
-        function showConfirmationModal(action, statType = null, team = null) {
-            pendingAction = { type: action, statType: statType, team: team };
-            if (action === 'reset') {
-                confirmationMessage.innerText = "Sei sicuro di voler resettare la partita corrente?";
-            } else { // remove_stat
-                confirmationMessage.innerText = "Sei sicuro di voler rimuovere questa statistica?";
-            }
-            confirmationModal.style.display = 'flex';
-        }
-        
-        // Funzione per mostrare il modal del giocatore marcatore
-        function showPlayerModal(team, period) {
-            pendingAction = { type: 'add_goal', team: team, period: period };
-            document.getElementById('playerModalMessage').innerText = ''; // Pulisce il messaggio di errore
-            
-            if (team === 'polis') {
-                polisPlayerInput.style.display = 'block';
-                opponentPlayerInput.style.display = 'none';
-                populatePlayerDropdown();
-            } else {
-                polisPlayerInput.style.display = 'none';
-                opponentPlayerInput.style.display = 'block';
-                playerNumberInput.value = '';
-            }
-
-            document.getElementById('playerModal').style.display = 'flex';
-        }
-
-        // Popola il menu a tendina dei giocatori Polis
-        function populatePlayerDropdown() {
-            playerSelect.innerHTML = '';
-            POLIS_PLAYERS.forEach(player => {
-                const option = document.createElement('option');
-                option.value = player;
-                option.innerText = player;
-                playerSelect.appendChild(option);
-            });
-        }
-        
-        // Funzione per aggiungere il gol e il marcatore
-        function addGoalAndPlayer() {
-            let playerValue;
-
-            if (pendingAction.team === 'polis') {
-                playerValue = playerSelect.value;
-            } else {
-                playerValue = playerNumberInput.value;
-                if (!playerValue || playerValue <= 0) {
-                    document.getElementById('playerModalMessage').innerText = "Inserisci un numero di maglia valido.";
-                    return;
-                }
-            }
-            
-            // Calcola il tempo trascorso in minuti
-            const startingSeconds = 18 * 60;
-            const elapsedSeconds = startingSeconds - totalSeconds;
-            const elapsedMinute = Math.floor(elapsedSeconds / 60) + 1;
-
-            scores[pendingAction.team]++;
-            
-            stats.goals.push({ 
-                team: pendingAction.team, 
-                player: playerValue, 
-                period: pendingAction.period, 
-                elapsedMinute: elapsedMinute
-            });
-
-            closeModal('playerModal');
-            updateAllDisplays();
-            createConfetti(pendingAction.team);
-            scrollToStats();
-        }
-        
-        // Funzione per rimuovere la statistica, chiamata dopo la conferma
-        function removeStat() {
-            if (pendingAction.statType === 'goal') {
-                if (scores[pendingAction.team] > 0) {
-                    scores[pendingAction.team]--;
-                    // Rimuove l'ultimo gol aggiunto
-                    const lastGoalIndex = stats.goals.findLastIndex(g => g.team === pendingAction.team);
-                    if (lastGoalIndex !== -1) {
-                         stats.goals.splice(lastGoalIndex, 1);
-                    }
-                }
-            } else {
-                if (stats[pendingAction.statType][pendingAction.team] > 0) {
-                    stats[pendingAction.statType][pendingAction.team]--;
-                }
-            }
-            updateAllDisplays();
-        }
-        
-        // Funzione per resettare l'intera applicazione
-        function resetApp() {
-            scores = { polis: 0, opponent: 0 };
-            stats = {
-                corner: { polis: 0, opponent: 0 },
-                shots: { polis: 0, opponent: 0 },
-                fouls: { polis: 0, opponent: 0 }, // NUOVO
-                goals: []
-            };
-            totalSeconds = 18 * 60; // Reset timer a 18 minuti
-            pauseTimer();
-            updateAllDisplays();
-            updateDisplay(); // Aggiorna il display del timer
-            
-            releaseWakeLock(); // Rilascia il wake lock
-            
-            // Reindirizza alla schermata di benvenuto
-            document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('welcome-screen').style.display = 'flex';
-        }
-        
-        // Funzione per salvare la partita nello storico
-        function saveGame() {
-            const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-            const timestamp = new Date().toLocaleString('it-IT');
-            
-            const gameData = {
-                id: Date.now().toString(), // ID unico per la partita
-                timestamp,
-                polisScore: scores.polis,
-                opponentScore: scores.opponent,
-                opponentName,
-                polisStats: {
-                    corner: stats.corner.polis,
-                    shots: stats.shots.polis,
-                    fouls: stats.fouls.polis // NUOVO
-                },
-                opponentStats: {
-                    corner: stats.corner.opponent,
-                    shots: stats.shots.opponent,
-                    fouls: stats.fouls.opponent // NUOVO
-                },
-                allGoals: stats.goals
-            };
-            
-            history.push(gameData);
-            localStorage.setItem('gameHistory', JSON.stringify(history));
-            
-            renderHistory();
-            
-            // Scorre verso lo storico dopo il salvataggio
-            const historySection = document.getElementById('history-section');
-            historySection.style.display = 'block';
-            historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        
-        // Funzione per generare il contenuto HTML per la condivisione
-        function generateSnapshotContent(gameData) {
-            const { polisScore, opponentScore, opponentName, allGoals, polisStats, opponentStats } = gameData;
-            
-            const polisGoals = allGoals.filter(g => g.team === 'polis');
-            const opponentGoals = allGoals.filter(g => g.team === 'opponent');
-
-            const polisScorersList = polisGoals.map(g => `<li>${g.player} (${g.period}) - ${g.elapsedMinute}° min</li>`).join('');
-            const opponentScorersList = opponentGoals.map(g => `<li>N° ${g.player} (${g.period}) - ${g.elapsedMinute}° min</li>`).join('');
-            
-            // Nuove statistiche
-            const polisOtherStats = `
-                <div style="font-size: 0.9em; margin-top: 10px;">
-                    <p><strong>Corner:</strong> ${polisStats.corner}</p>
-                    <p><strong>Tiri in Porta:</strong> ${polisStats.shots}</p>
-                    <p><strong>Falli:</strong> ${polisStats.fouls}</p>
-                </div>
-            `;
-
-            const opponentOtherStats = `
-                <div style="font-size: 0.9em; margin-top: 10px;">
-                    <p><strong>Corner:</strong> ${opponentStats.corner}</p>
-                    <p><strong>Tiri in Porta:</strong> ${opponentStats.shots}</p>
-                    <p><strong>Falli:</strong> ${opponentStats.fouls}</p>
-                </div>
-            `;
-
-            return `
-                <div style="width: 500px; padding: 20px; font-family: 'Inter', sans-serif; background-color: #2D3748; color: #E2E8F0; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
-                    <h1 style="color: #4A90E2; font-size: 2.5em; text-align: center; margin-bottom: 5px;">Risultato Partita</h1>
-                    <p style="text-align: center; color: #A0AEC0;">
-                        ${gameData.timestamp ? `Salvato il ${gameData.timestamp}` : ''}
-                    </p>
-                    <hr style="border-color: rgba(255, 255, 255, 0.1); margin: 20px 0;">
-                    
-                    <div style="display: flex; justify-content: center; align-items: center; text-align: center; margin-bottom: 20px;">
-                        <span class="snapshot-team-name">POLIS</span>
-                        <div style="margin: 0 10px; display: flex; align-items: center;">
-                            <span class="snapshot-score">${polisScore}</span>
-                            <span style="font-size: 2em; margin: 0 5px; color: #E2E8F0;"> - </span>
-                            <span class="snapshot-score">${opponentScore}</span>
-                        </div>
-                        <span class="snapshot-team-name">${opponentName}</span>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-around; gap: 20px;">
-                        <div style="flex: 1; text-align: center; background-color: #4A5568; padding: 15px; border-radius: 8px;">
-                            <h3 style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">Marcatori Polis</h3>
-                            <div class="snapshot-scorers">
-                                ${polisGoals.length > 0 ? `<ul>${polisScorersList}</ul>` : 'Nessun gol segnato.'}
-                                ${polisOtherStats}
-                            </div>
-                        </div>
-                        <div style="flex: 1; text-align: center; background-color: #4A5568; padding: 15px; border-radius: 8px;">
-                            <h3 style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">Marcatori ${opponentName}</h3>
-                            <div class="snapshot-scorers">
-                                ${opponentGoals.length > 0 ? `<ul>${opponentScorersList}</ul>` : 'Nessun gol segnato.'}
-                                ${opponentOtherStats}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Funzione per condividere l'immagine del riepilogo della partita corrente
-        async function shareSummary() {
-            const snapshotContainer = document.getElementById('snapshot-container');
-            const originalBackgroundColor = document.body.style.backgroundColor;
-            document.body.style.backgroundColor = '#1A202C'; // Imposta un colore di sfondo uniforme per l'immagine
-            
-            const gameData = {
-                polisScore: scores.polis,
-                opponentScore: scores.opponent,
-                opponentName,
-                polisStats: {
-                    corner: stats.corner.polis,
-                    shots: stats.shots.polis,
-                    fouls: stats.fouls.polis // NUOVO
-                },
-                opponentStats: {
-                    corner: stats.corner.opponent,
-                    shots: stats.shots.opponent,
-                    fouls: stats.fouls.opponent // NUOVO
-                },
-                allGoals: stats.goals
-            };
-
-            snapshotContainer.innerHTML = generateSnapshotContent(gameData);
-
-            try {
-                // Cattura il contenuto del contenitore come immagine
-                const canvas = await html2canvas(snapshotContainer, { backgroundColor: '#2D3748', scale: 2 });
-                const dataUrl = canvas.toDataURL('image/png');
-
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [] })) {
-                    // Se l'API Web Share è supportata, usala
-                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const filesArray = [new File([blob], 'riepilogo_partita_polis.png', { type: 'image/png' })];
-
-                    await navigator.share({
-                        files: filesArray,
-                        title: `Risultato: Polis ${scores.polis} - ${scores.opponent} ${gameData.opponentName}`,
-                        text: `Ecco il riepilogo della partita tra Polis e ${gameData.opponentName}!`,
-                    });
-                } else {
-                    // Fallback per i browser che non supportano l'API Web Share
-                    const a = document.createElement('a');
-                    a.href = dataUrl;
-                    a.download = 'riepilogo_partita_polis.png';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    // Non usare alert()
-                    console.log("Condivisione non supportata, l'immagine è stata scaricata.");
-                }
-            } catch (error) {
-                console.error("Errore durante la condivisione:", error);
-            } finally {
-                snapshotContainer.innerHTML = ''; // Pulisce il contenitore
-                document.body.style.backgroundColor = originalBackgroundColor; // Ripristina lo sfondo originale
-            }
-        }
-        
-        let lastClickedId = null; // Variabile per tenere traccia dell'ultimo elemento cliccato
-
-        // Funzione per visualizzare lo storico delle partite
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-            const historyList = document.getElementById('history-list');
-            const historySection = document.getElementById('history-section');
-            historyList.innerHTML = ''; // Pulisce il contenitore prima di riempirlo
-            
-            if (history.length > 0) {
-                historySection.style.display = 'block';
-                history.reverse().forEach((game) => {
-                    const item = document.createElement('div');
-                    item.classList.add('history-item');
-                    item.innerHTML = `
-                        <div class="history-item-content" onclick="toggleHistoryDetails('${game.id}')">
-                            <h3>Polis vs ${game.opponentName}</h3>
-                            <p>Risultato: ${game.polisScore} - ${game.opponentScore}</p>
-                            <p>Salvato il: ${game.timestamp}</p>
-                        </div>
-                        <div class="history-item-actions">
-                            <button class="btn-share" onclick="event.stopPropagation(); shareHistoryItem('${game.id}')" title="Condividi">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                                    <polyline points="16 6 12 2 8 6"/>
-                                    <line x1="12" y1="2" x2="12" y2="15"/>
-                                </svg>
-                            </button>
-                            <button class="delete-button" onclick="event.stopPropagation(); showDeleteConfirmationModal('${game.id}')">🗑️</button>
-                        </div>
-                    `;
-                    historyList.appendChild(item);
-                });
-            } else {
-                historySection.style.display = 'none';
-            }
-            
-            // Chiama la funzione per aggiornare la classifica generale
-            renderOverallTopScorers();
-        }
-        
-        // Funzione per visualizzare i dettagli di una partita dallo storico
-        function toggleHistoryDetails(id) {
-            const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-            const game = history.find(g => g.id === id);
-            const detailsSection = document.getElementById('history-details-section');
-            const detailsTitle = document.getElementById('history-details-title');
-            const detailsContent = document.getElementById('history-details-content');
-
-            if (lastClickedId === id) {
-                detailsSection.style.display = 'none';
-                lastClickedId = null;
-            } else {
-                if (!game) {
-                    detailsContent.innerHTML = "<p>Dettagli partita non trovati.</p>";
-                    detailsSection.style.display = 'block';
-                    lastClickedId = id;
-                    return;
-                }
-
-                // Funzione per generare il riepilogo dei gol per marcatore, con periodo e minuto
-                function getGoalDetailsList(allGoals, teamName) {
-                    let html = '<ul>';
-                    const teamGoals = allGoals.filter(g => g.team === teamName);
-                    if (teamGoals.length === 0) {
-                        html += '<li>Nessun gol segnato.</li>';
-                    } else {
-                        teamGoals.forEach(goal => {
-                            const player = (goal.team === 'polis') ? goal.player : `N° ${goal.player}`;
-                            html += `<li>${player} (${goal.period}) - ${goal.elapsedMinute}° minuto</li>`;
-                        });
-                    }
-                    html += '</ul>';
-                    return html;
-                }
-                
-                detailsTitle.innerText = `Dettagli Partita - Polis vs ${game.opponentName}`;
-                detailsContent.innerHTML = `
-                    <p><strong>Risultato Finale:</strong> ${game.polisScore} - ${game.opponentScore}</p>
-                    <p><strong>Data:</strong> ${game.timestamp}</p>
-                    <hr>
-                    <h4>Marcatori Polis</h4>
-                    ${getGoalDetailsList(game.allGoals, 'polis')}
-                    <hr>
-                    <h4>Marcatori ${game.opponentName}</h4>
-                    ${getGoalDetailsList(game.allGoals, 'opponent')}
-                    <hr>
-                    <h4>Statistiche Partita</h4>
-                    <div class="details-grid">
-                        <strong>Corner Polis:</strong> <span>${game.polisStats.corner}</span>
-                        <strong>Corner Avversario:</strong> <span>${game.opponentStats.corner}</span>
-                        <strong>Tiri in Porta Polis:</strong> <span>${game.polisStats.shots}</span>
-                        <strong>Tiri in Porta Avversario:</strong> <span>${game.opponentStats.shots}</span>
-                        <strong>Falli Polis:</strong> <span>${game.polisStats.fouls}</span>
-                        <strong>Falli Avversario:</strong> <span>${game.opponentStats.fouls}</span>
-                    </div>
-                `;
-                
-                detailsSection.style.display = 'block';
-                detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                lastClickedId = id;
-            }
-        }
-        
-        // Funzione per generare e condividere l'immagine di una partita storica
-        async function shareHistoryItem(id) {
-            const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-            const game = history.find(g => g.id === id);
-            
-            if (!game) {
-                console.error("Partita non trovata.");
-                return;
-            }
-
-            const snapshotContainer = document.getElementById('snapshot-container');
-            const originalBackgroundColor = document.body.style.backgroundColor;
-            document.body.style.backgroundColor = '#1A202C';
-
-            // Costruisci il contenuto da catturare dinamicamente
-            snapshotContainer.innerHTML = generateSnapshotContent(game);
-
-            try {
-                const canvas = await html2canvas(snapshotContainer, { backgroundColor: '#2D3748', scale: 2 });
-                const dataUrl = canvas.toDataURL('image/png');
-                const shareUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?gameId=${game.id}`;
-
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [] })) {
-                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    const filesArray = [new File([blob], `riepilogo_polis_vs_${game.opponentName}.png`, { type: 'image/png' })];
-
-                    await navigator.share({
-                        files: filesArray,
-                        title: `Risultato: Polis ${game.polisScore} - ${game.opponentScore} ${game.opponentName}`,
-                        text: `Guarda il riepilogo della partita tra Polis e ${game.opponentName}!`,
-                        url: shareUrl
-                    });
-                } else {
-                    const a = document.createElement('a');
-                    a.href = dataUrl;
-                    a.download = `riepilogo_polis_vs_${game.opponentName}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    console.log("Condivisione non supportata, l'immagine è stata scaricata.");
-                }
-            } catch (error) {
-                console.error("Errore durante la condivisione:", error);
-            } finally {
-                snapshotContainer.innerHTML = '';
-                document.body.style.backgroundColor = originalBackgroundColor;
-            }
-        }
-
-
-        // Gestore del pulsante di conferma del modal
-        confirmButton.onclick = function() {
-            if (pendingAction.type === 'reset') {
-                resetApp();
-            } else if (pendingAction.type === 'remove_stat') {
-                removeStat();
-            }
-            closeModal('confirmationModal');
-            pendingAction = { type: null, statType: null, team: null }; // Pulisce l'azione
-        };
-
-        // Funzione per mostrare il modal di conferma eliminazione
-        function showDeleteConfirmationModal(id) {
-            pendingDeleteId = id;
-            deleteConfirmationModal.style.display = 'flex';
-        }
-
-        // Funzione per eliminare la partita
-        function deleteGame() {
-            if (pendingDeleteId) {
-                const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-                const updatedHistory = history.filter(game => game.id !== pendingDeleteId);
-                localStorage.setItem('gameHistory', JSON.stringify(updatedHistory));
-                
-                closeModal('deleteConfirmationModal');
-                renderHistory();
-                
-                if (lastClickedId === pendingDeleteId) {
-                    document.getElementById('history-details-section').style.display = 'none';
-                    lastClickedId = null;
-                }
-                pendingDeleteId = null;
-            }
-        }
-        
-        // Collega il pulsante di conferma del modal di eliminazione
-        confirmDeleteButton.onclick = deleteGame;
-
-        // Gestione timer
-        let timerInterval;
-        let totalSeconds = 18 * 60;
-        let isRunning = false;
-        const timerDisplay = document.getElementById('timer');
-        const timerModal = document.getElementById('timerModal');
-        const modalMinutesInput = document.getElementById('modalMinutes');
-        const modalSecondsInput = document.getElementById('modalSeconds');
-        const modalMessage = document.getElementById('modalMessage');
-
-        // Funzione per calcolare e renderizzare la classifica marcatori totale
-        function renderOverallTopScorers() {
-            const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-            const overallScorersSection = document.getElementById('overall-scorers-section');
-            const overallScorersList = document.getElementById('overall-scorers-list');
-            
-            // Se non ci sono partite, nascondi la sezione
-            if (history.length === 0) {
-                overallScorersSection.style.display = 'none';
-                return;
-            }
-            
-            overallScorersSection.style.display = 'block';
-            overallScorersList.innerHTML = '';
-
-            const scorerCounts = {};
-
-            // Aggrega i gol di tutti i giocatori Polis da tutte le partite
-            history.forEach(game => {
-                game.allGoals.forEach(goal => {
-                    if (goal.team === 'polis') {
-                        scorerCounts[goal.player] = (scorerCounts[goal.player] || 0) + 1;
-                    }
-                });
-            });
-
-            // Converte l'oggetto in un array per la stampa ordinata
-            const sortedScorers = Object.entries(scorerCounts).sort(([, countA], [, countB]) => countB - countA);
-
-            if (sortedScorers.length > 0) {
-                sortedScorers.forEach(([player, count]) => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `<span class="scorer-name">${player}</span><span class="scorer-goals">${count} gol</span>`;
-                    overallScorersList.appendChild(listItem);
-                });
-            } else {
-                overallScorersList.innerHTML = '<p class="text-center text-gray-400">Nessun gol segnato nello storico.</p>';
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('timer-display').classList.remove('timer-running');
+                document.getElementById('timer-display').textContent = "00:00";
             }
         }
 
         function startTimer() {
             if (isRunning) return;
             isRunning = true;
-            timerInterval = setInterval(updateTimer, 1000);
-            timerDisplay.classList.add('pulsating');
+            document.getElementById('timer-display').classList.add('timer-running');
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                updateTimerDisplay();
+            }, 1000);
         }
 
         function pauseTimer() {
+            if (!isRunning) return;
             isRunning = false;
             clearInterval(timerInterval);
-            timerDisplay.classList.remove('pulsating');
+            document.getElementById('timer-display').classList.remove('timer-running');
         }
 
         function resetTimer() {
             pauseTimer();
-            totalSeconds = 18 * 60;
-            updateDisplay();
+            totalSeconds = lastSetSeconds;
+            updateTimerDisplay();
         }
 
-        function updateTimer() {
-            if (totalSeconds > 0) {
-                totalSeconds--;
-                updateDisplay();
-            } else {
-                pauseTimer();
-                // Fa vibrare il telefono per 5 secondi
-                if (navigator.vibrate) {
-                    navigator.vibrate(5000);
-                }
-                // Riproduci il suono di allarme
-                alarmSound.play();
-            }
+        // Player modal functions
+        function showPlayerModal(quarter) {
+            const playerList = document.getElementById('player-list');
+            playerList.innerHTML = '';
+            players.forEach(player => {
+                const playerButton = document.createElement('button');
+                playerButton.textContent = player;
+                playerButton.classList.add('player-btn');
+                playerButton.addEventListener('click', () => {
+                    addGoalTeam1(player, quarter);
+                    hidePlayerModal();
+                });
+                playerList.appendChild(playerButton);
+            });
+            document.getElementById('player-modal').classList.add('is-active');
         }
 
-        function updateDisplay() {
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            timerDisplay.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        function hidePlayerModal() {
+            document.getElementById('player-modal').classList.remove('is-active');
         }
 
-        function editTimer() {
-            pauseTimer();
-            modalMinutesInput.value = Math.floor(totalSeconds / 60);
-            modalSecondsInput.value = totalSeconds % 60;
-            modalMessage.innerText = '';
-            timerModal.style.display = 'flex';
-        }
+        // Goal functions
+        function addGoalTeam1(player, quarter) {
+            scoreTeam1++;
+            const newScorer = document.createElement('div');
+            newScorer.classList.add('scorer-list-item');
+            newScorer.textContent = `${player} (${quarter})`;
+            document.getElementById('scorers-list-1').appendChild(newScorer);
+            team1Scorers.push({ player: player, quarter: quarter });
 
-        function setTimer() {
-            const min = parseInt(modalMinutesInput.value);
-            const sec = parseInt(modalSecondsInput.value);
-
-            if (!isNaN(min) && !isNaN(sec) && min >= 0 && sec >= 0 && sec < 60) {
-                totalSeconds = (min * 60) + sec;
-                updateDisplay();
-                closeModal('timerModal');
-            } else {
-                modalMessage.innerText = "Input non valido. Inserisci numeri validi.";
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        // Funzione per creare i coriandoli
-        function createConfetti(team) {
-            const confettiContainer = document.getElementById('confetti-container');
-            // Pulisce i coriandoli precedenti per evitare sovrapposizioni
-            confettiContainer.innerHTML = '';
-
-            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'];
-
-            for (let i = 0; i < 100; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('confetti-particle');
-                
-                // Imposta un colore casuale dal nostro array
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.backgroundColor = randomColor;
-
-                // Posiziona il coriandolo in alto, a una posizione orizzontale casuale
-                particle.style.left = `${Math.random() * 100}vw`;
-                
-                // Imposta un ritardo casuale per una caduta più naturale
-                particle.style.animationDelay = `${Math.random() * 2}s`;
-                
-                // Aggiunge la particella al contenitore
-                confettiContainer.appendChild(particle);
-            }
-
-            // Rimuove i coriandoli dopo un po' per pulire la pagina
+            document.getElementById('score-team1').classList.add('is-pulsing');
             setTimeout(() => {
-                confettiContainer.innerHTML = '';
-            }, 3000);
+                document.getElementById('score-team1').classList.remove('is-pulsing');
+            }, 1000);
+            createConfetti();
+            updateScores();
         }
 
-        // Funzione per caricare una partita specifica dall'URL
-        function loadGameFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const gameId = urlParams.get('gameId');
+        function addGoalTeam2(quarter) {
+            scoreTeam2++;
+            const newScorer = document.createElement('div');
+            newScorer.classList.add('scorer-list-item');
+            newScorer.textContent = `Goal (${quarter})`;
+            document.getElementById('scorers-list-2').appendChild(newScorer);
+            team2Scorers.push({ player: 'Sconosciuto', quarter: quarter });
+            updateScores();
+        }
 
-            if (gameId) {
-                const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
-                const game = history.find(g => g.id === gameId);
-                
-                if (game) {
-                    toggleHistoryDetails(gameId);
-                } else {
-                    console.log("Partita con ID non trovata:", gameId);
+        // Confetti function
+        function createConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'];
+            const confettiCount = 50;
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = `${Math.random() * -20}vh`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 3}s`;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, parseFloat(confetti.style.animationDuration) * 1000);
+            }
+        }
+
+        // Remove confirmation modal functions
+        function showRemoveModal(type, team) {
+            let text = '';
+            if (type === 'goal') {
+                text = 'un goal';
+            } else if (type === 'corner') {
+                text = 'un corner';
+            } else if (type === 'shot') {
+                text = 'un tiro';
+            }
+            document.getElementById('remove-modal-header').textContent = `Sei sicuro di voler rimuovere ${text}?`;
+            document.getElementById('remove-modal-message').textContent = `Verrà rimosso l'ultimo ${text} segnato dalla squadra ${team}.`;
+            pendingRemovalAction = { type, team };
+            document.getElementById('remove-modal').classList.add('is-active');
+        }
+
+        function hideRemoveModal() {
+            document.getElementById('remove-modal').classList.remove('is-active');
+        }
+
+        function confirmRemoval() {
+            const { type, team } = pendingRemovalAction;
+            if (team === '1') {
+                if (type === 'goal' && scoreTeam1 > 0) {
+                    scoreTeam1--;
+                    team1Scorers.pop();
+                    renderScorers(1);
+                } else if (type === 'corner' && cornersTeam1 > 0) {
+                    cornersTeam1--;
+                } else if (type === 'shot' && shotsTeam1 > 0) {
+                    shotsTeam1--;
+                }
+            } else if (team === '2') {
+                if (type === 'goal' && scoreTeam2 > 0) {
+                    scoreTeam2--;
+                    team2Scorers.pop();
+                    renderScorers(2);
+                } else if (type === 'corner' && cornersTeam2 > 0) {
+                    cornersTeam2--;
+                } else if (type === 'shot' && shotsTeam2 > 0) {
+                    shotsTeam2--;
                 }
             }
+            updateScores();
+            updateStats();
+            hideRemoveModal();
         }
 
-        // Nuovo codice per gestire la vibrazione su tutti i pulsanti
-        function vibrateOnButtonClick() {
-            // Controlla se l'API di vibrazione è supportata
-            if (navigator.vibrate) {
-                // Vibra per 50ms per un feedback tattile
-                navigator.vibrate(50);
+        function renderScorers(team) {
+            if (team === 1) {
+                const list = document.getElementById('scorers-list-1');
+                list.innerHTML = '<h4>Marcatori:</h4>';
+                team1Scorers.forEach(s => {
+                    const newScorer = document.createElement('div');
+                    newScorer.classList.add('scorer-list-item');
+                    newScorer.textContent = `${s.player} (${s.quarter})`;
+                    list.appendChild(newScorer);
+                });
+            } else if (team === 2) {
+                const list = document.getElementById('scorers-list-2');
+                list.innerHTML = '<h4>Marcatori:</h4>';
+                team2Scorers.forEach(s => {
+                    const newScorer = document.createElement('div');
+                    newScorer.classList.add('scorer-list-item');
+                    newScorer.textContent = `Goal (${s.quarter})`;
+                    list.appendChild(newScorer);
+                });
             }
         }
-        
-        // ---------- NUOVO: GESTIONE SCREEN WAKE LOCK ----------
-        let wakeLock = null;
 
-        // Funzione per richiedere il Wake Lock
-        const requestWakeLock = async () => {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Screen Wake Lock attivato.');
-                    
-                    // Aggiungi un listener per quando il lock viene rilasciato (es. cambio tab)
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Screen Wake Lock rilasciato.');
-                    });
-                } catch (err) {
-                    console.error(`${err.name}, ${err.message}`);
-                }
-            } else {
-                console.log('Screen Wake Lock API non supportata.');
-            }
-        };
-        
-        // Funzione per rilasciare il Wake Lock
-        const releaseWakeLock = () => {
-            if (wakeLock !== null) {
-                wakeLock.release();
-                wakeLock = null;
-            }
-        };
-        
-        // Gestisci la riacquisizione del lock quando la pagina torna visibile
-        document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
-        });
-        // ----------------------------------------------------
+        // Reset game function
+        function resetGame() {
+            scoreTeam1 = 0;
+            scoreTeam2 = 0;
+            shotsTeam1 = 0;
+            cornersTeam1 = 0;
+            shotsTeam2 = 0;
+            cornersTeam2 = 0;
+            team1Scorers = [];
+            team2Scorers = [];
 
-        // Aggiunge un gestore di eventi a tutto il documento per catturare i clic
-        document.body.addEventListener('click', function(event) {
-            // Se l'elemento cliccato è un pulsante, attiva la vibrazione
-            if (event.target.tagName === 'BUTTON') {
-                vibrateOnButtonClick();
-            }
-        });
+            updateScores();
+            updateStats();
 
-        // Nuova funzione per avviare il gioco
-        function startGame() {
-            const welcomeScreen = document.getElementById('welcome-screen');
-            const mainApp = document.getElementById('main-app');
-            const welcomeOpponentNameInput = document.getElementById('welcome-opponent-name');
-            opponentName = welcomeOpponentNameInput.value.toUpperCase() || 'SQUADRA 2';
-            
-            // Richiedi il wake lock quando inizia la partita
-            requestWakeLock();
+            document.getElementById('scorers-list-1').innerHTML = '<h4>Marcatori:</h4>';
+            document.getElementById('scorers-list-2').innerHTML = '<h4>Marcatori:</h4>';
 
-            // Nasconde la schermata di benvenuto e mostra l'app principale
-            welcomeScreen.style.display = 'none';
-            mainApp.classList.remove('hidden');
+            resetTimer();
+            hideResetModal();
 
-            // Inizializza l'app dopo aver impostato il nome
-            updateAllDisplays();
-            renderHistory();
-            setDate();
-            loadGameFromUrl();
+            // Return to welcome screen
+            mainApp.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            welcomeOpponentName.value = '';
         }
-        
-        // Inizializza l'app al caricamento della pagina
+
+        function showResetModal() {
+            document.getElementById('reset-modal').classList.add('is-active');
+        }
+
+        function hideResetModal() {
+            document.getElementById('reset-modal').classList.remove('is-active');
+        }
+
+        // Event listeners for buttons
         document.addEventListener('DOMContentLoaded', () => {
-            renderHistory();
+            // Start game button
+            startGameBtn.addEventListener('click', startGame);
+
+            // Timer controls
+            document.getElementById('start-timer-button').addEventListener('click', startTimer);
+            document.getElementById('pause-timer-button').addEventListener('click', pauseTimer);
+            document.getElementById('reset-timer-button').addEventListener('click', resetTimer);
+
+            // Timer setup modal
+            document.getElementById('timer-display').addEventListener('click', () => {
+                pauseTimer();
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                document.getElementById('timer-minutes-input').value = minutes;
+                document.getElementById('timer-seconds-input').value = seconds;
+                document.getElementById('timer-setup-modal').classList.add('is-active');
+            });
+
+            document.getElementById('set-timer-button').addEventListener('click', () => {
+                const minutes = parseInt(document.getElementById('timer-minutes-input').value);
+                const seconds = parseInt(document.getElementById('timer-seconds-input').value);
+                if (!isNaN(minutes) && !isNaN(seconds)) {
+                    totalSeconds = (minutes * 60) + seconds;
+                    lastSetSeconds = totalSeconds;
+                    updateTimerDisplay();
+                    document.getElementById('timer-setup-modal').classList.remove('is-active');
+                }
+            });
+
+            // Action buttons (goals, corners, shots)
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const team = button.dataset.team;
+                    const type = button.dataset.type;
+                    const action = button.dataset.action;
+                    const quarter = button.dataset.quarter;
+
+                    if (action === 'add') {
+                        if (type === 'goal') {
+                            if (team === '1') {
+                                showPlayerModal(quarter);
+                            } else if (team === '2') {
+                                addGoalTeam2(quarter);
+                            }
+                        } else if (type === 'corner') {
+                            if (team === '1') {
+                                cornersTeam1++;
+                            } else if (team === '2') {
+                                cornersTeam2++;
+                            }
+                            updateStats();
+                        } else if (type === 'shot') {
+                            if (team === '1') {
+                                shotsTeam1++;
+                            } else if (team === '2') {
+                                shotsTeam2++;
+                            }
+                            updateStats();
+                        }
+                    } else if (action === 'remove') {
+                        showRemoveModal(type, team);
+                    }
+                });
+            });
+
+            // Modal event listeners
+            document.getElementById('cancel-player-selection-button').addEventListener('click', hidePlayerModal);
+            document.getElementById('confirm-remove-button').addEventListener('click', confirmRemoval);
+            document.getElementById('cancel-remove-button').addEventListener('click', hideRemoveModal);
+            document.getElementById('reset-button').addEventListener('click', showResetModal);
+            document.getElementById('confirm-reset-button').addEventListener('click', resetGame);
+            document.getElementById('cancel-reset-button').addEventListener('click', hideResetModal);
         });
 
+        // Initialize Firebase connection check
+        setTimeout(() => {
+            // Simulate Firebase connection (will be replaced by actual Firebase logic)
+            if (typeof window.onFirebaseReady === 'function') {
+                window.onFirebaseReady();
+            }
+        }, 2000);
     </script>
-
 </body>
 </html>
-
-
-
-
-
