@@ -19,9 +19,16 @@ const db = getFirestore(app);
 // Autenticazione anonima
 signInAnonymously(auth)
   .then(() => {
-    // Qui puoi nascondere la schermata di loading e avviare la logica della tua app
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('main-app').classList.remove('hidden');
+    // Call the onFirebaseReady function if it exists
+    if (typeof window.onFirebaseReady === 'function') {
+      window.onFirebaseReady();
+    } else {
+      // Fallback: hide loading and show main app directly
+      document.getElementById('loading-screen').style.display = 'none';
+      if (document.getElementById('main-app')) {
+        document.getElementById('main-app').classList.remove('hidden');
+      }
+    }
   })
   .catch((error) => {
     alert("Errore autenticazione Firebase!");
