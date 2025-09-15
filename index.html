@@ -755,40 +755,54 @@
             
             <div class="stats-button-container">
                 <!-- Pulsanti Statistiche POLIS -->
-                <div class="team-section">
-                    <div class="stat-group">
-                        <div class="stat-label">Corner</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'polis')">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'polis')">-</button>
-                        </div>
-                    </div>
-                    <div class="stat-group">
-                        <div class="stat-label">Tiri in Porta</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'polis', true)">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'polis')">-</button>
-                        </div>
-                    </div>
-                </div>
-
+               <div class="team-section">
+    <div class="stat-group">
+        <div class="stat-label">Corner</div>
+        <div class="controls">
+            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'polis')">+</button>
+            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'polis')">-</button>
+        </div>
+    </div>
+    <div class="stat-group">
+        <div class="stat-label">Tiri in Porta</div>
+        <div class="controls">
+            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'polis', true)">+</button>
+            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'polis')">-</button>
+        </div>
+    </div>
+    <div class="stat-group">
+        <div class="stat-label">Falli Fatti</div>
+        <div class="controls">
+            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'polis')">+</button>
+            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'polis')">-</button>
+        </div>
+    </div>
+</div>
+                
                 <!-- Pulsanti Statistiche Squadra Avversaria -->
                 <div class="team-section">
-                    <div class="stat-group">
-                        <div class="stat-label">Corner</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'opponent')">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'opponent')">-</button>
-                        </div>
-                    </div>
-                    <div class="stat-group">
-                        <div class="stat-label">Tiri in Porta</div>
-                        <div class="controls">
-                            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'opponent', true)">+</button>
-                            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'opponent')">-</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="stat-group">
+        <div class="stat-label">Corner</div>
+        <div class="controls">
+            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'corner', 'opponent')">+</button>
+            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'corner', 'opponent')">-</button>
+        </div>
+    </div>
+    <div class="stat-group">
+        <div class="stat-label">Tiri in Porta</div>
+        <div class="controls">
+            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'shots', 'opponent', true)">+</button>
+            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'shots', 'opponent')">-</button>
+        </div>
+    </div>
+    <div class="stat-group">
+        <div class="stat-label">Falli Subiti</div>
+        <div class="controls">
+            <button class="btn-orange btn-stat-plus" onclick="addStat(event, 'fouls', 'opponent')">+</button>
+            <button class="btn-red btn-small" onclick="showConfirmationModal('remove_stat', 'fouls', 'opponent')">-</button>
+        </div>
+    </div>
+</div>
             </div>
             
             <div class="stats-summary-container" id="stats-summary-container">
@@ -937,6 +951,7 @@
         let stats = {
             corner: { polis: 0, opponent: 0 },
             shots: { polis: 0, opponent: 0 },
+            fouls: { polis: 0, opponent: 0 },
             goals: [] // Array per salvare tutti i gol
         };
         
@@ -1024,6 +1039,8 @@
                     <strong>Gol:</strong> <span>${polisStats.score} Fatti / ${opponentStats.score} Subiti</span>
                     <strong>Corner:</strong> <span>${polisStats.corner} Fatti / ${opponentStats.corner} Subiti</span>
                     <strong>Tiri in Porta:</strong> <span>${polisStats.shots} Fatti / ${opponentStats.shots} Subiti</span>
+                    <strong>Falli:</strong> <span>${polisStats.fouls} Fatti / ${opponentStats.fouls} Subiti</span>
+
                 </div>
                 <h4 class="mt-4">Marcatori Polis</h4>
                 ${getGoalSummary('polis')}
@@ -1036,6 +1053,8 @@
                     <strong>Gol:</strong> <span>${opponentStats.score} Fatti / ${polisStats.score} Subiti</span>
                     <strong>Corner:</strong> <span>${opponentStats.corner} Fatti / ${polisStats.corner} Subiti</span>
                     <strong>Tiri in Porta:</strong> <span>${opponentStats.shots} Fatti / ${polisStats.shots} Subiti</span>
+                    <strong>Falli:</strong> <span>${opponentStats.fouls} Fatti / ${polisStats.fouls} Subiti</span>
+
                 </div>
                 <h4 class="mt-4">Marcatori ${opponentName}</h4>
                 ${getGoalSummary('opponent')}
@@ -1788,6 +1807,7 @@
 
 </body>
 </html>
+
 
 
 
