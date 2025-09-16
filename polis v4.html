@@ -277,10 +277,14 @@
             border-radius: 1rem;
             width: 90%;
             max-width: 400px;
+            max-height: 90vh;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             text-align: center;
             transform: scale(0.9);
             transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
         .modal-overlay.is-active .modal-content {
             transform: scale(1);
@@ -425,8 +429,9 @@
             list-style: none;
             padding: 0;
             text-align: left;
-            max-height: 60vh;
+            max-height: 40vh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .history-item {
             background-color: #334155;
@@ -585,6 +590,9 @@
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+            max-height: calc(90vh - 200px);
         }
         .history-section {
             background-color: #2b384a;
@@ -615,6 +623,15 @@
         }
         .scorers-table tr:hover {
             background-color: #334155;
+        }
+        /* Special styling for history modal to allow larger width */
+        #history-modal .modal-content {
+            max-width: 90vw;
+            width: 90%;
+        }
+        .modal-footer {
+            flex-shrink: 0;
+            padding-top: 1rem;
         }
     </style>
 </head>
@@ -899,7 +916,7 @@
 
 <!-- Popup per lo storico delle partite -->
 <div id="history-modal" class="modal-overlay">
-    <div class="modal-content max-w-lg">
+    <div class="modal-content max-w-4xl">
         <div class="modal-header">Storico Partite e Statistiche</div>
         <div class="history-content">
             <!-- Sezione Classifica Marcatori -->
@@ -966,7 +983,9 @@
                 </div>
             </div>
         </div>
-        <button id="close-history-button" class="btn btn-goal mt-4 px-8">Chiudi</button>
+        <div class="modal-footer">
+            <button id="close-history-button" class="btn btn-goal mt-4 px-8">Chiudi</button>
+        </div>
     </div>
 </div>
 
