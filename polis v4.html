@@ -465,6 +465,31 @@
             font-size: 0.9rem;
             color: #94a3b8;
         }
+        
+        /* Stile per i pulsanti nella storia */
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* Stile per il pulsante di condivisione nella storia */
+        .share-btn {
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            font-weight: 600;
+        }
+        .share-btn:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
 
         /* Stile per il pulsante di eliminazione */
         .delete-btn {
@@ -1537,11 +1562,16 @@
                             <div class="font-bold">${match.team1} vs ${match.team2}</div>
                             <div class="text-xl font-bold">${match.score1} - ${match.score2}</div>
                         </div>
-                        <button class="delete-btn" data-index="${index}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
+                        <div class="history-actions">
+                            <button class="share-btn" data-index="${index}" data-action="share">
+                                Condividi
+                            </button>
+                            <button class="delete-btn" data-index="${index}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="history-date">${formattedDate}</div>
                     <div class="mt-2 text-sm text-gray-300">
@@ -1569,6 +1599,15 @@
                 btn.addEventListener('click', (e) => {
                     const index = parseInt(e.currentTarget.dataset.index);
                     showDeleteHistoryModal(index);
+                });
+            });
+            
+            // Add event listeners for share buttons
+            historyList.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    const matchData = history[index];
+                    await shareSingleMatch(matchData);
                 });
             });
         }
@@ -1628,19 +1667,46 @@
         timerSetupModal.classList.remove('is-active');
     }
 
-    // Funzione per generare il contenuto HTML per la condivisione
-    function generateShareContent() {
-        const team1Name = 'POLIS';
-        const team2Name = team2NameElement.textContent;
-        const scorers1 = team1Scorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`);
-        const scorers2 = team2Scorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`);
+    // Funzione per generare il contenuto HTML per la condivisione (riutilizzabile)
+    function generateShareContent(matchData = null) {
+        let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, scorers1, scorers2;
+        
+        if (matchData) {
+            // Use provided match data (for history sharing)
+            team1Name = matchData.team1;
+            team2Name = matchData.team2;
+            score1 = matchData.score1;
+            score2 = matchData.score2;
+            shots1 = matchData.shots1 || 0;
+            shots2 = matchData.shots2 || 0;
+            corners1 = matchData.corners1 || 0;
+            corners2 = matchData.corners2 || 0;
+            fouls1 = matchData.fouls1 || 0;
+            fouls2 = matchData.fouls2 || 0;
+            scorers1 = (matchData.scorers1 || []).map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`);
+            scorers2 = (matchData.scorers2 || []).map(s => `Goal - ${s.minute || 0}' (${s.quarter})`);
+        } else {
+            // Use current game data (for main share button)
+            team1Name = 'POLIS';
+            team2Name = team2NameElement.textContent;
+            score1 = scoreTeam1;
+            score2 = scoreTeam2;
+            shots1 = shotsTeam1;
+            shots2 = shotsTeam2;
+            corners1 = cornersTeam1;
+            corners2 = cornersTeam2;
+            fouls1 = foulsTeam1;
+            fouls2 = foulsTeam2;
+            scorers1 = team1Scorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`);
+            scorers2 = team2Scorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`);
+        }
 
         let content = `
             <p class="font-bold text-lg mb-2 text-center">${team1Name} vs ${team2Name}</p>
-            <p class="share-score">${scoreTeam1} - ${scoreTeam2}</p>
-            <div class="share-stat-item mb-1"><span>Tiri in porta:</span><span>${shotsTeam1} - ${shotsTeam2}</span></div>
-            <div class="share-stat-item mb-1"><span>Corner:</span><span>${cornersTeam1} - ${cornersTeam2}</span></div>
-            <div class="share-stat-item"><span>Falli:</span><span>${foulsTeam1} - ${foulsTeam2}</span></div>
+            <p class="share-score">${score1} - ${score2}</p>
+            <div class="share-stat-item mb-1"><span>Tiri in porta:</span><span>${shots1} - ${shots2}</span></div>
+            <div class="share-stat-item mb-1"><span>Corner:</span><span>${corners1} - ${corners2}</span></div>
+            <div class="share-stat-item"><span>Falli:</span><span>${fouls1} - ${fouls2}</span></div>
         `;
         
         if (scorers1.length > 0) {
@@ -1665,6 +1731,63 @@
             screenshotPreview.classList.remove('hidden');
             shareContentToCapture.style.display = 'none';
         });
+    }
+
+    // Funzione riutilizzabile per condividere una partita (corrente o storica)
+    async function shareSingleMatch(matchData = null) {
+        vibratePhone();
+        
+        let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2;
+        
+        if (matchData) {
+            // Use provided match data (for history sharing)
+            team1Name = matchData.team1;
+            team2Name = matchData.team2;
+            score1 = matchData.score1;
+            score2 = matchData.score2;
+            shots1 = matchData.shots1 || 0;
+            shots2 = matchData.shots2 || 0;
+            corners1 = matchData.corners1 || 0;
+            corners2 = matchData.corners2 || 0;
+            fouls1 = matchData.fouls1 || 0;
+            fouls2 = matchData.fouls2 || 0;
+        } else {
+            // Use current game data (for main share button)
+            team1Name = 'POLIS';
+            team2Name = team2NameElement.textContent;
+            score1 = scoreTeam1;
+            score2 = scoreTeam2;
+            shots1 = shotsTeam1;
+            shots2 = shotsTeam2;
+            corners1 = cornersTeam1;
+            corners2 = cornersTeam2;
+            fouls1 = foulsTeam1;
+            fouls2 = foulsTeam2;
+        }
+        
+        // Try to use native share API if available
+        if (navigator.share) {
+            try {
+                const shareText = `🏆 Risultato partita:\n${team1Name} ${score1} - ${score2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shots1} - ${shots2}\nCorner: ${corners1} - ${corners2}\nFalli: ${fouls1} - ${fouls2}`;
+                
+                await navigator.share({
+                    title: 'Risultato Partita - Polis 2013',
+                    text: shareText,
+                    url: window.location.href
+                });
+                return; // Exit if share was successful
+            } catch (error) {
+                console.log('Share cancelled or failed:', error);
+                // Continue to fallback image generation
+            }
+        }
+        
+        // Fallback: generate and show image for download/sharing
+        generateShareContent(matchData);
+        shareSection.classList.add('is-visible');
+        setTimeout(() => {
+            captureAndDisplay();
+        }, 100);
     }
 
     // Listener per il pulsante "Chiudi" della sezione di condivisione
@@ -1818,38 +1941,8 @@
 
     // Aggiungi un listener per il pulsante Salva e Condividi
     saveShareButton.addEventListener('click', async () => {
-        vibratePhone();
         saveMatch();
-        
-        // Try to use native share API if available
-        if (navigator.share) {
-            try {
-                const team1Name = 'POLIS';
-                const team2Name = team2NameElement.textContent;
-                const shareText = `🏆 Risultato partita:\n${team1Name} ${scoreTeam1} - ${scoreTeam2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shotsTeam1} - ${shotsTeam2}\nCorner: ${cornersTeam1} - ${cornersTeam2}\nFalli: ${foulsTeam1} - ${foulsTeam2}`;
-                
-                await navigator.share({
-                    title: 'Risultato Partita - Polis 2013',
-                    text: shareText,
-                    url: window.location.href
-                });
-            } catch (error) {
-                console.log('Share cancelled or failed:', error);
-                // Fallback to image generation
-                generateShareContent();
-                shareSection.classList.add('is-visible');
-                setTimeout(() => {
-                    captureAndDisplay();
-                }, 100);
-            }
-        } else {
-            // Fallback for browsers without native share API
-            generateShareContent();
-            shareSection.classList.add('is-visible');
-            setTimeout(() => {
-                captureAndDisplay();
-            }, 100);
-        }
+        await shareSingleMatch(); // Use the new reusable function
     });
 
     // Listener per il pulsante "Chiudi" della sezione di condivisione
