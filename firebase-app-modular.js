@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMOK9DQmf3qmBbs9jWuPv6xnGOK8_a_SU",
@@ -35,29 +35,48 @@ signInAnonymously(auth)
     console.error(error);
   });
 
-// Esempio: rendi le funzioni Firestore disponibili globalmente (window)
+// Firebase functions for match history
 window.saveGameToFirebase = async function(gameData) {
   try {
-    await addDoc(collection(db, "partite"), gameData);
+    const docRef = await addDoc(collection(db, "partite"), gameData);
+    console.log("Match saved to Firebase with ID: ", docRef.id);
+    return docRef.id;
   } catch (e) {
-    alert("Errore salvataggio partita!");
-    console.error(e);
+    console.error("Error saving match to Firebase: ", e);
+    throw e;
   }
 };
 
 window.deleteGameFromFirebase = async function(gameId) {
   try {
     await deleteDoc(doc(db, "partite", gameId));
+    console.log("Match deleted from Firebase with ID: ", gameId);
   } catch (e) {
-    alert("Errore eliminazione partita!");
-    console.error(e);
+    console.error("Error deleting match from Firebase: ", e);
+    throw e;
   }
 };
 
-// Esempio listener storico Firestore
+// Load match history from Firebase
+window.loadHistoryFromFirebase = async function() {
+  try {
+    const historyRef = collection(db, "partite");
+    const snapshot = await getDocs(historyRef);
+    const historyList = [];
+    snapshot.forEach(doc => {
+      historyList.push({ id: doc.id, ...doc.data() });
+    });
+    return historyList;
+  } catch (e) {
+    console.error("Error loading history from Firebase: ", e);
+    return [];
+  }
+};
+
+// Setup real-time listener for match history
 window.setupHistoryListener = function(updateHistoryUI) {
   const historyRef = collection(db, "partite");
-  onSnapshot(historyRef, (snapshot) => {
+  return onSnapshot(historyRef, (snapshot) => {
     const historyList = [];
     snapshot.forEach(doc => {
       historyList.push({ id: doc.id, ...doc.data() });

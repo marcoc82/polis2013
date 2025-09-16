@@ -197,6 +197,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             border: none;
+            font-size: 0.875rem; /* Reduced font size for better mobile fit */
         }
         .btn:hover {
             transform: translateY(-2px);
@@ -207,22 +208,25 @@
         }
         .btn-goal {
             background: linear-gradient(to right, #22c55e, #16a34a);
-            padding: 1.25rem 2.5rem;
+            padding: 0.875rem 1.5rem; /* Reduced padding for mobile */
+            font-size: 0.8rem; /* Smaller font for goal buttons */
         }
         .btn-stats-add {
             background: linear-gradient(to right, #f97316, #ea580c);
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem; /* Reduced padding */
+            font-size: 0.75rem; /* Smaller font */
         }
         .btn-remove-goal {
             background-color: #ef4444;
             color: white;
             border-radius: 50%;
-            height: 3rem;
-            width: 3rem;
+            height: 2.5rem; /* Reduced size */
+            width: 2.5rem; /* Reduced size */
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 1rem;
         }
         .btn-remove-goal:hover {
             background-color: #dc2626;
@@ -232,7 +236,8 @@
             color: #4a5568;
             font-weight: 600;
             border-radius: 0.75rem;
-            height: 3rem;
+            height: 2.5rem; /* Reduced height */
+            font-size: 0.75rem; /* Smaller font */
         }
         .btn-remove-stats:hover {
             background-color: #64748b;
@@ -477,16 +482,17 @@
             .teams-container {
                 display: flex;
                 flex-direction: row;
-                gap: 1rem;
+                gap: 0.75rem; /* Reduced gap */
             }
             .teams-container .team {
                 flex: 1;
                 min-width: 0;
+                padding: 1rem; /* Reduced padding */
             }
             .stats-container {
                 display: flex;
                 flex-direction: row;
-                gap: 1rem;
+                gap: 0.75rem; /* Reduced gap */
             }
             .stats-container .stats-team {
                 flex: 1;
@@ -496,10 +502,40 @@
                 font-size: 4rem;
             }
             .container {
-                padding: 1rem;
+                padding: 0.75rem; /* Reduced padding */
             }
             .polis-text {
                 font-size: 4em;
+            }
+            
+            /* Improved mobile button layout */
+            .btn-goal {
+                padding: 0.5rem 0.75rem; /* Even smaller on mobile */
+                font-size: 0.7rem;
+            }
+            .btn-stats-add {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.7rem;
+            }
+            .btn-remove-stats {
+                height: 2rem;
+                font-size: 0.7rem;
+            }
+            .btn-remove-goal {
+                height: 2rem;
+                width: 2rem;
+                font-size: 0.8rem;
+            }
+            
+            /* Better grid spacing on mobile */
+            .grid.grid-cols-3 {
+                gap: 0.5rem; /* Reduced gap between goal buttons */
+            }
+            .button-grid-2 {
+                gap: 0.5rem; /* Reduced gap between other buttons */
+            }
+            .button-section {
+                margin-bottom: 1rem; /* Reduced margin */
             }
         }
 
@@ -808,6 +844,41 @@
 
         // History variables
         let matchHistory = [];
+        let historyListener = null;
+
+        // Screen wake lock
+        let wakeLock = null;
+
+        // Vibration/Haptic feedback function
+        function vibrate(pattern = [100]) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Request wake lock to keep screen on
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Screen wake lock is active');
+                    
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Screen wake lock was released');
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to request screen wake lock:', err);
+            }
+        }
+
+        // Release wake lock
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+        }
 
         // Player list from original
         const players = [
@@ -849,10 +920,19 @@
             welcomeScreen.style.display = 'none';
             mainApp.style.display = 'block';
             
+            // Request wake lock to keep screen on
+            requestWakeLock();
+            
+            // Setup Firebase history listener
+            setupFirebaseHistoryListener();
+            
             // Initialize the app
             setDate();
             updateScores();
             updateTimerDisplay();
+            
+            // Add vibration feedback
+            vibrate([50]);
         }
 
         // Set current date
@@ -902,6 +982,7 @@
                 isRunning = false;
                 document.getElementById('timer-display').classList.remove('timer-running');
                 document.getElementById('timer-display').textContent = "00:00";
+                vibrate([200, 100, 200]); // Time's up vibration
             }
         }
 
@@ -913,6 +994,7 @@
                 totalSeconds--;
                 updateTimerDisplay();
             }, 1000);
+            vibrate([100]); // Start timer feedback
         }
 
         function pauseTimer() {
@@ -920,12 +1002,14 @@
             isRunning = false;
             clearInterval(timerInterval);
             document.getElementById('timer-display').classList.remove('timer-running');
+            vibrate([50]); // Pause timer feedback
         }
 
         function resetTimer() {
             pauseTimer();
             totalSeconds = lastSetSeconds;
             updateTimerDisplay();
+            vibrate([50, 50]); // Reset timer feedback
         }
 
         // Player modal functions
@@ -943,10 +1027,12 @@
                 playerList.appendChild(playerButton);
             });
             document.getElementById('player-modal').classList.add('is-active');
+            vibrate([50]); // Modal open feedback
         }
 
         function hidePlayerModal() {
             document.getElementById('player-modal').classList.remove('is-active');
+            vibrate([30]); // Modal close feedback
         }
 
         // Goal functions
@@ -964,6 +1050,9 @@
             }, 1000);
             createConfetti();
             updateScores();
+            
+            // Special vibration pattern for goals
+            vibrate([150, 100, 150, 100, 150]);
         }
 
         function addGoalTeam2(quarter) {
@@ -974,6 +1063,9 @@
             document.getElementById('scorers-list-2').appendChild(newScorer);
             team2Scorers.push({ player: 'Sconosciuto', quarter: quarter });
             updateScores();
+            
+            // Special vibration pattern for goals
+            vibrate([150, 100, 150, 100, 150]);
         }
 
         // Confetti function
@@ -1015,10 +1107,12 @@
             document.getElementById('remove-modal-message').textContent = `Verrà rimosso l'ultimo ${text} segnato dalla squadra ${team}.`;
             pendingRemovalAction = { type, team };
             document.getElementById('remove-modal').classList.add('is-active');
+            vibrate([50]); // Modal open feedback
         }
 
         function hideRemoveModal() {
             document.getElementById('remove-modal').classList.remove('is-active');
+            vibrate([30]); // Modal close feedback
         }
 
         function confirmRemoval() {
@@ -1051,6 +1145,7 @@
             updateScores();
             updateStats();
             hideRemoveModal();
+            vibrate([100]); // Removal confirmation feedback
         }
 
         function renderScorers(team) {
@@ -1097,25 +1192,46 @@
             resetTimer();
             hideResetModal();
 
+            // Release wake lock when returning to welcome screen
+            releaseWakeLock();
+            
+            // Stop history listener
+            if (historyListener && typeof historyListener === 'function') {
+                historyListener();
+                historyListener = null;
+            }
+
             // Return to welcome screen
             mainApp.style.display = 'none';
             welcomeScreen.style.display = 'flex';
             welcomeOpponentName.value = '';
+            
+            vibrate([100, 50, 100]); // Reset feedback
         }
 
         function showResetModal() {
             document.getElementById('reset-modal').classList.add('is-active');
+            vibrate([50]); // Modal open feedback
         }
 
         function hideResetModal() {
             document.getElementById('reset-modal').classList.remove('is-active');
+            vibrate([30]); // Modal close feedback
         }
 
-        // History functions
-        function saveMatch() {
+        // History functions with Firebase integration
+        function setupFirebaseHistoryListener() {
+            if (typeof window.setupHistoryListener === 'function') {
+                historyListener = window.setupHistoryListener((historyList) => {
+                    // Store in global variable for modal display
+                    matchHistory = historyList;
+                });
+            }
+        }
+
+        async function saveMatch() {
             const team1Name = 'POLIS';
             const team2Name = document.getElementById('team2-name').textContent;
-            const history = loadMatchHistory();
 
             const match = {
                 team1: team1Name,
@@ -1132,26 +1248,72 @@
                 scorers1: team1Scorers,
                 scorers2: team2Scorers
             };
-            history.push(match);
-            localStorage.setItem('polis_match_history', JSON.stringify(history));
+
+            try {
+                // Save to Firebase
+                if (typeof window.saveGameToFirebase === 'function') {
+                    await window.saveGameToFirebase(match);
+                    alert('Partita salvata su Firebase!');
+                } else {
+                    // Fallback to localStorage
+                    const history = loadMatchHistoryLocal();
+                    history.push(match);
+                    localStorage.setItem('polis_match_history', JSON.stringify(history));
+                    alert('Partita salvata nello storico locale!');
+                }
+                
+                // Add vibration feedback
+                vibrate([100, 50, 100]);
+            } catch (error) {
+                console.error('Error saving match:', error);
+                // Fallback to localStorage
+                const history = loadMatchHistoryLocal();
+                history.push(match);
+                localStorage.setItem('polis_match_history', JSON.stringify(history));
+                alert('Errore Firebase - Partita salvata nello storico locale!');
+            }
         }
 
-        function loadMatchHistory() {
+        function loadMatchHistoryLocal() {
             const historyString = localStorage.getItem('polis_match_history');
             return historyString ? JSON.parse(historyString) : [];
+        }
+
+        async function loadMatchHistory() {
+            try {
+                if (typeof window.loadHistoryFromFirebase === 'function') {
+                    return await window.loadHistoryFromFirebase();
+                } else {
+                    return loadMatchHistoryLocal();
+                }
+            } catch (error) {
+                console.error('Error loading history from Firebase:', error);
+                return loadMatchHistoryLocal();
+            }
         }
 
         function showHistoryModal() {
             renderHistory();
             document.getElementById('history-modal').classList.add('is-active');
+            vibrate([50]); // Add haptic feedback
         }
 
         function hideHistoryModal() {
             document.getElementById('history-modal').classList.remove('is-active');
+            vibrate([30]); // Add haptic feedback
         }
 
-        function renderHistory() {
-            const history = loadMatchHistory().sort((a, b) => new Date(b.date) - new Date(a.date));
+        async function renderHistory() {
+            let history = [];
+            
+            // Try to use Firebase history first, then fallback to localStorage
+            if (matchHistory.length > 0) {
+                history = matchHistory;
+            } else {
+                history = await loadMatchHistory();
+            }
+            
+            history = history.sort((a, b) => new Date(b.date) - new Date(a.date));
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
             
@@ -1208,6 +1370,7 @@
                 document.getElementById('timer-minutes-input').value = minutes;
                 document.getElementById('timer-seconds-input').value = seconds;
                 document.getElementById('timer-setup-modal').classList.add('is-active');
+                vibrate([50]); // Timer modal open feedback
             });
 
             document.getElementById('set-timer-button').addEventListener('click', () => {
@@ -1218,6 +1381,7 @@
                     lastSetSeconds = totalSeconds;
                     updateTimerDisplay();
                     document.getElementById('timer-setup-modal').classList.remove('is-active');
+                    vibrate([100]); // Timer set confirmation
                 }
             });
 
@@ -1228,6 +1392,13 @@
                     const type = button.dataset.type;
                     const action = button.dataset.action;
                     const quarter = button.dataset.quarter;
+
+                    // Add vibration feedback for all button clicks
+                    if (type === 'goal') {
+                        vibrate([80]); // Goal button feedback
+                    } else {
+                        vibrate([50]); // Standard button feedback
+                    }
 
                     if (action === 'add') {
                         if (type === 'goal') {
@@ -1276,10 +1447,10 @@
             document.getElementById('show-history-button').addEventListener('click', showHistoryModal);
             document.getElementById('close-history-button').addEventListener('click', hideHistoryModal);
 
-            // Save and share functionality (simplified for now)
-            document.getElementById('save-share-button').addEventListener('click', () => {
-                saveMatch();
-                alert('Partita salvata nello storico!');
+            // Save and share functionality
+            document.getElementById('save-share-button').addEventListener('click', async () => {
+                vibrate([50]); // Button feedback
+                await saveMatch();
             });
         });
 
