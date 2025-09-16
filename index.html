@@ -216,6 +216,10 @@
             padding: 0.75rem 1rem; /* Reduced padding */
             font-size: 0.75rem; /* Smaller font */
         }
+        /* Red color for shot and foul buttons */
+        .btn-stats-add[data-type="shot"], .btn-stats-add[data-type="foul"] {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+        }
         .btn-remove-goal {
             background-color: #ef4444;
             color: white;
@@ -272,6 +276,16 @@
         }
         .btn-share:hover {
             background: linear-gradient(to right, #7c3aed, #6d28d9);
+        }
+        .btn-save {
+            background: linear-gradient(to right, #10b981, #059669);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 1rem 2rem;
+        }
+        .btn-save:hover {
+            background: linear-gradient(to right, #059669, #047857);
         }
         .btn-history {
             background: linear-gradient(to right, #f97316, #ea580c);
@@ -749,7 +763,18 @@
             <!-- Pulsanti di azione -->
             <div class="flex justify-center items-center mt-8 gap-4 flex-wrap">
                 <button id="reset-button" class="btn btn-reset flex items-center justify-center gap-2">RESET</button>
-                <button id="save-share-button" class="btn btn-share flex items-center justify-center gap-2">SALVA E CONDIVIDI</button>
+                <button id="save-button" class="btn btn-save flex items-center justify-center" title="Salva">
+                    <!-- Floppy disk icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                </button>
+                <button id="share-button" class="btn btn-share flex items-center justify-center" title="Condividi">
+                    <!-- Share icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </button>
                 <button id="show-history-button" class="btn btn-history flex items-center justify-center gap-2">VISUALIZZA STORICO</button>
             </div>
         </div>
@@ -1046,7 +1071,7 @@
             
             // Calculate minutes elapsed since timer started
             const elapsedSeconds = (lastSetSeconds - totalSeconds);
-            const minute = Math.floor(elapsedSeconds / 60);
+            const minute = Math.floor(elapsedSeconds / 60) + 1; // Add 1 so first minute shows as "1" instead of "0"
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
@@ -1070,7 +1095,7 @@
             
             // Calculate minutes elapsed since timer started
             const elapsedSeconds = (lastSetSeconds - totalSeconds);
-            const minute = Math.floor(elapsedSeconds / 60);
+            const minute = Math.floor(elapsedSeconds / 60) + 1; // Add 1 so first minute shows as "1" instead of "0"
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
@@ -1524,10 +1549,19 @@
             document.getElementById('confirm-delete-match-button').addEventListener('click', confirmDeleteMatch);
             document.getElementById('cancel-delete-match-button').addEventListener('click', hideDeleteMatchModal);
 
-            // Save and share functionality
-            document.getElementById('save-share-button').addEventListener('click', async () => {
+            // Save and share functionality - separate buttons
+            document.getElementById('save-button').addEventListener('click', async () => {
                 vibrate([50]); // Button feedback
                 await saveMatch();
+                alert('Partita salvata!');
+            });
+
+            document.getElementById('share-button').addEventListener('click', async () => {
+                vibrate([50]); // Button feedback
+                await saveMatch();
+                // Here we could add image generation functionality if needed
+                // For now, just show success message
+                alert('Partita salvata e pronta per la condivisione!');
             });
         });
 
