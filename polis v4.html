@@ -137,6 +137,55 @@
             background: linear-gradient(to right, #f97316, #ea580c);
             padding: 1rem 1.5rem; /* Aumento la dimensione dei pulsanti stats */
         }
+        
+        /* Enhanced styling for Corner, Tiri, and Falli buttons */
+        .btn-corner {
+            background: linear-gradient(to right, #eab308, #ca8a04) !important;
+            color: #000 !important;
+            border: 2px solid #fbbf24 !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            padding: 1.2rem 1.8rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        }
+        .btn-corner:hover {
+            background: linear-gradient(to right, #facc15, #eab308) !important;
+            border-color: #fde047 !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 15px rgba(234, 179, 8, 0.4) !important;
+        }
+        
+        .btn-tiri {
+            background: linear-gradient(to right, #dc2626, #991b1b) !important;
+            color: #fff !important;
+            border: 2px solid #ef4444 !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            padding: 1.2rem 1.8rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        }
+        .btn-tiri:hover {
+            background: linear-gradient(to right, #ef4444, #dc2626) !important;
+            border-color: #f87171 !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 15px rgba(220, 38, 38, 0.4) !important;
+        }
+        
+        .btn-falli {
+            background: linear-gradient(to right, #2563eb, #1d4ed8) !important;
+            color: #fff !important;
+            border: 2px solid #3b82f6 !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            padding: 1.2rem 1.8rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        }
+        .btn-falli:hover {
+            background: linear-gradient(to right, #3b82f6, #2563eb) !important;
+            border-color: #60a5fa !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.4) !important;
+        }
         .btn-remove-goal {
             background-color: #ef4444;
             color: white;
@@ -628,15 +677,17 @@
                 </div>
             </div>
             <div class="button-section">
-                <div class="button-grid-2">
-                    <button class="btn btn-stats-add" data-team="1" data-type="corner" data-action="add">Corner</button>
-                    <button class="btn btn-stats-add" data-team="1" data-type="shot" data-action="add">Tiri</button>
+                <div class="grid grid-cols-3 gap-3">
+                    <button class="btn btn-stats-add btn-corner" data-team="1" data-type="corner" data-action="add">Corner</button>
+                    <button class="btn btn-stats-add btn-tiri" data-team="1" data-type="shot" data-action="add">Tiri</button>
+                    <button class="btn btn-stats-add btn-falli" data-team="1" data-type="foul" data-action="add">Falli</button>
                 </div>
             </div>
             <div class="button-section">
-                <div class="button-grid-2">
+                <div class="grid grid-cols-3 gap-3">
                     <button class="btn btn-remove-stats" data-team="1" data-type="corner" data-action="remove">-</button>
                     <button class="btn btn-remove-stats" data-team="1" data-type="shot" data-action="remove">-</button>
+                    <button class="btn btn-remove-stats" data-team="1" data-type="foul" data-action="remove">-</button>
                 </div>
             </div>
         </div>
@@ -659,15 +710,17 @@
                 </div>
             </div>
             <div class="button-section">
-                <div class="button-grid-2">
-                    <button class="btn btn-stats-add" data-team="2" data-type="corner" data-action="add">Corner</button>
-                    <button class="btn btn-stats-add" data-team="2" data-type="shot" data-action="add">Tiri</button>
+                <div class="grid grid-cols-3 gap-3">
+                    <button class="btn btn-stats-add btn-corner" data-team="2" data-type="corner" data-action="add">Corner</button>
+                    <button class="btn btn-stats-add btn-tiri" data-team="2" data-type="shot" data-action="add">Tiri</button>
+                    <button class="btn btn-stats-add btn-falli" data-team="2" data-type="foul" data-action="add">Falli</button>
                 </div>
             </div>
             <div class="button-section">
-                <div class="button-grid-2">
+                <div class="grid grid-cols-3 gap-3">
                     <button class="btn btn-remove-stats" data-team="2" data-type="corner" data-action="remove">-</button>
                     <button class="btn btn-remove-stats" data-team="2" data-type="shot" data-action="remove">-</button>
+                    <button class="btn btn-remove-stats" data-team="2" data-type="foul" data-action="remove">-</button>
                 </div>
             </div>
         </div>
@@ -702,6 +755,14 @@
                 <span>Corner subiti:</span>
                 <span id="corners-team2-taken">0</span>
             </div>
+            <div class="stat-item">
+                <span>Falli fatti:</span>
+                <span id="fouls-team1">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Falli subiti:</span>
+                <span id="fouls-team2-taken">0</span>
+            </div>
             <div id="scorers-list-1" class="scorer-list">
                 <h4>Marcatori:</h4>
                 <!-- I marcatori verranno aggiunti qui -->
@@ -734,6 +795,14 @@
             <div class="stat-item">
                 <span>Corner subiti:</span>
                 <span id="corners-team1-taken">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Falli fatti:</span>
+                <span id="fouls-team2">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Falli subiti:</span>
+                <span id="fouls-team1-taken">0</span>
             </div>
             <div id="scorers-list-2" class="scorer-list">
                 <h4>Marcatori:</h4>
@@ -916,16 +985,20 @@
     const goalsTeam1Display = document.getElementById('goals-team1');
     const shotsTeam1Display = document.getElementById('shots-team1');
     const cornersTeam1Display = document.getElementById('corners-team1');
+    const foulsTeam1Display = document.getElementById('fouls-team1');
     const goalsTeam2TakenDisplay = document.getElementById('goals-team2-taken');
     const shotsTeam2TakenDisplay = document.getElementById('shots-team2-taken');
     const cornersTeam2TakenDisplay = document.getElementById('corners-team2-taken');
+    const foulsTeam2TakenDisplay = document.getElementById('fouls-team2-taken');
     
     const goalsTeam2Display = document.getElementById('goals-team2');
     const shotsTeam2Display = document.getElementById('shots-team2');
     const cornersTeam2Display = document.getElementById('corners-team2');
+    const foulsTeam2Display = document.getElementById('fouls-team2');
     const goalsTeam1TakenDisplay = document.getElementById('goals-team1-taken');
     const shotsTeam1TakenDisplay = document.getElementById('shots-team1-taken');
     const cornersTeam1TakenDisplay = document.getElementById('corners-team1-taken');
+    const foulsTeam1TakenDisplay = document.getElementById('fouls-team1-taken');
 
 
     const scorersList1 = document.getElementById('scorers-list-1');
@@ -993,8 +1066,10 @@
     let scoreTeam2 = 0;
     let shotsTeam1 = 0;
     let cornersTeam1 = 0;
+    let foulsTeam1 = 0;
     let shotsTeam2 = 0;
     let cornersTeam2 = 0;
+    let foulsTeam2 = 0;
     
     // Lista dei marcatori e dei quarti in cui hanno segnato
     let team1Scorers = [];
@@ -1039,6 +1114,8 @@
         shotsTeam2TakenDisplay.textContent = shotsTeam2;
         cornersTeam1Display.textContent = cornersTeam1;
         cornersTeam2TakenDisplay.textContent = cornersTeam2;
+        foulsTeam1Display.textContent = foulsTeam1;
+        foulsTeam2TakenDisplay.textContent = foulsTeam2;
     
         // Aggiorna le statistiche della squadra 2
         goalsTeam2Display.textContent = scoreTeam2;
@@ -1047,6 +1124,8 @@
         shotsTeam1TakenDisplay.textContent = shotsTeam1;
         cornersTeam2Display.textContent = cornersTeam2;
         cornersTeam1TakenDisplay.textContent = cornersTeam1;
+        foulsTeam2Display.textContent = foulsTeam2;
+        foulsTeam1TakenDisplay.textContent = foulsTeam1;
     }
 
     // Funzione per far vibrare il dispositivo
@@ -1135,6 +1214,8 @@
             text = 'un corner';
         } else if (type === 'shot') {
             text = 'un tiro';
+        } else if (type === 'foul') {
+            text = 'un fallo';
         }
         removeModalHeader.textContent = `Sei sicuro di voler rimuovere ${text}?`;
         removeModalMessage.textContent = `Verrà rimosso l'ultimo ${text} segnato dalla squadra ${team}.`;
@@ -1236,8 +1317,10 @@
         scoreTeam2 = 0;
         shotsTeam1 = 0;
         cornersTeam1 = 0;
+        foulsTeam1 = 0;
         shotsTeam2 = 0;
         cornersTeam2 = 0;
+        foulsTeam2 = 0;
         team1Scorers = [];
         team2Scorers = [];
 
@@ -1278,8 +1361,10 @@
             score2: scoreTeam2,
             shots1: shotsTeam1,
             corners1: cornersTeam1,
+            fouls1: foulsTeam1,
             shots2: shotsTeam2,
             corners2: cornersTeam2,
+            fouls2: foulsTeam2,
             date: new Date().toISOString(), // Salva la data in formato ISO per l'ordinamento
             scorers1: team1Scorers,
             scorers2: team2Scorers
@@ -1377,6 +1462,10 @@
                             <span>Corner:</span>
                             <span class="font-bold">${match.corners1} - ${match.corners2}</span>
                         </div>
+                        <div class="flex justify-between items-center">
+                            <span>Falli:</span>
+                            <span class="font-bold">${match.fouls1 || 0} - ${match.fouls2 || 0}</span>
+                        </div>
                         ${team1ScorersText}
                         ${team2ScorersText}
                     </div>
@@ -1452,14 +1541,15 @@
     function generateShareContent() {
         const team1Name = 'POLIS';
         const team2Name = team2NameElement.textContent;
-        const scorers1 = team1Scorers.map(s => `${s.player} (${s.quarter})`);
-        const scorers2 = team2Scorers.map(s => `Goal (${s.quarter})`);
+        const scorers1 = team1Scorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`);
+        const scorers2 = team2Scorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`);
 
         let content = `
             <p class="font-bold text-lg mb-2 text-center">${team1Name} vs ${team2Name}</p>
             <p class="share-score">${scoreTeam1} - ${scoreTeam2}</p>
             <div class="share-stat-item mb-1"><span>Tiri in porta:</span><span>${shotsTeam1} - ${shotsTeam2}</span></div>
-            <div class="share-stat-item"><span>Corner:</span><span>${cornersTeam1} - ${cornersTeam2}</span></div>
+            <div class="share-stat-item mb-1"><span>Corner:</span><span>${cornersTeam1} - ${cornersTeam2}</span></div>
+            <div class="share-stat-item"><span>Falli:</span><span>${foulsTeam1} - ${foulsTeam2}</span></div>
         `;
         
         if (scorers1.length > 0) {
@@ -1533,6 +1623,19 @@
                         setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
                     }
                     updateStats();
+                } else if (type === 'foul') {
+                    if (team === '1') {
+                        foulsTeam1++;
+                        const statElement = document.getElementById('fouls-team1');
+                        statElement.classList.add('is-pulsing-stat');
+                        setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                    } else if (team === '2') {
+                        foulsTeam2++;
+                        const statElement = document.getElementById('fouls-team2');
+                        statElement.classList.add('is-pulsing-stat');
+                        setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                    }
+                    updateStats();
                 }
             } else if (action === 'remove') {
                 showRemoveModal(type, team);
@@ -1553,6 +1656,8 @@
                 cornersTeam1--;
             } else if (type === 'shot' && shotsTeam1 > 0) {
                 shotsTeam1--;
+            } else if (type === 'foul' && foulsTeam1 > 0) {
+                foulsTeam1--;
             }
         } else if (team === '2') {
             if (type === 'goal' && scoreTeam2 > 0) {
@@ -1563,6 +1668,8 @@
                 cornersTeam2--;
             } else if (type === 'shot' && shotsTeam2 > 0) {
                 shotsTeam2--;
+            } else if (type === 'foul' && foulsTeam2 > 0) {
+                foulsTeam2--;
             }
         }
         updateScores();
@@ -1628,7 +1735,7 @@
             try {
                 const team1Name = 'POLIS';
                 const team2Name = team2NameElement.textContent;
-                const shareText = `🏆 Risultato partita:\n${team1Name} ${scoreTeam1} - ${scoreTeam2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shotsTeam1} - ${shotsTeam2}\nCorner: ${cornersTeam1} - ${cornersTeam2}`;
+                const shareText = `🏆 Risultato partita:\n${team1Name} ${scoreTeam1} - ${scoreTeam2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shotsTeam1} - ${shotsTeam2}\nCorner: ${cornersTeam1} - ${cornersTeam2}\nFalli: ${foulsTeam1} - ${foulsTeam2}`;
                 
                 await navigator.share({
                     title: 'Risultato Partita - Polis 2013',
