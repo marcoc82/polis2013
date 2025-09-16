@@ -217,53 +217,53 @@
             font-size: 0.75rem; /* Smaller font */
         }
         
-        /* Enhanced styling for Corner, Tiri, and Falli buttons */
+        /* Enhanced styling for Corner, Tiri, and Falli buttons - uniform light orange color and reduced size */
         .btn-corner {
-            background: linear-gradient(to right, #eab308, #ca8a04) !important;
-            color: #000 !important;
-            border: 2px solid #fbbf24 !important;
-            font-size: 1rem !important;
+            background: linear-gradient(to right, #fb923c, #f97316) !important;
+            color: #fff !important;
+            border: 2px solid #fb923c !important;
+            font-size: 0.8rem !important;
             font-weight: 700 !important;
-            padding: 1.2rem 1.8rem !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+            padding: 0.7rem 1rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         .btn-corner:hover {
-            background: linear-gradient(to right, #facc15, #eab308) !important;
-            border-color: #fde047 !important;
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 15px rgba(234, 179, 8, 0.4) !important;
+            background: linear-gradient(to right, #fdba74, #fb923c) !important;
+            border-color: #fdba74 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4) !important;
         }
         
         .btn-tiri {
-            background: linear-gradient(to right, #dc2626, #991b1b) !important;
+            background: linear-gradient(to right, #fb923c, #f97316) !important;
             color: #fff !important;
-            border: 2px solid #ef4444 !important;
-            font-size: 1rem !important;
+            border: 2px solid #fb923c !important;
+            font-size: 0.8rem !important;
             font-weight: 700 !important;
-            padding: 1.2rem 1.8rem !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+            padding: 0.7rem 1rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         .btn-tiri:hover {
-            background: linear-gradient(to right, #ef4444, #dc2626) !important;
-            border-color: #f87171 !important;
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 15px rgba(220, 38, 38, 0.4) !important;
+            background: linear-gradient(to right, #fdba74, #fb923c) !important;
+            border-color: #fdba74 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4) !important;
         }
         
         .btn-falli {
-            background: linear-gradient(to right, #2563eb, #1d4ed8) !important;
+            background: linear-gradient(to right, #fb923c, #f97316) !important;
             color: #fff !important;
-            border: 2px solid #3b82f6 !important;
-            font-size: 1rem !important;
+            border: 2px solid #fb923c !important;
+            font-size: 0.8rem !important;
             font-weight: 700 !important;
-            padding: 1.2rem 1.8rem !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+            padding: 0.7rem 1rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         .btn-falli:hover {
-            background: linear-gradient(to right, #3b82f6, #2563eb) !important;
-            border-color: #60a5fa !important;
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.4) !important;
+            background: linear-gradient(to right, #fdba74, #fb923c) !important;
+            border-color: #fdba74 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4) !important;
         }
         /* Keep Corner, Tiri in porta and Falli buttons orange - remove red override */
         .btn-remove-goal {
@@ -284,7 +284,7 @@
         .btn-remove-stats {
             background-color: #ef4444;
             color: white;
-            border-radius: 50%;
+            border-radius: 50%; /* Round like goal buttons */
             height: 2.5rem; /* Reduced size */
             width: 2.5rem; /* Reduced size */
             padding: 0;
@@ -1104,7 +1104,7 @@
                 isRunning = false;
                 document.getElementById('timer-display').classList.remove('timer-running');
                 document.getElementById('timer-display').textContent = "00:00";
-                vibrate([200, 100, 200]); // Time's up vibration
+                vibrate([5000]); // 5 second vibration when timer reaches zero
             }
         }
 
