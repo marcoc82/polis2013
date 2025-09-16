@@ -1,0 +1,6 @@
+127.0.0.1 - - [16/Sep/2025 09:52:58] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2025 09:52:58] "GET /firebase-app-modular.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2025 09:53:06] "GET /polis%20v4.html HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2025 09:54:27] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2025 09:54:27] "GET /firebase-app-modular.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2025 10:00:33] "GET /polis%20v4.html HTTP/1.1" 200 -
