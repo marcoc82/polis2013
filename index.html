@@ -793,18 +793,8 @@
             <!-- Pulsanti di azione -->
             <div class="flex justify-center items-center mt-8 gap-4 flex-wrap">
                 <button id="reset-button" class="btn btn-reset flex items-center justify-center gap-2">RESET</button>
-                <button id="save-button" class="btn btn-save flex items-center justify-center" title="Salva">
-                    <!-- Save icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                    </svg>
-                </button>
-                <button id="share-button" class="btn btn-share flex items-center justify-center" title="Condividi">
-                    <!-- Share icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                </button>
+                <button id="save-button" class="btn btn-save flex items-center justify-center">Salva</button>
+                <button id="share-button" class="btn btn-share flex items-center justify-center">Condividi</button>
                 <button id="show-history-button" class="btn btn-history flex items-center justify-center gap-2">VISUALIZZA STORICO</button>
             </div>
         </div>
@@ -1649,25 +1639,114 @@
                 vibrate([50]); // Button feedback
                 await saveMatch();
                 
-                // Try to use native share API if available
-                if (navigator.share) {
-                    try {
-                        const team1Name = 'POLIS';
-                        const team2Name = document.getElementById('team2-name').textContent;
-                        const shareText = `🏆 Risultato partita:\n${team1Name} ${scoreTeam1} - ${scoreTeam2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shotsTeam1} - ${shotsTeam2}\nCorner: ${cornersTeam1} - ${cornersTeam2}\nFalli: ${foulsTeam1} - ${foulsTeam2}`;
-                        
-                        await navigator.share({
-                            title: 'Risultato Partita - Polis 2013',
-                            text: shareText,
-                            url: window.location.href
+                try {
+                    // Create a canvas element to generate a summary image
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas size
+                    canvas.width = 800;
+                    canvas.height = 600;
+                    
+                    // Set background
+                    ctx.fillStyle = '#1A202C';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Set text styles
+                    ctx.fillStyle = '#f1f5f9';
+                    ctx.font = 'bold 48px Arial';
+                    ctx.textAlign = 'center';
+                    
+                    // Title
+                    ctx.fillText('POLIS 2013', canvas.width / 2, 80);
+                    
+                    // Date
+                    ctx.font = '20px Arial';
+                    const currentDate = new Date().toLocaleDateString('it-IT', { 
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                    });
+                    ctx.fillText(currentDate, canvas.width / 2, 120);
+                    
+                    // Team names
+                    ctx.font = 'bold 36px Arial';
+                    ctx.fillText('POLIS', 200, 200);
+                    const team2Name = document.getElementById('team2-name').textContent;
+                    ctx.fillText(team2Name, 600, 200);
+                    
+                    // Score
+                    ctx.font = 'bold 80px Arial';
+                    ctx.fillText(`${scoreTeam1} - ${scoreTeam2}`, canvas.width / 2, 280);
+                    
+                    // Statistics
+                    ctx.font = '24px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('Statistiche:', 50, 350);
+                    ctx.fillText(`Tiri: ${shotsTeam1} - ${shotsTeam2}`, 50, 380);
+                    ctx.fillText(`Corner: ${cornersTeam1} - ${cornersTeam2}`, 50, 410);
+                    ctx.fillText(`Falli: ${foulsTeam1} - ${foulsTeam2}`, 50, 440);
+                    
+                    // Markers
+                    if (team1Scorers.length > 0) {
+                        ctx.fillText('Marcatori POLIS:', 50, 480);
+                        team1Scorers.forEach((scorer, index) => {
+                            ctx.fillText(`${scorer.player} - ${scorer.minute || 0}' (${scorer.quarter})`, 70, 510 + (index * 25));
                         });
-                    } catch (error) {
-                        console.log('Share cancelled or failed:', error);
-                        alert('Partita salvata e pronta per la condivisione!');
                     }
-                } else {
-                    // Fallback for browsers without native share API
-                    alert('Partita salvata e pronta per la condivisione!');
+                    
+                    if (team2Scorers.length > 0) {
+                        const startY = team1Scorers.length > 0 ? 510 + (team1Scorers.length * 25) + 30 : 480;
+                        ctx.fillText(`Marcatori ${team2Name}:`, 50, startY);
+                        team2Scorers.forEach((scorer, index) => {
+                            ctx.fillText(`Goal - ${scorer.minute || 0}' (${scorer.quarter})`, 70, startY + 30 + (index * 25));
+                        });
+                    }
+                    
+                    // Convert canvas to blob
+                    canvas.toBlob(async (blob) => {
+                        try {
+                            // Try to use native share API if available
+                            if (navigator.share && navigator.canShare) {
+                                const file = new File([blob], 'polis-partita.png', { type: 'image/png' });
+                                const shareData = {
+                                    title: 'Risultato Partita - Polis 2013',
+                                    files: [file]
+                                };
+                                
+                                if (navigator.canShare(shareData)) {
+                                    await navigator.share(shareData);
+                                    return;
+                                }
+                            }
+                            
+                            // Fallback: download the image
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'polis-partita.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                            
+                            alert('Immagine della partita scaricata!');
+                        } catch (error) {
+                            console.log('Share failed:', error);
+                            // Fallback: download the image
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'polis-partita.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                            
+                            alert('Immagine della partita scaricata!');
+                        }
+                    }, 'image/png');
+                } catch (error) {
+                    console.error('Error creating image:', error);
+                    alert('Errore nella creazione dell\'immagine. Partita salvata comunque!');
                 }
             });
         });
