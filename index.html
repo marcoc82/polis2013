@@ -921,6 +921,42 @@
                     </table>
                 </div>
 
+                <!-- Sezione Riepilogo Statistiche -->
+                <div class="history-section">
+                    <h3 class="history-section-title">Riepilogo Statistiche Totali</h3>
+                    <table class="scorers-table">
+                        <thead>
+                            <tr>
+                                <th>Statistica</th>
+                                <th>Fatti</th>
+                                <th>Subiti</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-stats-table-body">
+                            <tr>
+                                <td>Gol</td>
+                                <td id="total-goals-made">0</td>
+                                <td id="total-goals-conceded">0</td>
+                            </tr>
+                            <tr>
+                                <td>Tiri</td>
+                                <td id="total-shots-made">0</td>
+                                <td id="total-shots-conceded">0</td>
+                            </tr>
+                            <tr>
+                                <td>Corner</td>
+                                <td id="total-corners-made">0</td>
+                                <td id="total-corners-conceded">0</td>
+                            </tr>
+                            <tr>
+                                <td>Falli</td>
+                                <td id="total-fouls-made">0</td>
+                                <td id="total-fouls-conceded">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <!-- Sezione Storico Partite -->
                 <div class="history-section">
                     <h3 class="history-section-title">Partite Giocate</h3>
@@ -1506,6 +1542,34 @@
             
             // Ordina i marcatori per numero di gol
             const sortedScorers = Object.entries(allScorers).sort(([, a], [, b]) => b - a);
+
+            // Calcola le statistiche totali per il riepilogo
+            let totalGoalsMade = 0, totalGoalsConceded = 0;
+            let totalShotsMade = 0, totalShotsConceded = 0;
+            let totalCornersMade = 0, totalCornersConceded = 0;
+            let totalFoulsMade = 0, totalFoulsConceded = 0;
+
+            history.forEach(match => {
+                // POLIS è sempre team1, quindi:
+                totalGoalsMade += match.score1 || 0;        // gol fatti da POLIS
+                totalGoalsConceded += match.score2 || 0;    // gol subiti da POLIS
+                totalShotsMade += match.shots1 || 0;        // tiri fatti da POLIS  
+                totalShotsConceded += match.shots2 || 0;    // tiri subiti da POLIS
+                totalCornersMade += match.corners1 || 0;    // corner fatti da POLIS
+                totalCornersConceded += match.corners2 || 0; // corner subiti da POLIS
+                totalFoulsMade += match.fouls1 || 0;        // falli fatti da POLIS
+                totalFoulsConceded += match.fouls2 || 0;    // falli subiti da POLIS
+            });
+
+            // Aggiorna le statistiche del riepilogo
+            document.getElementById('total-goals-made').textContent = totalGoalsMade;
+            document.getElementById('total-goals-conceded').textContent = totalGoalsConceded;
+            document.getElementById('total-shots-made').textContent = totalShotsMade;
+            document.getElementById('total-shots-conceded').textContent = totalShotsConceded;
+            document.getElementById('total-corners-made').textContent = totalCornersMade;
+            document.getElementById('total-corners-conceded').textContent = totalCornersConceded;
+            document.getElementById('total-fouls-made').textContent = totalFoulsMade;
+            document.getElementById('total-fouls-conceded').textContent = totalFoulsConceded;
 
             // Renderizza la classifica marcatori
             const scorersTableBody = document.getElementById('scorers-table-body');
