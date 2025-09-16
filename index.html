@@ -700,6 +700,7 @@
             <div class="timer-container">
                 <div class="timer-display-container">
                     <span id="timer-display">18:00</span>
+                    <button id="edit-timer-button" class="btn btn-start" style="padding: 0.5rem; font-size: 0.875rem;">Modifica</button>
                 </div>
                 <div class="timer-controls">
                     <button id="start-timer-button" class="btn btn-start">Avvia</button>
@@ -1037,10 +1038,10 @@
         let team1Scorers = [];
         let team2Scorers = [];
         let pendingRemovalAction = null;
-        let totalSeconds = 20 * 60;
+        let totalSeconds = 18 * 60;
         let timerInterval = null;
         let isRunning = false;
-        let lastSetSeconds = 20 * 60;
+        let lastSetSeconds = 18 * 60;
 
         // History variables
         let matchHistory = [];
@@ -1703,6 +1704,17 @@
 
             // Timer setup modal
             document.getElementById('timer-display').addEventListener('click', () => {
+                pauseTimer();
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                document.getElementById('timer-minutes-input').value = minutes;
+                document.getElementById('timer-seconds-input').value = seconds;
+                document.getElementById('timer-setup-modal').classList.add('is-active');
+                vibrate([50]); // Timer modal open feedback
+            });
+
+            // Edit timer button
+            document.getElementById('edit-timer-button').addEventListener('click', () => {
                 pauseTimer();
                 const minutes = Math.floor(totalSeconds / 60);
                 const seconds = totalSeconds % 60;
