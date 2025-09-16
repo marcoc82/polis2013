@@ -216,10 +216,7 @@
             padding: 0.75rem 1rem; /* Reduced padding */
             font-size: 0.75rem; /* Smaller font */
         }
-        /* Red color for shot and foul buttons */
-        .btn-stats-add[data-type="shot"], .btn-stats-add[data-type="foul"] {
-            background: linear-gradient(to right, #dc2626, #b91c1c);
-        }
+        /* Keep Corner, Tiri in porta and Falli buttons orange - remove red override */
         .btn-remove-goal {
             background-color: #ef4444;
             color: white;
@@ -236,16 +233,16 @@
             background-color: #dc2626;
         }
         .btn-remove-stats {
-            background-color: #94a3b8;
-            color: #4a5568;
+            background-color: #dc2626; /* Changed to red */
+            color: white; /* Changed to white for better contrast */
             font-weight: 600;
             border-radius: 0.75rem;
             height: 2.5rem; /* Reduced height */
             font-size: 0.75rem; /* Smaller font */
         }
         .btn-remove-stats:hover {
-            background-color: #64748b;
-            color: #f8fafc;
+            background-color: #b91c1c; /* Darker red on hover */
+            color: white;
         }
 
         /* Timer buttons */
@@ -1559,9 +1556,27 @@
             document.getElementById('share-button').addEventListener('click', async () => {
                 vibrate([50]); // Button feedback
                 await saveMatch();
-                // Here we could add image generation functionality if needed
-                // For now, just show success message
-                alert('Partita salvata e pronta per la condivisione!');
+                
+                // Try to use native share API if available
+                if (navigator.share) {
+                    try {
+                        const team1Name = 'POLIS';
+                        const team2Name = document.getElementById('team2-name').textContent;
+                        const shareText = `🏆 Risultato partita:\n${team1Name} ${scoreTeam1} - ${scoreTeam2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shotsTeam1} - ${shotsTeam2}\nCorner: ${cornersTeam1} - ${cornersTeam2}\nFalli: ${foulsTeam1} - ${foulsTeam2}`;
+                        
+                        await navigator.share({
+                            title: 'Risultato Partita - Polis 2013',
+                            text: shareText,
+                            url: window.location.href
+                        });
+                    } catch (error) {
+                        console.log('Share cancelled or failed:', error);
+                        alert('Partita salvata e pronta per la condivisione!');
+                    }
+                } else {
+                    // Fallback for browsers without native share API
+                    alert('Partita salvata e pronta per la condivisione!');
+                }
             });
         });
 
