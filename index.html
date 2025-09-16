@@ -213,18 +213,18 @@
         }
         .btn-stats-add {
             background: linear-gradient(to right, #f97316, #ea580c);
-            padding: 0.75rem 1rem; /* Reduced padding */
-            font-size: 0.75rem; /* Smaller font */
+            padding: 0.875rem 1.5rem; /* Match goal button padding */
+            font-size: 0.8rem; /* Match goal button font size */
         }
         
-        /* Enhanced styling for Corner, Tiri, and Falli buttons - uniform light orange color and reduced size */
+        /* Enhanced styling for Corner, Tiri, and Falli buttons - same size as Goal buttons */
         .btn-corner {
             background: linear-gradient(to right, #fb923c, #f97316) !important;
             color: #fff !important;
             border: 2px solid #fb923c !important;
             font-size: 0.8rem !important;
             font-weight: 700 !important;
-            padding: 0.7rem 1rem !important;
+            padding: 0.875rem 1.5rem !important; /* Match goal button padding */
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         .btn-corner:hover {
@@ -240,7 +240,7 @@
             border: 2px solid #fb923c !important;
             font-size: 0.8rem !important;
             font-weight: 700 !important;
-            padding: 0.7rem 1rem !important;
+            padding: 0.875rem 1.5rem !important; /* Match goal button padding */
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         .btn-tiri:hover {
@@ -256,7 +256,7 @@
             border: 2px solid #fb923c !important;
             font-size: 0.8rem !important;
             font-weight: 700 !important;
-            padding: 0.7rem 1rem !important;
+            padding: 0.875rem 1.5rem !important; /* Match goal button padding */
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         .btn-falli:hover {
@@ -904,6 +904,15 @@
         <div class="modal-content max-w-4xl">
             <div class="modal-header">Storico Partite</div>
             <div class="history-content">
+                <!-- Sezione Riepilogo Statistiche Totali -->
+                <div class="history-section">
+                    <h3 class="history-section-title">Riepilogo Statistiche Totali</h3>
+                    <div class="stat-item">
+                        <span>Partite giocate totali:</span>
+                        <span id="total-matches-played">0</span>
+                    </div>
+                </div>
+
                 <!-- Sezione Classifica Marcatori -->
                 <div class="history-section">
                     <h3 class="history-section-title">Classifica Marcatori POLIS</h3>
@@ -1488,6 +1497,12 @@
             }
             
             history = history.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Update total matches played
+            const totalMatchesElement = document.getElementById('total-matches-played');
+            if (totalMatchesElement) {
+                totalMatchesElement.textContent = history.length;
+            }
             
             // Calcola le statistiche generali e la classifica marcatori
             const allScorers = {};
