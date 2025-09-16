@@ -1188,11 +1188,16 @@
     // Funzione per aggiungere un goal per la squadra 1
     function addGoalTeam1(player, quarter) {
         scoreTeam1++;
+        
+        // Calculate minutes elapsed since timer started
+        const elapsedSeconds = (lastSetSeconds - totalSeconds);
+        const minute = Math.floor(elapsedSeconds / 60) + 1; // Add 1 so first minute shows as "1" instead of "0"
+        
         const newScorer = document.createElement('div');
         newScorer.classList.add('scorer-list-item');
-        newScorer.textContent = `${player} (${quarter})`;
+        newScorer.textContent = `${player} - ${minute}' (${quarter})`;
         scorersList1.appendChild(newScorer);
-        team1Scorers.push({ player: player, quarter: quarter });
+        team1Scorers.push({ player: player, quarter: quarter, minute: minute });
 
         scoreTeam1Display.classList.add('is-pulsing');
         setTimeout(() => {
@@ -1206,11 +1211,16 @@
     // Funzione per aggiungere un goal per la squadra 2
     function addGoalTeam2(quarter) {
         scoreTeam2++;
+        
+        // Calculate minutes elapsed since timer started
+        const elapsedSeconds = (lastSetSeconds - totalSeconds);
+        const minute = Math.floor(elapsedSeconds / 60) + 1; // Add 1 so first minute shows as "1" instead of "0"
+        
         const newScorer = document.createElement('div');
         newScorer.classList.add('scorer-list-item');
-        newScorer.textContent = `Goal (${quarter})`;
+        newScorer.textContent = `Goal - ${minute}' (${quarter})`;
         scorersList2.appendChild(newScorer);
-        team2Scorers.push({ player: 'Sconosciuto', quarter: quarter });
+        team2Scorers.push({ player: 'Sconosciuto', quarter: quarter, minute: minute });
         updateScores();
     }
     
@@ -1337,8 +1347,8 @@
                 historyItem.classList.add('history-item');
                 const formattedDate = new Date(match.date).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 
-                const team1ScorersText = match.scorers1.length > 0 ? `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter})`).join(', ')}</span>` : '';
-                const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter})`).join(', ')}</span>` : '';
+                const team1ScorersText = match.scorers1.length > 0 ? `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
+                const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
 
                 historyItem.innerHTML = `
                     <div class="history-item-header">
@@ -1562,7 +1572,7 @@
             team1Scorers.forEach(s => {
                 const newScorer = document.createElement('div');
                 newScorer.classList.add('scorer-list-item');
-                newScorer.textContent = `${s.player} (${s.quarter})`;
+                newScorer.textContent = `${s.player} - ${s.minute || 0}' (${s.quarter})`;
                 scorersList1.appendChild(newScorer);
             });
         } else if (team === 2) {
@@ -1570,7 +1580,7 @@
             team2Scorers.forEach(s => {
                 const newScorer = document.createElement('div');
                 newScorer.classList.add('scorer-list-item');
-                newScorer.textContent = `Goal (${s.quarter})`;
+                newScorer.textContent = `Goal - ${s.minute || 0}' (${s.quarter})`;
                 scorersList2.appendChild(newScorer);
             });
         }

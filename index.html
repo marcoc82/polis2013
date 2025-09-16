@@ -1075,7 +1075,7 @@
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `${player} - ${minute}'`;
+            newScorer.textContent = `${player} - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-1').appendChild(newScorer);
             team1Scorers.push({ player: player, quarter: quarter, minute: minute });
 
@@ -1099,7 +1099,7 @@
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `Goal - ${minute}'`;
+            newScorer.textContent = `Goal - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-2').appendChild(newScorer);
             team2Scorers.push({ player: 'Sconosciuto', quarter: quarter, minute: minute });
             updateScores();
@@ -1195,7 +1195,7 @@
                 team1Scorers.forEach(s => {
                     const newScorer = document.createElement('div');
                     newScorer.classList.add('scorer-list-item');
-                    newScorer.textContent = `${s.player} - ${s.minute || 0}'`;
+                    newScorer.textContent = `${s.player} - ${s.minute || 0}' (${s.quarter})`;
                     list.appendChild(newScorer);
                 });
             } else if (team === 2) {
@@ -1204,7 +1204,7 @@
                 team2Scorers.forEach(s => {
                     const newScorer = document.createElement('div');
                     newScorer.classList.add('scorer-list-item');
-                    newScorer.textContent = `Goal - ${s.minute || 0}'`;
+                    newScorer.textContent = `Goal - ${s.minute || 0}' (${s.quarter})`;
                     list.appendChild(newScorer);
                 });
             }
@@ -1414,9 +1414,9 @@
                     });
                     
                     const team1ScorersText = match.scorers1 && match.scorers1.length > 0 ? 
-                        `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} - ${s.minute || 0}'`).join(', ')}</span>` : '';
+                        `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
                     const team2ScorersText = match.scorers2 && match.scorers2.length > 0 ? 
-                        `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}'`).join(', ')}</span>` : '';
+                        `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
 
                     historyItem.innerHTML = `
                         <div class="flex justify-between items-start">
