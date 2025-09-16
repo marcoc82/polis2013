@@ -450,10 +450,47 @@
             animation: timer-pulse 1s ease-in-out infinite;
         }
 
+        /* History styles */
+        .history-list {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+        .history-item {
+            background-color: #334155;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .history-date {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 640px) {
-            .teams-container, .stats-container {
-                grid-template-columns: 1fr;
+            .teams-container {
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+            }
+            .teams-container .team {
+                flex: 1;
+                min-width: 0;
+            }
+            .stats-container {
+                display: flex;
+                flex-direction: row;
+                gap: 1rem;
+            }
+            .stats-container .stats-team {
+                flex: 1;
+                min-width: 0;
             }
             .score-display {
                 font-size: 4rem;
@@ -548,6 +585,12 @@
                     </div>
                     <div class="button-section">
                         <div class="button-grid-2">
+                            <button class="btn btn-stats-add" data-team="1" data-type="foul" data-action="add">Falli</button>
+                            <button class="btn btn-remove-stats" data-team="1" data-type="foul" data-action="remove">Rimuovi Falli</button>
+                        </div>
+                    </div>
+                    <div class="button-section">
+                        <div class="button-grid-2">
                             <button class="btn btn-remove-stats" data-team="1" data-type="corner" data-action="remove">Rimuovi Corner</button>
                             <button class="btn btn-remove-stats" data-team="1" data-type="shot" data-action="remove">Rimuovi Tiri</button>
                         </div>
@@ -575,6 +618,12 @@
                         <div class="button-grid-2">
                             <button class="btn btn-stats-add" data-team="2" data-type="corner" data-action="add">Corner</button>
                             <button class="btn btn-stats-add" data-team="2" data-type="shot" data-action="add">Tiri in porta</button>
+                        </div>
+                    </div>
+                    <div class="button-section">
+                        <div class="button-grid-2">
+                            <button class="btn btn-stats-add" data-team="2" data-type="foul" data-action="add">Falli</button>
+                            <button class="btn btn-remove-stats" data-team="2" data-type="foul" data-action="remove">Rimuovi Falli</button>
                         </div>
                     </div>
                     <div class="button-section">
@@ -615,6 +664,14 @@
                         <span>Corner subiti:</span>
                         <span id="corners-team2-taken">0</span>
                     </div>
+                    <div class="stat-item">
+                        <span>Falli fatti:</span>
+                        <span id="fouls-team1">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Falli subiti:</span>
+                        <span id="fouls-team2-taken">0</span>
+                    </div>
                     <div id="scorers-list-1" class="scorer-list">
                         <h4>Marcatori:</h4>
                     </div>
@@ -646,6 +703,14 @@
                     <div class="stat-item">
                         <span>Corner subiti:</span>
                         <span id="corners-team1-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Falli fatti:</span>
+                        <span id="fouls-team2">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Falli subiti:</span>
+                        <span id="fouls-team1-taken">0</span>
                     </div>
                     <div id="scorers-list-2" class="scorer-list">
                         <h4>Marcatori:</h4>
@@ -712,14 +777,27 @@
         </div>
     </div>
 
+    <!-- History modal -->
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal-content max-w-lg">
+            <div class="modal-header">Storico Partite</div>
+            <div id="history-list" class="history-list">
+                <!-- History items will be added here -->
+            </div>
+            <button id="close-history-button" class="btn btn-goal mt-4 px-8">Chiudi</button>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let scoreTeam1 = 0;
         let scoreTeam2 = 0;
         let shotsTeam1 = 0;
         let cornersTeam1 = 0;
+        let foulsTeam1 = 0;
         let shotsTeam2 = 0;
         let cornersTeam2 = 0;
+        let foulsTeam2 = 0;
         let team1Scorers = [];
         let team2Scorers = [];
         let pendingRemovalAction = null;
@@ -727,6 +805,9 @@
         let timerInterval = null;
         let isRunning = false;
         let lastSetSeconds = 20 * 60;
+
+        // History variables
+        let matchHistory = [];
 
         // Player list from original
         const players = [
@@ -796,6 +877,8 @@
             document.getElementById('shots-team2-taken').textContent = shotsTeam2;
             document.getElementById('corners-team1').textContent = cornersTeam1;
             document.getElementById('corners-team2-taken').textContent = cornersTeam2;
+            document.getElementById('fouls-team1').textContent = foulsTeam1;
+            document.getElementById('fouls-team2-taken').textContent = foulsTeam2;
             
             document.getElementById('goals-team2').textContent = scoreTeam2;
             document.getElementById('goals-team1-taken').textContent = scoreTeam1;
@@ -803,6 +886,8 @@
             document.getElementById('shots-team1-taken').textContent = shotsTeam1;
             document.getElementById('corners-team2').textContent = cornersTeam2;
             document.getElementById('corners-team1-taken').textContent = cornersTeam1;
+            document.getElementById('fouls-team2').textContent = foulsTeam2;
+            document.getElementById('fouls-team1-taken').textContent = foulsTeam1;
         }
 
         // Timer functions
@@ -923,6 +1008,8 @@
                 text = 'un corner';
             } else if (type === 'shot') {
                 text = 'un tiro';
+            } else if (type === 'foul') {
+                text = 'un fallo';
             }
             document.getElementById('remove-modal-header').textContent = `Sei sicuro di voler rimuovere ${text}?`;
             document.getElementById('remove-modal-message').textContent = `Verrà rimosso l'ultimo ${text} segnato dalla squadra ${team}.`;
@@ -945,6 +1032,8 @@
                     cornersTeam1--;
                 } else if (type === 'shot' && shotsTeam1 > 0) {
                     shotsTeam1--;
+                } else if (type === 'foul' && foulsTeam1 > 0) {
+                    foulsTeam1--;
                 }
             } else if (team === '2') {
                 if (type === 'goal' && scoreTeam2 > 0) {
@@ -955,6 +1044,8 @@
                     cornersTeam2--;
                 } else if (type === 'shot' && shotsTeam2 > 0) {
                     shotsTeam2--;
+                } else if (type === 'foul' && foulsTeam2 > 0) {
+                    foulsTeam2--;
                 }
             }
             updateScores();
@@ -990,8 +1081,10 @@
             scoreTeam2 = 0;
             shotsTeam1 = 0;
             cornersTeam1 = 0;
+            foulsTeam1 = 0;
             shotsTeam2 = 0;
             cornersTeam2 = 0;
+            foulsTeam2 = 0;
             team1Scorers = [];
             team2Scorers = [];
 
@@ -1016,6 +1109,85 @@
 
         function hideResetModal() {
             document.getElementById('reset-modal').classList.remove('is-active');
+        }
+
+        // History functions
+        function saveMatch() {
+            const team1Name = 'POLIS';
+            const team2Name = document.getElementById('team2-name').textContent;
+            const history = loadMatchHistory();
+
+            const match = {
+                team1: team1Name,
+                team2: team2Name,
+                score1: scoreTeam1,
+                score2: scoreTeam2,
+                shots1: shotsTeam1,
+                corners1: cornersTeam1,
+                fouls1: foulsTeam1,
+                shots2: shotsTeam2,
+                corners2: cornersTeam2,
+                fouls2: foulsTeam2,
+                date: new Date().toISOString(),
+                scorers1: team1Scorers,
+                scorers2: team2Scorers
+            };
+            history.push(match);
+            localStorage.setItem('polis_match_history', JSON.stringify(history));
+        }
+
+        function loadMatchHistory() {
+            const historyString = localStorage.getItem('polis_match_history');
+            return historyString ? JSON.parse(historyString) : [];
+        }
+
+        function showHistoryModal() {
+            renderHistory();
+            document.getElementById('history-modal').classList.add('is-active');
+        }
+
+        function hideHistoryModal() {
+            document.getElementById('history-modal').classList.remove('is-active');
+        }
+
+        function renderHistory() {
+            const history = loadMatchHistory().sort((a, b) => new Date(b.date) - new Date(a.date));
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="text-center text-gray-400">Nessuna partita salvata.</div>';
+            } else {
+                history.forEach((match, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.classList.add('history-item');
+                    const formattedDate = new Date(match.date).toLocaleDateString('it-IT', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    const team1ScorersText = match.scorers1 && match.scorers1.length > 0 ? 
+                        `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter})`).join(', ')}</span>` : '';
+                    const team2ScorersText = match.scorers2 && match.scorers2.length > 0 ? 
+                        `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter})`).join(', ')}</span>` : '';
+
+                    historyItem.innerHTML = `
+                        <div class="history-date">${formattedDate}</div>
+                        <div class="font-bold text-xl">${match.team1} ${match.score1} - ${match.score2} ${match.team2}</div>
+                        <div class="mt-2 text-sm text-gray-300">
+                            <div>Tiri: ${match.shots1 || 0} - ${match.shots2 || 0}</div>
+                            <div>Corner: ${match.corners1 || 0} - ${match.corners2 || 0}</div>
+                            <div>Falli: ${match.fouls1 || 0} - ${match.fouls2 || 0}</div>
+                            ${team1ScorersText}
+                            ${team2ScorersText}
+                        </div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            }
         }
 
         // Event listeners for buttons
@@ -1078,6 +1250,13 @@
                                 shotsTeam2++;
                             }
                             updateStats();
+                        } else if (type === 'foul') {
+                            if (team === '1') {
+                                foulsTeam1++;
+                            } else if (team === '2') {
+                                foulsTeam2++;
+                            }
+                            updateStats();
                         }
                     } else if (action === 'remove') {
                         showRemoveModal(type, team);
@@ -1092,6 +1271,16 @@
             document.getElementById('reset-button').addEventListener('click', showResetModal);
             document.getElementById('confirm-reset-button').addEventListener('click', resetGame);
             document.getElementById('cancel-reset-button').addEventListener('click', hideResetModal);
+
+            // History event listeners
+            document.getElementById('show-history-button').addEventListener('click', showHistoryModal);
+            document.getElementById('close-history-button').addEventListener('click', hideHistoryModal);
+
+            // Save and share functionality (simplified for now)
+            document.getElementById('save-share-button').addEventListener('click', () => {
+                saveMatch();
+                alert('Partita salvata nello storico!');
+            });
         });
 
         // Initialize Firebase connection check
