@@ -491,6 +491,36 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Scorer ranking styles */
+        .history-section {
+            margin-bottom: 2rem;
+        }
+        .history-section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+        .scorers-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .scorers-table th, .scorers-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #475569;
+        }
+        .scorers-table th {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .scorers-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .scorers-table tr:hover {
+            background-color: #334155;
+        }
+
         /* Responsive */
         @media (max-width: 640px) {
             .teams-container {
@@ -832,10 +862,33 @@
 
     <!-- History modal -->
     <div id="history-modal" class="modal-overlay">
-        <div class="modal-content max-w-lg">
+        <div class="modal-content max-w-4xl">
             <div class="modal-header">Storico Partite</div>
-            <div id="history-list" class="history-list">
-                <!-- History items will be added here -->
+            <div class="history-content">
+                <!-- Sezione Classifica Marcatori -->
+                <div class="history-section">
+                    <h3 class="history-section-title">Classifica Marcatori POLIS</h3>
+                    <table class="scorers-table">
+                        <thead>
+                            <tr>
+                                <th>Pos.</th>
+                                <th>Giocatore</th>
+                                <th>Gol</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scorers-table-body">
+                            <!-- La tabella verrà popolata da JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sezione Storico Partite -->
+                <div class="history-section">
+                    <h3 class="history-section-title">Partite Giocate</h3>
+                    <div id="history-list" class="history-list">
+                        <!-- History items will be added here -->
+                    </div>
+                </div>
             </div>
             <button id="close-history-button" class="btn btn-goal mt-4 px-8">Chiudi</button>
         </div>
@@ -1396,6 +1449,42 @@
             }
             
             history = history.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Calcola le statistiche generali e la classifica marcatori
+            const allScorers = {};
+            history.forEach(match => {
+                if (match.scorers1 && Array.isArray(match.scorers1)) {
+                    match.scorers1.forEach(scorer => {
+                        if (scorer.player) {
+                            if (!allScorers[scorer.player]) {
+                                allScorers[scorer.player] = 0;
+                            }
+                            allScorers[scorer.player]++;
+                        }
+                    });
+                }
+            });
+            
+            // Ordina i marcatori per numero di gol
+            const sortedScorers = Object.entries(allScorers).sort(([, a], [, b]) => b - a);
+
+            // Renderizza la classifica marcatori
+            const scorersTableBody = document.getElementById('scorers-table-body');
+            scorersTableBody.innerHTML = '';
+            if (sortedScorers.length > 0) {
+                sortedScorers.forEach(([player, goals], index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${player}</td>
+                        <td>${goals}</td>
+                    `;
+                    scorersTableBody.appendChild(row);
+                });
+            } else {
+                scorersTableBody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">Nessun marcatore.</td></tr>';
+            }
+
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
             
