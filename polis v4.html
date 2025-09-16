@@ -152,15 +152,15 @@
             background-color: #dc2626;
         }
         .btn-remove-stats {
-            background-color: #94a3b8;
-            color: #4a5568;
+            background-color: #dc2626; /* Changed to red */
+            color: white; /* Changed to white for better contrast */
             font-weight: 600;
             border-radius: 0.75rem;
             height: 3rem;
         }
         .btn-remove-stats:hover {
-            background-color: #64748b;
-            color: #f8fafc;
+            background-color: #b91c1c; /* Darker red on hover */
+            color: white;
         }
 
         /* Stili per le statistiche */
@@ -747,8 +747,9 @@
             RESET
         </button>
         <button id="save-share-button" class="btn btn-share flex items-center justify-center gap-2">
+            <!-- Floppy disk icon -->
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.88 15.114 9 17 9 17a3 3 0 100-6 3 3 0 000 6zM20.242 6.342a3 3 0 10-3.864 3.864M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
             SALVA E CONDIVIDI
         </button>
@@ -1604,14 +1605,39 @@
     });
 
     // Aggiungi un listener per il pulsante Salva e Condividi
-    saveShareButton.addEventListener('click', () => {
+    saveShareButton.addEventListener('click', async () => {
         vibratePhone();
         saveMatch();
-        generateShareContent();
-        shareSection.classList.add('is-visible');
-        setTimeout(() => {
-            captureAndDisplay();
-        }, 100);
+        
+        // Try to use native share API if available
+        if (navigator.share) {
+            try {
+                const team1Name = 'POLIS';
+                const team2Name = team2NameElement.textContent;
+                const shareText = `🏆 Risultato partita:\n${team1Name} ${scoreTeam1} - ${scoreTeam2} ${team2Name}\n\n📊 Statistiche:\nTiri: ${shotsTeam1} - ${shotsTeam2}\nCorner: ${cornersTeam1} - ${cornersTeam2}`;
+                
+                await navigator.share({
+                    title: 'Risultato Partita - Polis 2013',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } catch (error) {
+                console.log('Share cancelled or failed:', error);
+                // Fallback to image generation
+                generateShareContent();
+                shareSection.classList.add('is-visible');
+                setTimeout(() => {
+                    captureAndDisplay();
+                }, 100);
+            }
+        } else {
+            // Fallback for browsers without native share API
+            generateShareContent();
+            shareSection.classList.add('is-visible');
+            setTimeout(() => {
+                captureAndDisplay();
+            }, 100);
+        }
     });
 
     // Listener per il pulsante "Chiudi" della sezione di condivisione
