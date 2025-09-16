@@ -613,22 +613,18 @@
                             <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
                         </div>
                     </div>
-                    <div class="button-section">
-                        <div class="button-grid-2">
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="flex flex-col items-center">
                             <button class="btn btn-stats-add" data-team="1" data-type="corner" data-action="add">Corner</button>
+                            <button class="btn btn-remove-stats mt-2" data-team="1" data-type="corner" data-action="remove">-</button>
+                        </div>
+                        <div class="flex flex-col items-center">
                             <button class="btn btn-stats-add" data-team="1" data-type="shot" data-action="add">Tiri in porta</button>
+                            <button class="btn btn-remove-stats mt-2" data-team="1" data-type="shot" data-action="remove">-</button>
                         </div>
-                    </div>
-                    <div class="button-section">
-                        <div class="button-grid-2">
+                        <div class="flex flex-col items-center">
                             <button class="btn btn-stats-add" data-team="1" data-type="foul" data-action="add">Falli</button>
-                            <button class="btn btn-remove-stats" data-team="1" data-type="foul" data-action="remove">Rimuovi Falli</button>
-                        </div>
-                    </div>
-                    <div class="button-section">
-                        <div class="button-grid-2">
-                            <button class="btn btn-remove-stats" data-team="1" data-type="corner" data-action="remove">Rimuovi Corner</button>
-                            <button class="btn btn-remove-stats" data-team="1" data-type="shot" data-action="remove">Rimuovi Tiri</button>
+                            <button class="btn btn-remove-stats mt-2" data-team="1" data-type="foul" data-action="remove">-</button>
                         </div>
                     </div>
                 </div>
@@ -650,22 +646,18 @@
                             <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
                         </div>
                     </div>
-                    <div class="button-section">
-                        <div class="button-grid-2">
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="flex flex-col items-center">
                             <button class="btn btn-stats-add" data-team="2" data-type="corner" data-action="add">Corner</button>
+                            <button class="btn btn-remove-stats mt-2" data-team="2" data-type="corner" data-action="remove">-</button>
+                        </div>
+                        <div class="flex flex-col items-center">
                             <button class="btn btn-stats-add" data-team="2" data-type="shot" data-action="add">Tiri in porta</button>
+                            <button class="btn btn-remove-stats mt-2" data-team="2" data-type="shot" data-action="remove">-</button>
                         </div>
-                    </div>
-                    <div class="button-section">
-                        <div class="button-grid-2">
+                        <div class="flex flex-col items-center">
                             <button class="btn btn-stats-add" data-team="2" data-type="foul" data-action="add">Falli</button>
-                            <button class="btn btn-remove-stats" data-team="2" data-type="foul" data-action="remove">Rimuovi Falli</button>
-                        </div>
-                    </div>
-                    <div class="button-section">
-                        <div class="button-grid-2">
-                            <button class="btn btn-remove-stats" data-team="2" data-type="corner" data-action="remove">Rimuovi Corner</button>
-                            <button class="btn btn-remove-stats" data-team="2" data-type="shot" data-action="remove">Rimuovi Tiri</button>
+                            <button class="btn btn-remove-stats mt-2" data-team="2" data-type="foul" data-action="remove">-</button>
                         </div>
                     </div>
                 </div>
@@ -824,6 +816,18 @@
         </div>
     </div>
 
+    <!-- Delete match confirmation modal -->
+    <div id="delete-match-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Elimina Partita</div>
+            <p class="text-gray-400 mb-6">Sei sicuro di voler eliminare questa partita dallo storico?</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-delete-match-button" class="btn btn-reset px-8">Sì, Elimina</button>
+                <button id="cancel-delete-match-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let scoreTeam1 = 0;
@@ -845,6 +849,7 @@
         // History variables
         let matchHistory = [];
         let historyListener = null;
+        let pendingDeleteMatchId = null;
 
         // Screen wake lock
         let wakeLock = null;
@@ -1038,11 +1043,16 @@
         // Goal functions
         function addGoalTeam1(player, quarter) {
             scoreTeam1++;
+            
+            // Calculate minutes elapsed since timer started
+            const elapsedSeconds = (lastSetSeconds - totalSeconds);
+            const minute = Math.floor(elapsedSeconds / 60);
+            
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `${player} (${quarter})`;
+            newScorer.textContent = `${player} - ${minute}'`;
             document.getElementById('scorers-list-1').appendChild(newScorer);
-            team1Scorers.push({ player: player, quarter: quarter });
+            team1Scorers.push({ player: player, quarter: quarter, minute: minute });
 
             document.getElementById('score-team1').classList.add('is-pulsing');
             setTimeout(() => {
@@ -1057,11 +1067,16 @@
 
         function addGoalTeam2(quarter) {
             scoreTeam2++;
+            
+            // Calculate minutes elapsed since timer started
+            const elapsedSeconds = (lastSetSeconds - totalSeconds);
+            const minute = Math.floor(elapsedSeconds / 60);
+            
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `Goal (${quarter})`;
+            newScorer.textContent = `Goal - ${minute}'`;
             document.getElementById('scorers-list-2').appendChild(newScorer);
-            team2Scorers.push({ player: 'Sconosciuto', quarter: quarter });
+            team2Scorers.push({ player: 'Sconosciuto', quarter: quarter, minute: minute });
             updateScores();
             
             // Special vibration pattern for goals
@@ -1155,7 +1170,7 @@
                 team1Scorers.forEach(s => {
                     const newScorer = document.createElement('div');
                     newScorer.classList.add('scorer-list-item');
-                    newScorer.textContent = `${s.player} (${s.quarter})`;
+                    newScorer.textContent = `${s.player} - ${s.minute || 0}'`;
                     list.appendChild(newScorer);
                 });
             } else if (team === 2) {
@@ -1164,7 +1179,7 @@
                 team2Scorers.forEach(s => {
                     const newScorer = document.createElement('div');
                     newScorer.classList.add('scorer-list-item');
-                    newScorer.textContent = `Goal (${s.quarter})`;
+                    newScorer.textContent = `Goal - ${s.minute || 0}'`;
                     list.appendChild(newScorer);
                 });
             }
@@ -1303,6 +1318,48 @@
             vibrate([30]); // Add haptic feedback
         }
 
+        function showDeleteMatchModal(matchId) {
+            pendingDeleteMatchId = matchId;
+            document.getElementById('delete-match-modal').classList.add('is-active');
+            vibrate([50]); // Add haptic feedback
+        }
+
+        function hideDeleteMatchModal() {
+            pendingDeleteMatchId = null;
+            document.getElementById('delete-match-modal').classList.remove('is-active');
+            vibrate([30]); // Add haptic feedback
+        }
+
+        async function confirmDeleteMatch() {
+            if (!pendingDeleteMatchId) return;
+
+            try {
+                // Try to delete from Firebase first
+                if (typeof window.deleteGameFromFirebase === 'function') {
+                    await window.deleteGameFromFirebase(pendingDeleteMatchId);
+                    vibrate([100, 50, 100]); // Success vibration
+                } else {
+                    // Fallback to localStorage deletion
+                    const history = loadMatchHistoryLocal();
+                    const indexToDelete = parseInt(pendingDeleteMatchId);
+                    if (indexToDelete >= 0 && indexToDelete < history.length) {
+                        history.splice(indexToDelete, 1);
+                        localStorage.setItem('polis_match_history', JSON.stringify(history));
+                        vibrate([100, 50, 100]); // Success vibration
+                    }
+                }
+                
+                hideDeleteMatchModal();
+                // Refresh the history display
+                await renderHistory();
+                
+            } catch (error) {
+                console.error('Error deleting match:', error);
+                alert('Errore durante l\'eliminazione della partita.');
+                vibrate([200, 100, 200]); // Error vibration
+            }
+        }
+
         async function renderHistory() {
             let history = [];
             
@@ -1332,22 +1389,38 @@
                     });
                     
                     const team1ScorersText = match.scorers1 && match.scorers1.length > 0 ? 
-                        `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter})`).join(', ')}</span>` : '';
+                        `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} - ${s.minute || 0}'`).join(', ')}</span>` : '';
                     const team2ScorersText = match.scorers2 && match.scorers2.length > 0 ? 
-                        `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter})`).join(', ')}</span>` : '';
+                        `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}'`).join(', ')}</span>` : '';
 
                     historyItem.innerHTML = `
-                        <div class="history-date">${formattedDate}</div>
-                        <div class="font-bold text-xl">${match.team1} ${match.score1} - ${match.score2} ${match.team2}</div>
-                        <div class="mt-2 text-sm text-gray-300">
-                            <div>Tiri: ${match.shots1 || 0} - ${match.shots2 || 0}</div>
-                            <div>Corner: ${match.corners1 || 0} - ${match.corners2 || 0}</div>
-                            <div>Falli: ${match.fouls1 || 0} - ${match.fouls2 || 0}</div>
-                            ${team1ScorersText}
-                            ${team2ScorersText}
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="history-date">${formattedDate}</div>
+                                <div class="font-bold text-xl">${match.team1} ${match.score1} - ${match.score2} ${match.team2}</div>
+                                <div class="mt-2 text-sm text-gray-300">
+                                    <div>Tiri: ${match.shots1 || 0} - ${match.shots2 || 0}</div>
+                                    <div>Corner: ${match.corners1 || 0} - ${match.corners2 || 0}</div>
+                                    <div>Falli: ${match.fouls1 || 0} - ${match.fouls2 || 0}</div>
+                                    ${team1ScorersText}
+                                    ${team2ScorersText}
+                                </div>
+                            </div>
+                            <button class="btn btn-reset ml-4 px-3 py-2 text-sm delete-match-btn" data-match-id="${match.id || index}">
+                                🗑️
+                            </button>
                         </div>
                     `;
                     historyList.appendChild(historyItem);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-match-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const matchId = e.target.dataset.matchId;
+                        showDeleteMatchModal(matchId);
+                    });
                 });
             }
         }
@@ -1446,6 +1519,10 @@
             // History event listeners
             document.getElementById('show-history-button').addEventListener('click', showHistoryModal);
             document.getElementById('close-history-button').addEventListener('click', hideHistoryModal);
+
+            // Delete match event listeners
+            document.getElementById('confirm-delete-match-button').addEventListener('click', confirmDeleteMatch);
+            document.getElementById('cancel-delete-match-button').addEventListener('click', hideDeleteMatchModal);
 
             // Save and share functionality
             document.getElementById('save-share-button').addEventListener('click', async () => {
