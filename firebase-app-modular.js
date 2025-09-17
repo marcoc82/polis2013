@@ -70,9 +70,10 @@ window.setupHistoryListener = function(updateHistoryUI) {
 window.verificaCodice = async function(codice) {
   try {
     const societaRef = collection(db, "societa");
-    const q = query(societaRef, where("codice", "==", codice.toUpperCase()));
+    // Corretto: cerca nell'array 'codici'
+    const q = query(societaRef, where("codici", "array-contains", codice.toUpperCase()));
     const querySnapshot = await getDocs(q);
-    
+
     if (!querySnapshot.empty) {
       const societaDoc = querySnapshot.docs[0];
       return { 
