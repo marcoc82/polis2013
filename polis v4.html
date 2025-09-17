@@ -585,6 +585,8 @@
             text-align: left;
             margin-bottom: 1.5rem;
             line-height: 1.6;
+            min-height: auto;
+            height: auto;
         }
         .share-score {
             font-size: 2.5rem;
@@ -604,11 +606,17 @@
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px solid #475569;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .share-scorers h4 {
             font-size: 1rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+        }
+        .share-scorers p {
+            margin: 0;
+            line-height: 1.5;
         }
         .image-preview {
             max-width: 100%;
@@ -1722,15 +1730,28 @@
     // Funzione per catturare e visualizzare l'immagine
     function captureAndDisplay() {
         shareContentToCapture.style.display = 'block';
-        html2canvas(shareContentToCapture, {
-            backgroundColor: '#1e293b'
-        }).then(canvas => {
-            const imageData = canvas.toDataURL('image/png');
-            screenshotPreview.src = imageData;
-            downloadLink.href = imageData;
-            screenshotPreview.classList.remove('hidden');
-            shareContentToCapture.style.display = 'none';
-        });
+        
+        // Force the container to expand to its full content height
+        shareContentToCapture.style.height = 'auto';
+        shareContentToCapture.style.minHeight = 'auto';
+        
+        // Wait for content to settle and then capture
+        setTimeout(() => {
+            html2canvas(shareContentToCapture, {
+                backgroundColor: '#1e293b',
+                useCORS: true,
+                allowTaint: false,
+                scale: 1,
+                height: shareContentToCapture.scrollHeight,
+                width: shareContentToCapture.scrollWidth
+            }).then(canvas => {
+                const imageData = canvas.toDataURL('image/png');
+                screenshotPreview.src = imageData;
+                downloadLink.href = imageData;
+                screenshotPreview.classList.remove('hidden');
+                shareContentToCapture.style.display = 'none';
+            });
+        }, 50);
     }
 
     // Funzione riutilizzabile per condividere una partita (corrente o storica)
