@@ -37,13 +37,24 @@
             height: 100vh; 
         }
         
-        #loading-screen, #welcome-screen, #login-screen, #menu-screen, #players-management-screen { 
+        #loading-screen, #welcome-screen, #login-screen, #menu-screen { 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
             z-index: 999; 
             background: #1A202C; 
+        }
+        
+        #players-management-screen { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            z-index: 999; 
+            background: #1A202C; 
+            overflow-y: auto;
+            padding: 20px 0;
         }
         
         #main-app { 
@@ -108,6 +119,8 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.5);
             max-width: 450px;
             width: 90%;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
         }
 
         /* Timer styles */
@@ -740,7 +753,7 @@
             
             <div class="mb-4">
                 <input type="text" id="new-player-input" placeholder="Aggiungi nuovo giocatore (es: 88 ROSSI MARIO)" class="w-full mb-2 modal-input">
-                <button id="add-player-btn" class="btn-green btn-large rounded-2xl w-full mb-4">Aggiungi Giocatore</button>
+                <button id="add-player-btn" class="btn-blue btn-large rounded-2xl w-full mb-4">Aggiungi Giocatore</button>
             </div>
             
             <div id="players-list" class="player-list mb-4" style="max-height: 50vh;">
