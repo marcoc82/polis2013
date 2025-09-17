@@ -29,7 +29,7 @@
         }
 
         /* Schermate overlay */
-        #loading-screen, #welcome-screen, #main-app { 
+        #loading-screen, #welcome-screen, #login-screen, #menu-screen, #players-management-screen, #main-app { 
             position: fixed; 
             top: 0; 
             left: 0; 
@@ -37,7 +37,7 @@
             height: 100vh; 
         }
         
-        #loading-screen, #welcome-screen { 
+        #loading-screen, #welcome-screen, #login-screen, #menu-screen, #players-management-screen { 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -355,6 +355,20 @@
         .btn-green:hover {
             background-color: #38A169;
         }
+        .btn-blue {
+            background-color: #4A90E2;
+            color: white;
+        }
+        .btn-blue:hover {
+            background-color: #357ABD;
+        }
+        .btn-gray {
+            background-color: #718096;
+            color: white;
+        }
+        .btn-gray:hover {
+            background-color: #4A5568;
+        }
         .btn-large {
             padding: 16px 32px;
             font-size: 1.2em;
@@ -488,6 +502,11 @@
         }
 
         /* Button grids */
+        .button-grid-1 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
         .button-grid-2 {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -669,6 +688,11 @@
             border-color: rgba(255, 255, 255, 0.1);
             margin: 20px 0;
         }
+
+        /* Utility classes */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -676,6 +700,56 @@
     <div id="loading-screen">
         <h2 style="color:#4A90E2;">Connessione al database...</h2>
         <pre id="loading-log" style="margin-top:20px; color: #E2E8F0; font-family: monospace; background: #2D3748; padding: 20px; border-radius: 12px;"></pre>
+    </div>
+
+    <!-- Schermata di login -->
+    <div id="login-screen" style="display: none;">
+        <div class="welcome-content">
+            <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
+            <hr class="my-6">
+            <h2 class="text-2xl font-bold mb-4">Accesso</h2>
+            <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
+            <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
+            <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
+            <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
+        </div>
+    </div>
+
+    <!-- Schermata menu scelta -->
+    <div id="menu-screen" style="display: none;">
+        <div class="welcome-content">
+            <h1 class="polis-text" style="font-size: 4em;">Polis 2013</h1>
+            <hr class="my-6">
+            <h2 id="menu-team-name" class="text-2xl font-bold mb-4">Benvenuto, POLIS!</h2>
+            <p class="mb-6">Cosa vuoi fare?</p>
+            <div class="button-grid-1 gap-4">
+                <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
+                <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Giocatori</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schermata gestione giocatori -->
+    <div id="players-management-screen" style="display: none;">
+        <div class="welcome-content">
+            <h1 class="polis-text" style="font-size: 3em;">Gestione Giocatori</h1>
+            <hr class="my-6">
+            <h2 id="players-team-name" class="text-xl font-bold mb-4">POLIS</h2>
+            
+            <div class="mb-4">
+                <input type="text" id="new-player-input" placeholder="Aggiungi nuovo giocatore (es: 88 ROSSI MARIO)" class="w-full mb-2 modal-input">
+                <button id="add-player-btn" class="btn-green w-full mb-4">Aggiungi Giocatore</button>
+            </div>
+            
+            <div id="players-list" class="player-list mb-4" style="max-height: 50vh;">
+                <!-- Lista giocatori verrà popolata dinamicamente -->
+            </div>
+            
+            <div class="button-grid-2 gap-2">
+                <button id="save-players-btn" class="btn-green">Salva Modifiche</button>
+                <button id="back-to-menu-btn" class="btn-gray">Torna al Menu</button>
+            </div>
+        </div>
     </div>
 
     <!-- Schermata di benvenuto -->
@@ -1081,8 +1155,12 @@
             }
         }
 
-        // Player list from original
-        const players = [
+        // Current club data
+        let currentClub = null;
+        let currentPlayers = [];
+
+        // Player list from original (fallback)
+        const defaultPlayers = [
             "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
             "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
             "7 CALLIKU ANDREA", "4 CAZZULO MICHELE", "46 CONGIU ALESSIO", "20 DHAOUI OMAR",
@@ -1094,8 +1172,14 @@
             "21 TONINI LORENZO"
         ];
 
+        // Current players array (will be updated based on club)
+        let players = [...defaultPlayers];
+
         // DOM elements
         const loadingScreen = document.getElementById('loading-screen');
+        const loginScreen = document.getElementById('login-screen');
+        const menuScreen = document.getElementById('menu-screen');
+        const playersManagementScreen = document.getElementById('players-management-screen');
         const welcomeScreen = document.getElementById('welcome-screen');
         const mainApp = document.getElementById('main-app');
         const startGameBtn = document.getElementById('start-game-btn');
@@ -1103,9 +1187,12 @@
 
         // Function to be called when Firebase is ready
         window.onFirebaseReady = function() {
-            console.log('Firebase is ready, transitioning to welcome screen');
+            console.log('Firebase is ready, transitioning to login screen');
             loadingScreen.style.display = 'none';
-            welcomeScreen.style.display = 'flex';
+            loginScreen.style.display = 'flex';
+            
+            // Crea società esempio se necessario (solo per testing)
+            // window.creaSocietaEsempio();
         };
 
         // Start game function
@@ -1116,6 +1203,19 @@
             document.getElementById('score-team2-name').textContent = opponentName;
             document.getElementById('team2-name').textContent = opponentName;
             document.getElementById('stats-team2-title').textContent = 'Statistiche ' + opponentName;
+
+            // Update team 1 name if we have a club
+            if (currentClub) {
+                const team1Elements = document.querySelectorAll('.team1-name, #score-team1-name');
+                team1Elements.forEach(el => {
+                    if (el.textContent === 'POLIS') {
+                        el.textContent = currentClub.nome;
+                    }
+                });
+                
+                // Update stats title too
+                document.getElementById('stats-team1-title').textContent = 'Statistiche ' + currentClub.nome;
+            }
 
             // Hide welcome screen and show main app
             welcomeScreen.style.display = 'none';
@@ -1134,6 +1234,134 @@
             
             // Add vibration feedback
             vibrate([50]);
+        }
+
+        // Login function
+        async function handleLogin() {
+            const code = document.getElementById('login-code-input').value.trim();
+            const errorDiv = document.getElementById('login-error');
+            
+            if (!code) {
+                errorDiv.textContent = 'Inserisci un codice';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const result = await window.verificaCodice(code);
+                
+                if (result.success) {
+                    currentClub = result.societa;
+                    currentPlayers = [...(result.societa.giocatori || defaultPlayers)];
+                    players = [...currentPlayers];
+                    
+                    // Update team names
+                    document.getElementById('menu-team-name').textContent = `Benvenuto, ${currentClub.nome}!`;
+                    document.getElementById('players-team-name').textContent = currentClub.nome;
+                    
+                    // Hide login and show menu
+                    loginScreen.style.display = 'none';
+                    menuScreen.style.display = 'flex';
+                    
+                    errorDiv.classList.add('hidden');
+                    vibrate([50]);
+                } else {
+                    errorDiv.textContent = result.message || 'Codice non valido';
+                    errorDiv.classList.remove('hidden');
+                    vibrate([200]);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Errore di connessione';
+                errorDiv.classList.remove('hidden');
+                vibrate([200]);
+            }
+        }
+
+        // Show match setup (welcome screen)
+        function showMatchSetup() {
+            menuScreen.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            
+            // Update team name in welcome screen if needed
+            if (currentClub) {
+                // No need to change anything, POLIS is hardcoded in the main interface
+            }
+        }
+
+        // Show players management
+        function showPlayersManagement() {
+            menuScreen.style.display = 'none';
+            playersManagementScreen.style.display = 'flex';
+            
+            updatePlayersListUI();
+        }
+
+        // Update players list UI
+        function updatePlayersListUI() {
+            const playersList = document.getElementById('players-list');
+            playersList.innerHTML = '';
+            
+            currentPlayers.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'flex items-center justify-between bg-gray-700 p-3 rounded';
+                playerDiv.innerHTML = `
+                    <span class="text-white">${player}</span>
+                    <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                        Rimuovi
+                    </button>
+                `;
+                playersList.appendChild(playerDiv);
+            });
+        }
+
+        // Add new player
+        function addPlayer() {
+            const input = document.getElementById('new-player-input');
+            const newPlayer = input.value.trim();
+            
+            if (newPlayer) {
+                currentPlayers.push(newPlayer);
+                input.value = '';
+                updatePlayersListUI();
+                vibrate([50]);
+            }
+        }
+
+        // Remove player
+        function removePlayer(index) {
+            currentPlayers.splice(index, 1);
+            updatePlayersListUI();
+            vibrate([100]);
+        }
+
+        // Save players changes
+        async function savePlayersChanges() {
+            if (!currentClub) return;
+            
+            try {
+                const result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers);
+                
+                if (result.success) {
+                    // Update global players array
+                    players = [...currentPlayers];
+                    alert('Giocatori salvati con successo!');
+                    vibrate([100, 50, 100]);
+                } else {
+                    alert('Errore nel salvataggio: ' + (result.message || 'Errore sconosciuto'));
+                    vibrate([200]);
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Errore di connessione durante il salvataggio');
+                vibrate([200]);
+            }
+        }
+
+        // Back to menu
+        function backToMenu() {
+            playersManagementScreen.style.display = 'none';
+            menuScreen.style.display = 'flex';
         }
 
         // Set current date
@@ -1441,7 +1669,7 @@
         }
 
         async function saveMatch() {
-            const team1Name = 'POLIS';
+            const team1Name = currentClub ? currentClub.nome : 'POLIS';
             const team2Name = document.getElementById('team2-name').textContent;
 
             const match = {
@@ -1861,6 +2089,28 @@
             }
         }
         document.addEventListener('DOMContentLoaded', () => {
+            // Login and navigation
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('login-code-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+            
+            // Menu buttons
+            document.getElementById('start-match-btn').addEventListener('click', showMatchSetup);
+            document.getElementById('manage-players-btn').addEventListener('click', showPlayersManagement);
+            
+            // Players management
+            document.getElementById('add-player-btn').addEventListener('click', addPlayer);
+            document.getElementById('new-player-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addPlayer();
+                }
+            });
+            document.getElementById('save-players-btn').addEventListener('click', savePlayersChanges);
+            document.getElementById('back-to-menu-btn').addEventListener('click', backToMenu);
+            
             // Start game button
             startGameBtn.addEventListener('click', startGame);
 
