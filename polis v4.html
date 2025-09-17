@@ -1054,25 +1054,12 @@
     // Funzione per riprodurre un suono alla fine del timer
     function playTimerSound() {
         try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            const audioContext = new AudioContext();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.type = 'sine'; // Tipo di onda (es. 'sine', 'square', 'sawtooth', 'triangle')
-            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequenza in Hz
-
-            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 1);
-
+            const audio = new Audio('FISCHIO.mp3');
+            audio.play().catch(e => {
+                console.error("Errore nella riproduzione del file audio FISCHIO.mp3:", e);
+            });
         } catch (e) {
-            console.error("Web Audio API non supportata o errore nella riproduzione del suono:", e);
+            console.error("Errore nel caricamento del file audio FISCHIO.mp3:", e);
         }
     }
 

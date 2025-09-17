@@ -56,6 +56,14 @@
             overflow-y: auto;
             padding: 20px 0;
         }
+
+        /* Ensure sidebar elements are hidden when players management screen is active */
+        #players-management-screen[style*="flex"] ~ .sidebar,
+        #players-management-screen[style*="flex"] ~ nav,
+        #players-management-screen[style*="flex"] ~ .nav,
+        #players-management-screen[style*="flex"] ~ .navigation {
+            display: none !important;
+        }
         
         #main-app { 
             display: none; 
@@ -704,6 +712,26 @@
 
         /* Utility classes */
         .hidden {
+            display: none !important;
+        }
+
+        /* Hide sidebar elements when players management screen is active */
+        #players-management-screen ~ * .sidebar,
+        #players-management-screen ~ * nav,
+        #players-management-screen ~ * .nav,
+        #players-management-screen ~ * .navigation,
+        #players-management-screen ~ * .menu-sidebar,
+        #players-management-screen ~ * .side-panel {
+            display: none !important;
+        }
+
+        /* Alternative approach: when players management screen is visible, hide any sidebar-like elements */
+        body:has(#players-management-screen[style*="flex"]) .sidebar,
+        body:has(#players-management-screen[style*="flex"]) nav,
+        body:has(#players-management-screen[style*="flex"]) .nav,
+        body:has(#players-management-screen[style*="flex"]) .navigation,
+        body:has(#players-management-screen[style*="flex"]) .menu-sidebar,
+        body:has(#players-management-screen[style*="flex"]) .side-panel {
             display: none !important;
         }
     </style>
