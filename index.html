@@ -1973,9 +1973,33 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Set canvas size
+                // Calculate dynamic height based on number of scorers
+                const baseHeight = 460; // Base height up to "Falli" line
+                const scorersMargin = 40; // Space between sections
+                const lineHeight = 25; // Height per scorer line
+                const headerHeight = 30; // Height for scorer headers
+                
+                let totalScorers = 0;
+                let scorerSections = 0;
+                
+                if (scorers1.length > 0) {
+                    totalScorers += scorers1.length;
+                    scorerSections++;
+                }
+                if (scorers2.length > 0) {
+                    totalScorers += scorers2.length;
+                    scorerSections++;
+                }
+                
+                const dynamicHeight = baseHeight + 
+                    (scorerSections * headerHeight) + 
+                    (totalScorers * lineHeight) + 
+                    (scorerSections * scorersMargin) + 
+                    60; // Bottom padding
+                
+                // Set canvas size with dynamic height
                 canvas.width = 800;
-                canvas.height = 600;
+                canvas.height = Math.max(600, dynamicHeight); // Minimum 600px
                 
                 // Set background
                 ctx.fillStyle = '#1A202C';
