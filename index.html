@@ -1253,6 +1253,9 @@
                     document.getElementById('menu-team-name').textContent = `Benvenuto, ${currentClub.nome}!`;
                     document.getElementById('players-team-name').textContent = currentClub.nome;
                     
+                    // Setup Firebase history listener for this team
+                    setupFirebaseHistoryListener();
+                    
                     // Hide login and show menu
                     loginScreen.style.display = 'none';
                     menuScreen.style.display = 'flex';
@@ -1658,7 +1661,7 @@
                 historyListener = window.setupHistoryListener((historyList) => {
                     // Store in global variable for modal display
                     matchHistory = historyList;
-                });
+                }, currentClub?.id);
             }
         }
 
@@ -1679,7 +1682,8 @@
                 fouls2: foulsTeam2,
                 date: new Date().toISOString(),
                 scorers1: team1Scorers,
-                scorers2: team2Scorers
+                scorers2: team2Scorers,
+                societaId: currentClub?.id
             };
 
             try {
