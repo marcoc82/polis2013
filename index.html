@@ -785,7 +785,7 @@
             
             <!-- Nomi delle squadre sopra il punteggio -->
             <div class="flex justify-between items-end mb-2">
-                <h2 class="text-3xl font-bold text-gray-200">POLIS</h2>
+                <h2 id="score-team1-name" class="text-3xl font-bold text-gray-200">POLIS</h2>
                 <h2 id="score-team2-name" class="text-3xl font-bold text-gray-200">Squadra 2</h2>
             </div>
 
@@ -798,7 +798,7 @@
             <div class="teams-container">
                 <!-- Squadra 1 -->
                 <div class="team">
-                    <h2 class="team-title">POLIS</h2>
+                    <h2 id="team1-title" class="team-title">POLIS</h2>
                     <div class="grid grid-cols-3 gap-3 mb-3">
                         <div class="flex flex-col items-center">
                             <button class="btn btn-goal" data-team="1" data-quarter="1°T" data-type="goal" data-action="add">Gol 1°T</button>
@@ -867,7 +867,7 @@
             <div class="stats-container">
                 <!-- Statistiche Squadra 1 -->
                 <div class="stats-team">
-                    <h3 class="team-title">Statistiche POLIS</h3>
+                    <h3 id="stats-team1-title" class="team-title">Statistiche POLIS</h3>
                     <div class="stat-item">
                         <span>Gol fatti</span>
                         <span id="goals-team1">0</span>
@@ -1206,14 +1206,8 @@
 
             // Update team 1 name if we have a club
             if (currentClub) {
-                const team1Elements = document.querySelectorAll('.team1-name, #score-team1-name');
-                team1Elements.forEach(el => {
-                    if (el.textContent === 'POLIS') {
-                        el.textContent = currentClub.nome;
-                    }
-                });
-                
-                // Update stats title too
+                document.getElementById('score-team1-name').textContent = currentClub.nome;
+                document.getElementById('team1-title').textContent = currentClub.nome;
                 document.getElementById('stats-team1-title').textContent = 'Statistiche ' + currentClub.nome;
             }
 
