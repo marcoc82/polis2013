@@ -16,14 +16,11 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Autenticazione anonima
 signInAnonymously(auth)
   .then(() => {
-    // Call the onFirebaseReady function if it exists
     if (typeof window.onFirebaseReady === 'function') {
       window.onFirebaseReady();
     } else {
-      // Fallback: hide loading and show login screen
       document.getElementById('loading-screen').style.display = 'none';
       if (document.getElementById('login-screen')) {
         document.getElementById('login-screen').style.display = 'flex';
@@ -35,9 +32,9 @@ signInAnonymously(auth)
     console.error(error);
   });
 
-// Esempio: rendi le funzioni Firestore disponibili globalmente (window)
 window.saveGameToFirebase = async function(gameData) {
   try {
+    // Assicurati che gameData abbia il campo societaId
     await addDoc(collection(db, "partite"), gameData);
   } catch (e) {
     alert("Errore salvataggio partita!");
@@ -54,10 +51,16 @@ window.deleteGameFromFirebase = async function(gameId) {
   }
 };
 
-// Esempio listener storico Firestore
-window.setupHistoryListener = function(updateHistoryUI) {
+// Listener storico filtrato per società
+window.setupHistoryListener = function(updateHistoryUI, societaId) {
   const historyRef = collection(db, "partite");
-  onSnapshot(historyRef, (snapshot) => {
+  let q;
+  if (societaId) {
+    q = query(historyRef, where("societaId", "==", societaId));
+  } else {
+    q = historyRef; // fallback: tutto lo storico
+  }
+  onSnapshot(q, (snapshot) => {
     const historyList = [];
     snapshot.forEach(doc => {
       historyList.push({ id: doc.id, ...doc.data() });
@@ -66,11 +69,10 @@ window.setupHistoryListener = function(updateHistoryUI) {
   });
 };
 
-// Funzioni per gestione codici società e giocatori
+// Verifica codice con array 'codici'
 window.verificaCodice = async function(codice) {
   try {
     const societaRef = collection(db, "societa");
-    // Corretto: cerca nell'array 'codici'
     const q = query(societaRef, where("codici", "array-contains", codice.toUpperCase()));
     const querySnapshot = await getDocs(q);
 
@@ -105,12 +107,12 @@ window.aggiornaGiocatoriSocieta = async function(societaId, nuoviGiocatori) {
   }
 };
 
-// Funzione per creare una società di esempio (per testing)
+// Funzione per creare una società di esempio (facoltativo)
 window.creaSocietaEsempio = async function() {
   try {
     const societaRef = collection(db, "societa");
     await addDoc(societaRef, {
-      codice: "POLIS2013",
+      codici: ["POLIS2013"],
       nome: "POLIS",
       giocatori: [
         "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
