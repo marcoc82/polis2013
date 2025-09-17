@@ -705,8 +705,8 @@
     <!-- Schermata di login -->
     <div id="login-screen" style="display: none;">
         <div class="welcome-content">
-            <img src="logo stakick.jpeg" alt="Logo StaKick" style="max-width: 200px; height: auto; margin-bottom: 1.5rem; display: block; margin-left: auto; margin-right: auto;">
-            <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
+            <img src="logo stakick.jpeg" alt="Logo StaKick" style="max-width: 260px; height: auto; margin-bottom: 1.5rem; display: block; margin-left: auto; margin-right: auto;">
+            <h1 class="polis-text" style="font-size: 5em;">StaKick</h1>
             <hr class="my-6">
             <h2 class="text-2xl font-bold mb-4">Accesso</h2>
             <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
@@ -719,13 +719,14 @@
     <!-- Schermata menu scelta -->
     <div id="menu-screen" style="display: none;">
         <div class="welcome-content">
-            <h1 class="polis-text" style="font-size: 4em;">Polis 2013</h1>
+            <h1 class="polis-text" style="font-size: 4em;">StaKick</h1>
             <hr class="my-6">
             <h2 id="menu-team-name" class="text-2xl font-bold mb-4">Benvenuto, POLIS!</h2>
             <p class="mb-6">Cosa vuoi fare?</p>
             <div class="button-grid-1 gap-4">
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Giocatori</button>
+                <button id="back-to-login-btn" class="btn-gray btn-large w-full">Torna alla Login</button>
             </div>
         </div>
     </div>
@@ -756,7 +757,7 @@
     <!-- Schermata di benvenuto -->
     <div id="welcome-screen" style="display: none;">
         <div class="welcome-content">
-            <h1 class="polis-text" style="font-size: 5em;">Polis 2013</h1>
+            <h1 class="polis-text" style="font-size: 5em;">StaKick</h1>
             <hr class="my-6">
             <h2 class="text-2xl font-bold mb-4">Benvenuto!</h2>
             <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria, poi ricordati di far partire il tempo!</p>
@@ -769,7 +770,7 @@
     <div id="main-app">
         <div class="container">
             <p id="current-date" class="date-display"></p>
-            <h1 class="polis-text" style="font-size: 2.5rem;">POLIS 2013</h1>
+            <h1 class="polis-text" style="font-size: 2.5rem;">StaKick</h1>
             
             <!-- Sezione Timer -->
             <div class="timer-container">
@@ -1360,6 +1361,24 @@
         function backToMenu() {
             playersManagementScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
+        }
+
+        // Back to login
+        function backToLogin() {
+            menuScreen.style.display = 'none';
+            loginScreen.style.display = 'flex';
+            
+            // Clear current club data
+            currentClub = null;
+            currentPlayers = [...defaultPlayers];
+            players = [...defaultPlayers];
+            
+            // Clear login form
+            document.getElementById('login-code-input').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            
+            // Add vibration feedback
+            vibrate([50]);
         }
 
         // Set current date
@@ -2012,7 +2031,7 @@
                 ctx.textAlign = 'center';
                 
                 // Title
-                ctx.fillText('POLIS 2013', canvas.width / 2, 80);
+                ctx.fillText('StaKick', canvas.width / 2, 80);
                 
                 // Date
                 ctx.font = '20px Arial';
@@ -2070,7 +2089,7 @@
                         if (navigator.share && navigator.canShare) {
                             const file = new File([blob], 'polis-partita.png', { type: 'image/png' });
                             const shareData = {
-                                title: 'Risultato Partita - Polis 2013',
+                                title: 'Risultato Partita - StaKick',
                                 files: [file]
                             };
                             
@@ -2123,6 +2142,7 @@
             // Menu buttons
             document.getElementById('start-match-btn').addEventListener('click', showMatchSetup);
             document.getElementById('manage-players-btn').addEventListener('click', showPlayersManagement);
+            document.getElementById('back-to-login-btn').addEventListener('click', backToLogin);
             
             // Players management
             document.getElementById('add-player-btn').addEventListener('click', addPlayer);
