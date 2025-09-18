@@ -1302,6 +1302,33 @@
                 return;
             }
             
+            // Test mode for development - bypass Firebase for POLIS2013
+            if (code === 'POLIS2013') {
+                currentClub = {
+                    id: 'test-id',
+                    nome: 'POLIS',
+                    numPeriods: 2,
+                    giocatori: [
+                        "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", 
+                        "23 BERLUSCONI NOAH", "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO"
+                    ]
+                };
+                currentPlayers = [...currentClub.giocatori];
+                players = [...currentPlayers];
+                teamNumPeriods = currentClub.numPeriods || 2;
+                
+                // Update team names
+                document.getElementById('menu-team-name').textContent = `Benvenuto, ${currentClub.nome}!`;
+                document.getElementById('players-team-name').textContent = currentClub.nome;
+                
+                // Hide login and show menu
+                loginScreen.style.display = 'none';
+                menuScreen.style.display = 'flex';
+                
+                vibrate([100]);
+                return;
+            }
+            
             try {
                 const result = await window.verificaCodice(code);
                 
@@ -1407,7 +1434,16 @@
             const numPeriodsValue = parseInt(selectedPeriods);
             
             try {
-                const result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers, numPeriodsValue);
+                let result = { success: true }; // Default for test mode
+                
+                // Try Firebase save if available, otherwise use test mode
+                if (typeof window.aggiornaGiocatoriSocieta === 'function') {
+                    result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers, numPeriodsValue);
+                } else {
+                    // Test mode - just update local data
+                    currentClub.numPeriods = numPeriodsValue;
+                    currentClub.giocatori = [...currentPlayers];
+                }
                 
                 if (result.success) {
                     // Update global variables
