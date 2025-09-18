@@ -94,11 +94,12 @@ window.verificaCodice = async function(codice) {
   }
 };
 
-window.aggiornaGiocatoriSocieta = async function(societaId, nuoviGiocatori) {
+window.aggiornaGiocatoriSocieta = async function(societaId, nuoviGiocatori, numPeriods = 2) {
   try {
     const societaRef = doc(db, "societa", societaId);
     await updateDoc(societaRef, {
-      giocatori: nuoviGiocatori
+      giocatori: nuoviGiocatori,
+      numPeriods: numPeriods
     });
     return { success: true };
   } catch (e) {
@@ -114,6 +115,7 @@ window.creaSocietaEsempio = async function() {
     await addDoc(societaRef, {
       codici: ["POLIS2013"],
       nome: "POLIS",
+      numPeriods: 2, // Default to 2 periods
       giocatori: [
         "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
         "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
