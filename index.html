@@ -777,6 +777,21 @@
             <hr class="my-6">
             <h2 id="players-team-name" class="text-xl font-bold mb-4">POLIS</h2>
             
+            <!-- Selettore numero di tempi -->
+            <div class="mb-4 p-4 bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 text-white">Numero di Tempi di Gioco</h3>
+                <div class="flex gap-4 justify-center">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" id="periods-2" name="numPeriods" value="2" checked class="mr-2">
+                        <span class="text-white">2 Tempi</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" id="periods-3" name="numPeriods" value="3" class="mr-2">
+                        <span class="text-white">3 Tempi</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="mb-4">
                 <input type="text" id="new-player-input" placeholder="Aggiungi nuovo giocatore (es: 88 ROSSI MARIO)" class="w-full mb-2 modal-input">
                 <button id="add-player-btn" class="btn-blue btn-large rounded-2xl w-full mb-4">Aggiungi Giocatore</button>
@@ -849,7 +864,7 @@
                             <button class="btn btn-goal" data-team="1" data-quarter="2°T" data-type="goal" data-action="add">Gol 2°T</button>
                             <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
                         </div>
-                        <div class="flex flex-col items-center">
+                        <div class="flex flex-col items-center" id="team1-3rd-period">
                             <button class="btn btn-goal" data-team="1" data-quarter="3°T" data-type="goal" data-action="add">Gol 3°T</button>
                             <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
                         </div>
@@ -882,7 +897,7 @@
                             <button class="btn btn-goal" data-team="2" data-quarter="2°T" data-type="goal" data-action="add">Gol 2°T</button>
                             <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
                         </div>
-                        <div class="flex flex-col items-center">
+                        <div class="flex flex-col items-center" id="team2-3rd-period">
                             <button class="btn btn-goal" data-team="2" data-quarter="3°T" data-type="goal" data-action="add">Gol 3°T</button>
                             <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
                         </div>
@@ -1201,6 +1216,7 @@
 
         // Current club data
         let currentClub = null;
+        let teamNumPeriods = 2; // Default to 2 periods
         let currentPlayers = [];
 
         // Player list from original (fallback)
@@ -1269,6 +1285,7 @@
             setDate();
             updateScores();
             updateTimerDisplay();
+            updateGoalButtonsDisplay(); // Apply team's period setting
             
             // Add vibration feedback
             vibrate([50]);
@@ -1292,6 +1309,7 @@
                     currentClub = result.societa;
                     currentPlayers = [...(result.societa.giocatori || defaultPlayers)];
                     players = [...currentPlayers];
+                    teamNumPeriods = result.societa.numPeriods || 2; // Load team's period setting, default to 2
                     
                     // Update team names
                     document.getElementById('menu-team-name').textContent = `Benvenuto, ${currentClub.nome}!`;
@@ -1334,6 +1352,10 @@
         function showPlayersManagement() {
             menuScreen.style.display = 'none';
             playersManagementScreen.style.display = 'flex';
+            
+            // Set the radio button based on current team's period setting
+            document.getElementById('periods-2').checked = (teamNumPeriods === 2);
+            document.getElementById('periods-3').checked = (teamNumPeriods === 3);
             
             updatePlayersListUI();
         }
@@ -1380,13 +1402,22 @@
         async function savePlayersChanges() {
             if (!currentClub) return;
             
+            // Get selected number of periods
+            const selectedPeriods = document.querySelector('input[name="numPeriods"]:checked')?.value || '2';
+            const numPeriodsValue = parseInt(selectedPeriods);
+            
             try {
-                const result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers);
+                const result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers, numPeriodsValue);
                 
                 if (result.success) {
-                    // Update global players array
+                    // Update global variables
                     players = [...currentPlayers];
-                    alert('Giocatori salvati con successo!');
+                    teamNumPeriods = numPeriodsValue;
+                    
+                    // Update goal buttons display
+                    updateGoalButtonsDisplay();
+                    
+                    alert('Giocatori e configurazione salvati con successo!');
                     vibrate([100, 50, 100]);
                 } else {
                     alert('Errore nel salvataggio: ' + (result.message || 'Errore sconosciuto'));
@@ -1396,6 +1427,22 @@
                 console.error('Save error:', error);
                 alert('Errore di connessione durante il salvataggio');
                 vibrate([200]);
+            }
+        }
+
+        // Update goal buttons display based on team's period setting
+        function updateGoalButtonsDisplay() {
+            const team1ThirdPeriod = document.getElementById('team1-3rd-period');
+            const team2ThirdPeriod = document.getElementById('team2-3rd-period');
+            
+            if (teamNumPeriods === 2) {
+                // Hide 3rd period buttons for 2-period games
+                if (team1ThirdPeriod) team1ThirdPeriod.style.display = 'none';
+                if (team2ThirdPeriod) team2ThirdPeriod.style.display = 'none';
+            } else {
+                // Show 3rd period buttons for 3-period games
+                if (team1ThirdPeriod) team1ThirdPeriod.style.display = 'flex';
+                if (team2ThirdPeriod) team2ThirdPeriod.style.display = 'flex';
             }
         }
 
