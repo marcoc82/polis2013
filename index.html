@@ -765,6 +765,7 @@
             <div class="button-grid-1 gap-4">
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Giocatori</button>
+                <button id="view-history-btn" class="btn-history btn-large w-full">Vedi Storico</button>
                 <button id="back-to-login-btn" class="btn-gray btn-large w-full">Torna alla Login</button>
             </div>
         </div>
@@ -2255,6 +2256,7 @@
             // Menu buttons
             document.getElementById('start-match-btn').addEventListener('click', showMatchSetup);
             document.getElementById('manage-players-btn').addEventListener('click', showPlayersManagement);
+            document.getElementById('view-history-btn').addEventListener('click', showHistoryModal);
             document.getElementById('back-to-login-btn').addEventListener('click', backToLogin);
             
             // Players management
