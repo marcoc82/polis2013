@@ -1051,15 +1051,134 @@
         }
     }
 
+    // Audio globale per il fischio del timer
+    let timerAudio = null;
+    let audioContext = null;
+    let audioEnabled = false;
+
+    // Inizializza l'audio quando la pagina è caricata
+    function initializeAudio() {
+        try {
+            // Prova diversi percorsi per il file audio
+            const audioSources = ['./FISCHIO.mp3', 'FISCHIO.mp3', './fischio.mp3', 'fischio.mp3'];
+            
+            timerAudio = new Audio();
+            timerAudio.preload = 'auto';
+            timerAudio.volume = 0.8; // Volume al 80%
+            timerAudio.crossOrigin = 'anonymous';
+            
+            // Prova a caricare il primo file audio disponibile
+            let sourceLoaded = false;
+            audioSources.forEach((source, index) => {
+                if (!sourceLoaded) {
+                    timerAudio.src = source;
+                    timerAudio.addEventListener('loadstart', () => {
+                        console.log(`Caricamento audio da: ${source}`);
+                    });
+                    timerAudio.addEventListener('canplaythrough', () => {
+                        console.log(`Audio caricato con successo da: ${source}`);
+                        sourceLoaded = true;
+                    });
+                    timerAudio.addEventListener('error', (e) => {
+                        console.log(`Errore caricamento da ${source}, provo il prossimo...`);
+                        if (index < audioSources.length - 1) {
+                            timerAudio.src = audioSources[index + 1];
+                        }
+                    });
+                }
+            });
+            
+            // Carica il file audio
+            timerAudio.load();
+        } catch (e) {
+            console.error("Errore nell'inizializzazione dell'audio:", e);
+        }
+    }
+
+    // Abilita l'audio dopo l'interazione dell'utente
+    function enableAudio() {
+        if (audioEnabled) return;
+        
+        try {
+            // Crea AudioContext se non esiste
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // Riprendi il contesto audio se è sospeso
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log('Contesto audio ripristinato');
+                    audioEnabled = true;
+                });
+            } else {
+                audioEnabled = true;
+            }
+            
+            // Se l'audio non è ancora caricato, riprova
+            if (timerAudio && timerAudio.readyState < 2) {
+                timerAudio.load();
+            }
+        } catch (e) {
+            console.error("Errore nell'abilitazione dell'audio:", e);
+        }
+    }
+
     // Funzione per riprodurre un suono alla fine del timer
     function playTimerSound() {
+        console.log('playTimerSound chiamata');
+        
         try {
-            const audio = new Audio('FISCHIO.mp3');
-            audio.play().catch(e => {
-                console.error("Errore nella riproduzione del file audio FISCHIO.mp3:", e);
+            // Se l'audio non è ancora inizializzato, inizializzalo ora
+            if (!timerAudio) {
+                initializeAudio();
+            }
+            
+            // Se l'audio è pronto, riproducilo
+            if (timerAudio && timerAudio.readyState >= 2) {
+                // Assicurati che l'audio sia alla posizione iniziale
+                timerAudio.currentTime = 0;
+                
+                // Prova a riprodurre l'audio
+                const playPromise = timerAudio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log("Audio riprodotto con successo");
+                    }).catch(e => {
+                        console.error("Errore nella riproduzione dell'audio:", e);
+                        // Fallback: crea un nuovo oggetto audio e prova a riprodurlo
+                        fallbackPlayAudio();
+                    });
+                }
+            } else {
+                console.log("Audio non ancora pronto, uso fallback");
+                // Se l'audio non è pronto, usa il metodo fallback
+                fallbackPlayAudio();
+            }
+        } catch (e) {
+            console.error("Errore in playTimerSound:", e);
+            fallbackPlayAudio();
+        }
+    }
+
+    // Metodo fallback per riprodurre l'audio
+    function fallbackPlayAudio() {
+        console.log('Usando metodo fallback per riproduzione audio');
+        try {
+            const fallbackAudio = new Audio('FISCHIO.mp3');
+            fallbackAudio.volume = 0.8;
+            fallbackAudio.play().catch(e => {
+                console.error("Errore anche con fallback audio:", e);
+                // Ultimo tentativo con fischio.mp3 (nome alternativo)
+                const finalAudio = new Audio('fischio.mp3');
+                finalAudio.volume = 0.8;
+                finalAudio.play().catch(err => {
+                    console.error("Impossibile riprodurre l'audio con nessun metodo:", err);
+                });
             });
         } catch (e) {
-            console.error("Errore nel caricamento del file audio FISCHIO.mp3:", e);
+            console.error("Errore nel metodo fallback:", e);
         }
     }
 
@@ -1682,6 +1801,24 @@
     updateScores();
     setDate();
     updateTimerDisplay(); // Inizializza il display del timer
+    
+    // Inizializza l'audio del timer
+    initializeAudio();
+    
+    // Abilita l'audio al primo clic dell'utente su qualsiasi pulsante
+    document.addEventListener('click', () => {
+        enableAudio();
+    }, { once: true });
+    
+    // Abilita l'audio anche quando si inizia il timer
+    startTimerButton.addEventListener('click', () => {
+        enableAudio();
+    });
+    
+    // Abilita l'audio quando si inizia la partita
+    startGameButton.addEventListener('click', () => {
+        enableAudio();
+    });
 </script>
 
 </body>
