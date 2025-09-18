@@ -487,6 +487,13 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Animazioni per feedback audio */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
         .share-summary {
             background-color: #1e293b;
             padding: 1.5rem;
@@ -1110,9 +1117,13 @@
                 audioContext.resume().then(() => {
                     console.log('Contesto audio ripristinato');
                     audioEnabled = true;
+                    // Test immediato di riproduzione per iOS Safari
+                    testAudioPlayback();
                 });
             } else {
                 audioEnabled = true;
+                // Test immediato di riproduzione
+                testAudioPlayback();
             }
             
             // Se l'audio non è ancora caricato, riprova
@@ -1121,6 +1132,26 @@
             }
         } catch (e) {
             console.error("Errore nell'abilitazione dell'audio:", e);
+        }
+    }
+
+    // Funzione di test per verificare che l'audio funzioni
+    function testAudioPlayback() {
+        if (timerAudio && timerAudio.readyState >= 2) {
+            // Test silenzioso (volume 0) per verificare che l'audio possa essere riprodotto
+            const originalVolume = timerAudio.volume;
+            timerAudio.volume = 0;
+            timerAudio.currentTime = 0;
+            
+            timerAudio.play().then(() => {
+                timerAudio.pause();
+                timerAudio.currentTime = 0;
+                timerAudio.volume = originalVolume;
+                console.log('Test audio superato - audio pronto per la riproduzione');
+            }).catch(e => {
+                timerAudio.volume = originalVolume;
+                console.log('Test audio fallito, audio potrebbe non funzionare:', e);
+            });
         }
     }
 
@@ -1134,10 +1165,16 @@
                 initializeAudio();
             }
             
+            // Forza l'abilitazione dell'audio se non è già abilitata
+            if (!audioEnabled) {
+                enableAudio();
+            }
+            
             // Se l'audio è pronto, riproducilo
             if (timerAudio && timerAudio.readyState >= 2) {
-                // Assicurati che l'audio sia alla posizione iniziale
+                // Assicurati che l'audio sia alla posizione iniziale e volume corretto
                 timerAudio.currentTime = 0;
+                timerAudio.volume = Math.min(timerAudio.volume, 0.8); // Massimo 80%
                 
                 // Prova a riprodurre l'audio
                 const playPromise = timerAudio.play();
@@ -1145,6 +1182,8 @@
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
                         console.log("Audio riprodotto con successo");
+                        // Mostra un feedback visivo che l'audio è stato riprodotto
+                        showAudioFeedback();
                     }).catch(e => {
                         console.error("Errore nella riproduzione dell'audio:", e);
                         // Fallback: crea un nuovo oggetto audio e prova a riprodurlo
@@ -1162,24 +1201,74 @@
         }
     }
 
+    // Mostra un feedback visivo quando l'audio viene riprodotto
+    function showAudioFeedback() {
+        // Breve animazione del timer per indicare che l'audio è stato riprodotto
+        const timerDisplay = document.getElementById('timer-display');
+        if (timerDisplay) {
+            timerDisplay.style.animation = 'pulse 0.5s ease-in-out 2';
+            setTimeout(() => {
+                timerDisplay.style.animation = '';
+            }, 1000);
+        }
+    }
+
     // Metodo fallback per riprodurre l'audio
     function fallbackPlayAudio() {
         console.log('Usando metodo fallback per riproduzione audio');
         try {
             const fallbackAudio = new Audio('FISCHIO.mp3');
             fallbackAudio.volume = 0.8;
-            fallbackAudio.play().catch(e => {
-                console.error("Errore anche con fallback audio:", e);
-                // Ultimo tentativo con fischio.mp3 (nome alternativo)
-                const finalAudio = new Audio('fischio.mp3');
-                finalAudio.volume = 0.8;
-                finalAudio.play().catch(err => {
-                    console.error("Impossibile riprodurre l'audio con nessun metodo:", err);
+            
+            // Tenta subito la riproduzione
+            const playPromise = fallbackAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Fallback audio riprodotto con successo");
+                    showAudioFeedback();
+                }).catch(e => {
+                    console.error("Errore anche con fallback audio:", e);
+                    // Ultimo tentativo con fischio.mp3 (nome alternativo)
+                    finalAudioAttempt();
                 });
-            });
+            }
         } catch (e) {
             console.error("Errore nel metodo fallback:", e);
+            finalAudioAttempt();
         }
+    }
+
+    // Ultimo tentativo di riproduzione audio
+    function finalAudioAttempt() {
+        try {
+            const finalAudio = new Audio('fischio.mp3');
+            finalAudio.volume = 0.8;
+            finalAudio.play().then(() => {
+                console.log("Audio finale riprodotto con successo");
+                showAudioFeedback();
+            }).catch(err => {
+                console.error("Impossibile riprodurre l'audio con nessun metodo:", err);
+                // Mostra un alert visivo se l'audio non può essere riprodotto
+                showAudioFailureFeedback();
+            });
+        } catch (e) {
+            console.error("Errore nel tentativo finale:", e);
+            showAudioFailureFeedback();
+        }
+    }
+
+    // Mostra feedback visivo quando l'audio non può essere riprodotto
+    function showAudioFailureFeedback() {
+        const timerDisplay = document.getElementById('timer-display');
+        if (timerDisplay) {
+            timerDisplay.style.border = '3px solid #ff4444';
+            timerDisplay.style.animation = 'shake 0.5s ease-in-out 3';
+            setTimeout(() => {
+                timerDisplay.style.border = '';
+                timerDisplay.style.animation = '';
+            }, 2000);
+        }
+        console.log('ATTENZIONE: Audio timer non riprodotto - verificare impostazioni audio del dispositivo');
     }
 
     // Funzione per creare i coriandoli
@@ -1810,6 +1899,11 @@
         enableAudio();
     }, { once: true });
     
+    // Abilita l'audio anche su touchstart per dispositivi mobili
+    document.addEventListener('touchstart', () => {
+        enableAudio();
+    }, { once: true });
+    
     // Abilita l'audio anche quando si inizia il timer
     startTimerButton.addEventListener('click', () => {
         enableAudio();
@@ -1819,6 +1913,18 @@
     startGameButton.addEventListener('click', () => {
         enableAudio();
     });
+    
+    // Abilita l'audio quando si clicca su qualsiasi pulsante goal
+    document.querySelectorAll('.btn-goal').forEach(button => {
+        button.addEventListener('click', () => {
+            enableAudio();
+        }, { once: true });
+    });
+    
+    // Abilita l'audio quando si clicca sul timer per impostarlo
+    timerDisplay.addEventListener('click', () => {
+        enableAudio();
+    }, { once: true });
 </script>
 
 </body>
