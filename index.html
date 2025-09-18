@@ -1159,6 +1159,9 @@
         let isRunning = false;
         let lastSetSeconds = 18 * 60;
 
+        // Audio preloading per fischio.mp3
+        let fischioAudio;
+
         // History variables
         let matchHistory = [];
         let historyListener = null;
@@ -1470,6 +1473,7 @@
                 document.getElementById('timer-display').classList.remove('timer-running');
                 document.getElementById('timer-display').textContent = "00:00";
                 vibrate([5000]); // 5 second vibration when timer reaches zero
+                playTimerSound(); // Play timer sound
             }
         }
 
@@ -1497,6 +1501,29 @@
             totalSeconds = lastSetSeconds;
             updateTimerDisplay();
             vibrate([50, 50]); // Reset timer feedback
+        }
+
+        // Function to play timer sound
+        function playTimerSound() {
+            try {
+                if (fischioAudio) {
+                    fischioAudio.currentTime = 0;
+                    fischioAudio.play().catch(err => {
+                        console.error('Audio playback failed, trying fallback:', err);
+                        const fallback = new Audio('./fischio.mp3');
+                        fallback.play().catch(err2 => {
+                            console.error('Audio playback failed:', err2);
+                        });
+                    });
+                } else {
+                    const fallback = new Audio('./fischio.mp3');
+                    fallback.play().catch(err => {
+                        console.error('Audio playback failed:', err);
+                    });
+                }
+            } catch (e) {
+                console.error('Unable to play fischio.mp3', e);
+            }
         }
 
         // Player modal functions
@@ -2314,6 +2341,18 @@
                 await saveMatch();
                 await shareSingleMatch(); // Use the new reusable function
             });
+        });
+
+        // Preload audio on first user interaction
+        document.addEventListener('click', () => {
+            if (!fischioAudio) {
+                fischioAudio = new Audio('./fischio.mp3');
+            }
+        });
+        document.addEventListener('touchstart', () => {
+            if (!fischioAudio) {
+                fischioAudio = new Audio('./fischio.mp3');
+            }
         });
 
         // Initialize Firebase connection check

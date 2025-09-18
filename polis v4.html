@@ -1005,6 +1005,8 @@
     let isRunning = false;
     let lastSetSeconds = 20 * 60;
 
+    // Audio preloading per fischio.mp3
+    let fischioAudio;
 
     // Lista dei giocatori
     const players = [
@@ -1054,12 +1056,23 @@
     // Funzione per riprodurre un suono alla fine del timer
     function playTimerSound() {
         try {
-            const audio = new Audio('FISCHIO.mp3');
-            audio.play().catch(e => {
-                console.error("Errore nella riproduzione del file audio FISCHIO.mp3:", e);
-            });
+            if (fischioAudio) {
+                fischioAudio.currentTime = 0;
+                fischioAudio.play().catch(err => {
+                    console.error('Audio playback failed, trying fallback:', err);
+                    const fallback = new Audio('./fischio.mp3');
+                    fallback.play().catch(err2 => {
+                        console.error('Audio playback failed:', err2);
+                    });
+                });
+            } else {
+                const fallback = new Audio('./fischio.mp3');
+                fallback.play().catch(err => {
+                    console.error('Audio playback failed:', err);
+                });
+            }
         } catch (e) {
-            console.error("Errore nel caricamento del file audio FISCHIO.mp3:", e);
+            console.error('Unable to play fischio.mp3', e);
         }
     }
 
@@ -1677,6 +1690,18 @@
 
     // Aggiungi un listener al pulsante "Cancella tutto" nello storico
     clearHistoryButton.addEventListener('click', showClearHistoryModal);
+
+    // Preload audio on first user interaction
+    document.addEventListener('click', () => {
+        if (!fischioAudio) {
+            fischioAudio = new Audio('./fischio.mp3');
+        }
+    });
+    document.addEventListener('touchstart', () => {
+        if (!fischioAudio) {
+            fischioAudio = new Audio('./fischio.mp3');
+        }
+    });
 
     // Inizializza la visualizzazione del punteggio e la data
     updateScores();
