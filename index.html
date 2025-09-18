@@ -28,6 +28,12 @@
             color: #E2E8F0; /* Testo chiaro */
         }
 
+        /* Classe per sfondo bianco durante il login */
+        body.login-background {
+            background-color: #FFFFFF;
+            color: #1A202C;
+        }
+
         /* Schermate overlay */
         #loading-screen, #welcome-screen, #login-screen, #menu-screen, #players-management-screen, #main-app { 
             position: fixed; 
@@ -44,6 +50,29 @@
             justify-content: center; 
             z-index: 999; 
             background: #1A202C; 
+        }
+
+        /* Sfondo bianco specifico per la schermata di login */
+        body.login-background #login-screen {
+            background: #FFFFFF !important;
+        }
+
+        /* Sfondo bianco per il contenuto della schermata di login */
+        body.login-background #login-screen .welcome-content {
+            background: #FFFFFF !important;
+        }
+
+        /* Stili per testo nella schermata di login con sfondo bianco */
+        body.login-background #login-screen .welcome-content h2,
+        body.login-background #login-screen .welcome-content p {
+            color: #1A202C;
+        }
+
+        /* Stili per input nella schermata di login con sfondo bianco */
+        body.login-background #login-screen .modal-input {
+            background-color: #F7FAFC;
+            border-color: #CBD5E0;
+            color: #1A202C;
         }
         
         #players-management-screen { 
@@ -1251,6 +1280,7 @@
             console.log('Firebase is ready, transitioning to login screen');
             loadingScreen.style.display = 'none';
             loginScreen.style.display = 'flex';
+            document.body.classList.add('login-background');
             
             // Crea società esempio se necessario (solo per testing)
             // window.creaSocietaEsempio();
@@ -1321,6 +1351,7 @@
                     
                     // Hide login and show menu
                     loginScreen.style.display = 'none';
+                    document.body.classList.remove('login-background');
                     menuScreen.style.display = 'flex';
                     
                     errorDiv.classList.add('hidden');
@@ -1457,6 +1488,7 @@
         function backToLogin() {
             menuScreen.style.display = 'none';
             loginScreen.style.display = 'flex';
+            document.body.classList.add('login-background');
             
             // Clear current club data
             currentClub = null;
