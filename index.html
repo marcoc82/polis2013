@@ -184,6 +184,16 @@
         #timer-display:hover {
             color: #60a5fa;
         }
+        .current-period-indicator {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #10b981;
+            margin-left: 1rem;
+        }
         .timer-controls {
             display: flex;
             justify-content: center;
@@ -872,6 +882,7 @@
             <div class="timer-container">
                 <div class="timer-display-container">
                     <span id="timer-display">18:00</span>
+                    <span id="current-period-display" class="current-period-indicator" style="display: none;"></span>
                     <button id="edit-timer-button" class="btn btn-start" style="padding: 0.5rem; font-size: 0.875rem;">Modifica</button>
                 </div>
                 <div class="timer-controls">
@@ -1109,6 +1120,20 @@
         </div>
     </div>
 
+    <!-- Period selection modal -->
+    <div id="period-selection-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Seleziona il Tempo</div>
+            <p class="text-gray-400 mb-6">Quale tempo stai iniziando?</p>
+            <div class="flex flex-col gap-3 mb-6">
+                <button id="select-period-1" class="btn btn-goal w-full">1° Tempo</button>
+                <button id="select-period-2" class="btn btn-goal w-full">2° Tempo</button>
+                <button id="select-period-3" class="btn btn-goal w-full" style="display: none;">3° Tempo</button>
+            </div>
+            <button id="cancel-period-selection" class="btn bg-gray-500 hover:bg-gray-600 w-full">Annulla</button>
+        </div>
+    </div>
+
     <!-- History modal -->
     <div id="history-modal" class="modal-overlay">
         <div class="modal-content max-w-4xl">
@@ -1218,6 +1243,7 @@
         let timerInterval = null;
         let isRunning = false;
         let lastSetSeconds = 18 * 60;
+        let currentPeriod = null; // Track current period (1, 2, or 3)
 
         // Audio preloading per fischio.mp3
         let fischioAudio;
@@ -1592,6 +1618,40 @@
 
         function startTimer() {
             if (isRunning) return;
+            
+            // Show period selection modal before starting timer
+            showPeriodSelectionModal();
+        }
+
+        function showPeriodSelectionModal() {
+            const modal = document.getElementById('period-selection-modal');
+            const period3Button = document.getElementById('select-period-3');
+            
+            // Show/hide 3rd period button based on team configuration
+            if (teamNumPeriods === 3) {
+                period3Button.style.display = 'block';
+            } else {
+                period3Button.style.display = 'none';
+            }
+            
+            modal.classList.add('is-active');
+            vibrate([50]); // Modal open feedback
+        }
+
+        function hidePeriodSelectionModal() {
+            document.getElementById('period-selection-modal').classList.remove('is-active');
+        }
+
+        function selectPeriodAndStartTimer(period) {
+            currentPeriod = period;
+            hidePeriodSelectionModal();
+            
+            // Update period display
+            const periodDisplay = document.getElementById('current-period-display');
+            periodDisplay.textContent = `${period}° tempo`;
+            periodDisplay.style.display = 'inline-block';
+            
+            // Actually start the timer
             isRunning = true;
             document.getElementById('timer-display').classList.add('timer-running');
             timerInterval = setInterval(() => {
@@ -1612,6 +1672,12 @@
         function resetTimer() {
             pauseTimer();
             totalSeconds = lastSetSeconds;
+            currentPeriod = null;
+            
+            // Hide period display
+            const periodDisplay = document.getElementById('current-period-display');
+            periodDisplay.style.display = 'none';
+            
             updateTimerDisplay();
             vibrate([50, 50]); // Reset timer feedback
         }
@@ -2394,6 +2460,12 @@
             document.getElementById('start-timer-button').addEventListener('click', startTimer);
             document.getElementById('pause-timer-button').addEventListener('click', pauseTimer);
             document.getElementById('reset-timer-button').addEventListener('click', resetTimer);
+
+            // Period selection modal event listeners
+            document.getElementById('select-period-1').addEventListener('click', () => selectPeriodAndStartTimer(1));
+            document.getElementById('select-period-2').addEventListener('click', () => selectPeriodAndStartTimer(2));
+            document.getElementById('select-period-3').addEventListener('click', () => selectPeriodAndStartTimer(3));
+            document.getElementById('cancel-period-selection').addEventListener('click', hidePeriodSelectionModal);
 
             // Timer setup modal
             document.getElementById('timer-display').addEventListener('click', () => {
