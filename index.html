@@ -97,6 +97,16 @@
             border-color: #CBD5E0;
             color: #1A202C;
         }
+
+        /* Stili per la versione nella schermata di login */
+        body.login-background #login-screen .version-info {
+            border-color: #CBD5E0 !important;
+        }
+        
+        body.login-background #login-screen .version-info p {
+            color: #718096 !important;
+            font-size: 0.875rem;
+        }
         
         #players-management-screen { 
             display: flex; 
@@ -993,6 +1003,11 @@
             <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
             <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
             <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
+            
+            <!-- Version information -->
+            <div class="version-info mt-6 pt-4 border-t border-gray-300">
+                <p class="text-center text-sm text-gray-600">Versione: v1</p>
+            </div>
         </div>
     </div>
 
