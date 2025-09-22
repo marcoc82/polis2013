@@ -20,6 +20,23 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
+        /* Anti-pull-to-refresh CSS - Previene il refresh accidentale causato dal gesto di pull-to-refresh */
+        html, body {
+            overscroll-behavior-y: contain; /* Previene il pull-to-refresh su Chrome/Android e Edge */
+            -webkit-overflow-scrolling: touch; /* Migliora lo scrolling su iOS */
+            height: 100%; /* Necessario per il contenimento del overscroll */
+        }
+
+        /* Ulteriori precauzioni per iOS/Safari - limita il comportamento di overscroll */
+        body {
+            position: fixed; /* Alternativa per iOS quando overscroll-behavior non è supportato */
+            width: 100%;
+            top: 0;
+            left: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         /* CSS consolidato da entrambi i file */
         body {
             font-family: 'Inter', sans-serif;
@@ -1489,6 +1506,223 @@
         }
 
         /**
+         * Salvataggio automatico dello stato della partita in localStorage
+         * Salva tutti i dati correnti della partita per permettere il ripristino in caso di reload accidentale
+         */
+        function saveCurrentGameState() {
+            const gameState = {
+                // Punteggi e statistiche base
+                scoreTeam1,
+                scoreTeam2,
+                shotsTeam1,
+                cornersTeam1,
+                foulsTeam1,
+                shotsTeam2,
+                cornersTeam2,
+                foulsTeam2,
+                
+                // Marcatori
+                team1Scorers,
+                team2Scorers,
+                
+                // Statistiche per periodo
+                eventsByPeriod,
+                
+                // Timer e periodo corrente
+                totalSeconds,
+                isRunning,
+                currentPeriod,
+                timerStartTime,
+                pausedDuration,
+                pauseStartTime,
+                lastSetSeconds,
+                
+                // Impostazioni squadre
+                teamNumPeriods,
+                currentClub,
+                currentPlayers,
+                
+                // Nomi squadre se disponibili
+                team2Name: document.getElementById('team2-name')?.textContent || '',
+                
+                // Timestamp del salvataggio
+                savedAt: Date.now(),
+                
+                // Versione per compatibilità futura
+                version: '1.0'
+            };
+            
+            try {
+                localStorage.setItem('polis_current_game_state', JSON.stringify(gameState));
+                console.log('🔄 Stato partita salvato automaticamente');
+            } catch (error) {
+                console.error('❌ Errore nel salvataggio dello stato:', error);
+            }
+        }
+
+        /**
+         * Ripristino dello stato della partita da localStorage
+         * Carica e ripristina tutti i dati della partita precedentemente salvati
+         */
+        function restoreGameState() {
+            try {
+                const savedState = localStorage.getItem('polis_current_game_state');
+                if (!savedState) {
+                    console.log('📭 Nessuno stato salvato trovato');
+                    return false;
+                }
+                
+                const gameState = JSON.parse(savedState);
+                
+                // Verifica se lo stato è recente (entro 24 ore)
+                const timeDiff = Date.now() - gameState.savedAt;
+                const maxAge = 24 * 60 * 60 * 1000; // 24 ore in millisecondi
+                
+                if (timeDiff > maxAge) {
+                    console.log('⏰ Stato salvato troppo vecchio, rimosso');
+                    localStorage.removeItem('polis_current_game_state');
+                    return false;
+                }
+                
+                // Ripristina le variabili globali
+                scoreTeam1 = gameState.scoreTeam1 || 0;
+                scoreTeam2 = gameState.scoreTeam2 || 0;
+                shotsTeam1 = gameState.shotsTeam1 || 0;
+                cornersTeam1 = gameState.cornersTeam1 || 0;
+                foulsTeam1 = gameState.foulsTeam1 || 0;
+                shotsTeam2 = gameState.shotsTeam2 || 0;
+                cornersTeam2 = gameState.cornersTeam2 || 0;
+                foulsTeam2 = gameState.foulsTeam2 || 0;
+                
+                team1Scorers = gameState.team1Scorers || [];
+                team2Scorers = gameState.team2Scorers || [];
+                eventsByPeriod = gameState.eventsByPeriod || { team1: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} }, team2: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} } };
+                
+                totalSeconds = gameState.totalSeconds || (18 * 60);
+                isRunning = false; // Non riprendere automaticamente il timer
+                currentPeriod = gameState.currentPeriod;
+                lastSetSeconds = gameState.lastSetSeconds || (18 * 60);
+                
+                // Ripristina le impostazioni
+                teamNumPeriods = gameState.teamNumPeriods || 2;
+                currentClub = gameState.currentClub;
+                currentPlayers = gameState.currentPlayers || [];
+                
+                // Ripristina il nome della squadra 2 se presente
+                if (gameState.team2Name) {
+                    const team2NameElement = document.getElementById('team2-name');
+                    if (team2NameElement) {
+                        team2NameElement.textContent = gameState.team2Name;
+                    }
+                }
+                
+                console.log('✅ Stato partita ripristinato con successo');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Errore nel ripristino dello stato:', error);
+                localStorage.removeItem('polis_current_game_state');
+                return false;
+            }
+        }
+
+        /**
+         * Cancella lo stato salvato della partita corrente
+         * Da chiamare quando si inizia una nuova partita o si resetta
+         */
+        function clearCurrentGameState() {
+            localStorage.removeItem('polis_current_game_state');
+            console.log('🗑️ Stato partita corrente cancellato');
+        }
+
+        /**
+         * Mostra un messaggio di notifica per informare l'utente del ripristino
+         */
+        function showGameStateRestoredMessage() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-family: 'Inter', sans-serif;
+                font-weight: 600;
+                font-size: 14px;
+                max-width: 90%;
+                text-align: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                    <span style="font-size: 16px;">🔄</span>
+                    <span>Partita ripristinata automaticamente dopo il reload</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animazione di entrata
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 100);
+            
+            // Rimozione automatica dopo 4 secondi
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        /**
+         * Gestione eventi touch per prevenire il pull-to-refresh su iOS/Safari
+         * Intercetta gli eventi touch per evitare lo scroll eccessivo che causa il refresh
+         */
+        function setupTouchEventsForPullToRefreshPrevention() {
+            let startY = 0;
+            let isAtTop = false;
+            
+            // Controlla se siamo in cima alla pagina
+            function checkIfAtTop() {
+                return window.pageYOffset === 0 || document.documentElement.scrollTop === 0;
+            }
+            
+            // Gestisce l'inizio del touch
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].pageY;
+                isAtTop = checkIfAtTop();
+            }, { passive: false });
+            
+            // Gestisce il movimento del touch
+            document.addEventListener('touchmove', function(e) {
+                if (!isAtTop) return; // Se non siamo in cima, permetti lo scroll normale
+                
+                const currentY = e.touches[0].pageY;
+                const deltaY = currentY - startY;
+                
+                // Se stiamo scorrendo verso il basso mentre siamo in cima alla pagina
+                // questo potrebbe attivare il pull-to-refresh
+                if (deltaY > 0) {
+                    // Previeni il pull-to-refresh su iOS/Safari
+                    e.preventDefault();
+                    console.log('🚫 Pull-to-refresh bloccato (iOS/Safari)');
+                }
+            }, { passive: false });
+            
+            console.log('📱 Sistema anti-pull-to-refresh attivato per iOS/Safari');
+        }
+
+        /**
          * Detects if Screen Wake Lock API is supported by the current browser
          * @returns {boolean} True if wake lock is supported
          */
@@ -2101,6 +2335,66 @@ Per evitare che lo schermo si spenga:
             }
         }
 
+        /**
+         * Aggiorna tutti i display dell'interfaccia utente
+         * Utilizzata principalmente per il ripristino dello stato dopo il reload
+         */
+        function updateAllDisplays() {
+            try {
+                // Aggiorna punteggi
+                updateScores();
+                
+                // Aggiorna statistiche
+                updateStats();
+                
+                // Aggiorna display del timer
+                updateTimerDisplay();
+                
+                // Aggiorna la visualizzazione dei marcatori
+                updateScorersDisplay();
+                
+                // Aggiorna i pulsanti dei goal in base al numero di periodi
+                updateGoalButtonsDisplay();
+                
+                console.log('🔄 Tutti i display aggiornati dopo ripristino stato');
+            } catch (error) {
+                console.error('❌ Errore nell\'aggiornamento dei display:', error);
+            }
+        }
+
+        /**
+         * Aggiorna la visualizzazione dei marcatori
+         */
+        function updateScorersDisplay() {
+            try {
+                // Aggiorna marcatori squadra 1
+                const scorersList1 = document.getElementById('scorers-list-1');
+                if (scorersList1) {
+                    scorersList1.innerHTML = '<h4>Marcatori:</h4>';
+                    team1Scorers.forEach(scorer => {
+                        const scorerDiv = document.createElement('div');
+                        scorerDiv.classList.add('scorer-list-item');
+                        scorerDiv.textContent = `${scorer.player} (${scorer.period}°)`;
+                        scorersList1.appendChild(scorerDiv);
+                    });
+                }
+                
+                // Aggiorna marcatori squadra 2
+                const scorersList2 = document.getElementById('scorers-list-2');
+                if (scorersList2) {
+                    scorersList2.innerHTML = '<h4>Marcatori:</h4>';
+                    team2Scorers.forEach(scorer => {
+                        const scorerDiv = document.createElement('div');
+                        scorerDiv.classList.add('scorer-list-item');
+                        scorerDiv.textContent = `${scorer.player} (${scorer.period}°)`;
+                        scorersList2.appendChild(scorerDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Errore nell\'aggiornamento marcatori:', error);
+            }
+        }
+
         function startTimer() {
             if (isRunning) return;
             
@@ -2172,6 +2466,9 @@ Per evitare che lo schermo si spenga:
             // Initial display update
             updateTimerDisplay();
             vibrate([100]); // Start timer feedback
+            
+            // Salva automaticamente lo stato quando il timer inizia
+            saveCurrentGameState();
         }
 
         function pauseTimer() {
@@ -2191,6 +2488,9 @@ Per evitare che lo schermo si spenga:
             clearInterval(timerInterval);
             document.getElementById('timer-display').classList.remove('timer-running');
             vibrate([50]); // Pause timer feedback
+            
+            // Salva automaticamente lo stato quando il timer viene messo in pausa
+            saveCurrentGameState();
         }
 
         function resetTimer() {
@@ -2280,6 +2580,9 @@ Per evitare che lo schermo si spenga:
             
             // Special vibration pattern for goals
             vibrate([150, 100, 150, 100, 150]);
+            
+            // Salva automaticamente lo stato dopo ogni goal
+            saveCurrentGameState();
         }
 
         function addGoalTeam2(quarter) {
@@ -2298,6 +2601,9 @@ Per evitare che lo schermo si spenga:
             
             // Special vibration pattern for goals
             vibrate([150, 100, 150, 100, 150]);
+            
+            // Salva automaticamente lo stato dopo ogni goal
+            saveCurrentGameState();
         }
 
         // Confetti function
@@ -2450,6 +2756,9 @@ Per evitare che lo schermo si spenga:
             resetTimer();
             hideResetModal();
 
+            // Cancella lo stato salvato della partita quando si resetta
+            clearCurrentGameState();
+
             // Release wake lock when returning to welcome screen
             releaseWakeLock();
             
@@ -2571,6 +2880,9 @@ Per evitare che lo schermo si spenga:
                 // Add vibration feedback
                 vibrate([100, 50, 100]);
                 
+                // Cancella lo stato della partita corrente dopo averla salvata con successo
+                clearCurrentGameState();
+                
                 // Start save cooldown
                 startSaveCooldown();
             } catch (error) {
@@ -2580,6 +2892,9 @@ Per evitare che lo schermo si spenga:
                 history.push(match);
                 localStorage.setItem('polis_match_history', JSON.stringify(history));
                 alert('Errore Firebase - Partita salvata nello storico locale!');
+                
+                // Cancella lo stato della partita corrente anche per il salvataggio di fallback
+                clearCurrentGameState();
                 
                 // Start save cooldown even for fallback save
                 startSaveCooldown();
@@ -3206,6 +3521,19 @@ Per evitare che lo schermo si spenga:
             // Initialize wake lock support detection
             initializeWakeLock();
             
+            // Inizializza il sistema anti-pull-to-refresh e ripristino stato
+            setupTouchEventsForPullToRefreshPrevention();
+            
+            // Tenta di ripristinare lo stato della partita se presente
+            const wasRestored = restoreGameState();
+            if (wasRestored) {
+                // Aggiorna la UI con lo stato ripristinato
+                setTimeout(() => {
+                    updateAllDisplays();
+                    showGameStateRestoredMessage();
+                }, 1000);
+            }
+            
             // Login and navigation
             document.getElementById('login-btn').addEventListener('click', handleLogin);
             document.getElementById('login-code-input').addEventListener('keypress', (e) => {
@@ -3329,6 +3657,8 @@ Per evitare che lo schermo si spenga:
                                 eventsByPeriod.team2.corners[currentPeriod.toString()]++;
                             }
                             updateStats();
+                            // Salva automaticamente lo stato dopo ogni statistica
+                            saveCurrentGameState();
                         } else if (type === 'shot') {
                             if (!currentPeriod) {
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
@@ -3340,6 +3670,8 @@ Per evitare che lo schermo si spenga:
                                 eventsByPeriod.team2.shots[currentPeriod.toString()]++;
                             }
                             updateStats();
+                            // Salva automaticamente lo stato dopo ogni statistica
+                            saveCurrentGameState();
                         } else if (type === 'foul') {
                             if (!currentPeriod) {
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
@@ -3351,6 +3683,8 @@ Per evitare che lo schermo si spenga:
                                 eventsByPeriod.team2.fouls[currentPeriod.toString()]++;
                             }
                             updateStats();
+                            // Salva automaticamente lo stato dopo ogni statistica
+                            saveCurrentGameState();
                         }
                     } else if (action === 'remove') {
                         showRemoveModal(type, team);
