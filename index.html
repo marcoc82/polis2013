@@ -1324,19 +1324,29 @@
 
         // Login function
         async function handleLogin() {
-            const code = document.getElementById('login-code-input').value.trim();
+            const codeRaw = document.getElementById('login-code-input').value;
             const errorDiv = document.getElementById('login-error');
             
-            if (!code) {
+            // Log del codice inserito per debug
+            console.log("🚀 Tentativo login con codice:", {
+                codeRaw: codeRaw,
+                lunghezza: codeRaw.length,
+                hasSpaces: codeRaw !== codeRaw.trim()
+            });
+            
+            if (!codeRaw || codeRaw.trim() === '') {
                 errorDiv.textContent = 'Inserisci un codice';
                 errorDiv.classList.remove('hidden');
                 return;
             }
             
             try {
-                const result = await window.verificaCodice(code);
+                // Passa il codice ESATTO senza modifiche (no trim)
+                const result = await window.verificaCodice(codeRaw);
                 
                 if (result.success) {
+                    console.log("✅ Login riuscito per società:", result.societa.nome);
+                    
                     currentClub = result.societa;
                     currentPlayers = [...(result.societa.giocatori || defaultPlayers)];
                     players = [...currentPlayers];
@@ -1354,16 +1364,19 @@
                     document.body.classList.remove('login-background');
                     menuScreen.style.display = 'flex';
                     
+                    // Clear input and hide error
+                    document.getElementById('login-code-input').value = '';
                     errorDiv.classList.add('hidden');
                     vibrate([50]);
                 } else {
+                    console.log("❌ Login fallito:", result.message);
                     errorDiv.textContent = result.message || 'Codice non valido';
                     errorDiv.classList.remove('hidden');
                     vibrate([200]);
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                errorDiv.textContent = 'Errore di connessione';
+                errorDiv.textContent = 'Errore di connessione. Riprova più tardi.';
                 errorDiv.classList.remove('hidden');
                 vibrate([200]);
             }
