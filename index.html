@@ -386,6 +386,18 @@
         .btn-save:hover {
             background: linear-gradient(to right, #7c3aed, #6d28d9);
         }
+        .btn-save:disabled {
+            background: linear-gradient(to right, #6b7280, #4b5563) !important;
+            cursor: not-allowed !important;
+            opacity: 0.7 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .btn-save:disabled:hover {
+            background: linear-gradient(to right, #6b7280, #4b5563) !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
         .btn-history {
             background: linear-gradient(to right, #f97316, #ea580c);
             color: white;
@@ -1039,6 +1051,11 @@
                 <button id="share-button" class="btn btn-share flex items-center justify-center">Condividi</button>
                 <button id="show-history-button" class="btn btn-history flex items-center justify-center gap-2">STORICO</button>
             </div>
+            
+            <!-- Messaggio di cooldown per il salvataggio -->
+            <div id="save-cooldown-message" class="text-center mt-4 text-yellow-400 font-semibold" style="display: none;">
+                Salvataggio effettuato, puoi salvare una nuova partita tra <span id="cooldown-timer">60</span> secondi
+            </div>
         </div>
     </div>
 
@@ -1212,6 +1229,11 @@
 
         // Screen wake lock
         let wakeLock = null;
+
+        // Save cooldown variables
+        let saveButtonCooldownActive = false;
+        let saveCooldownTimer = null;
+        let saveCooldownSeconds = 0;
 
         // Vibration/Haptic feedback function
         function vibrate(pattern = [100]) {
@@ -1844,6 +1866,51 @@
             }
         }
 
+        // Save cooldown functions
+        function startSaveCooldown() {
+            saveButtonCooldownActive = true;
+            saveCooldownSeconds = 60;
+            
+            const saveButton = document.getElementById('save-button');
+            const cooldownMessage = document.getElementById('save-cooldown-message');
+            const cooldownTimer = document.getElementById('cooldown-timer');
+            
+            // Disable save button
+            saveButton.disabled = true;
+            
+            // Show cooldown message
+            cooldownMessage.style.display = 'block';
+            
+            // Update countdown timer
+            saveCooldownTimer = setInterval(() => {
+                saveCooldownSeconds--;
+                cooldownTimer.textContent = saveCooldownSeconds;
+                
+                if (saveCooldownSeconds <= 0) {
+                    endSaveCooldown();
+                }
+            }, 1000);
+        }
+        
+        function endSaveCooldown() {
+            saveButtonCooldownActive = false;
+            
+            const saveButton = document.getElementById('save-button');
+            const cooldownMessage = document.getElementById('save-cooldown-message');
+            
+            // Re-enable save button
+            saveButton.disabled = false;
+            
+            // Hide cooldown message
+            cooldownMessage.style.display = 'none';
+            
+            // Clear timer
+            if (saveCooldownTimer) {
+                clearInterval(saveCooldownTimer);
+                saveCooldownTimer = null;
+            }
+        }
+
         async function saveMatch() {
             const team1Name = currentClub ? currentClub.nome : 'POLIS';
             const team2Name = document.getElementById('team2-name').textContent;
@@ -1880,6 +1947,9 @@
                 
                 // Add vibration feedback
                 vibrate([100, 50, 100]);
+                
+                // Start save cooldown
+                startSaveCooldown();
             } catch (error) {
                 console.error('Error saving match:', error);
                 // Fallback to localStorage
@@ -1887,6 +1957,9 @@
                 history.push(match);
                 localStorage.setItem('polis_match_history', JSON.stringify(history));
                 alert('Errore Firebase - Partita salvata nello storico locale!');
+                
+                // Start save cooldown even for fallback save
+                startSaveCooldown();
             }
         }
 
@@ -2424,6 +2497,13 @@
 
             // Save and share functionality - separate buttons
             document.getElementById('save-button').addEventListener('click', async () => {
+                if (saveButtonCooldownActive) {
+                    // Show alert if user tries to save during cooldown
+                    alert(`Puoi salvare una nuova partita tra ${saveCooldownSeconds} secondi. Aspetta per evitare duplicati.`);
+                    vibrate([100, 50, 100]); // Warning feedback
+                    return;
+                }
+                
                 vibrate([50]); // Button feedback
                 await saveMatch();
                 alert('Partita salvata!');
