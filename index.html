@@ -1471,8 +1471,10 @@
         let historyListener = null;
         let pendingDeleteMatchId = null;
 
-        // Screen wake lock
+        // Screen wake lock variables
         let wakeLock = null;
+        let wakeLockSupported = false;
+        let wakeLockFallbackShown = false;
 
         // Save cooldown variables
         let saveButtonCooldownActive = false;
@@ -1486,27 +1488,184 @@
             }
         }
 
-        // Request wake lock to keep screen on
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Screen wake lock is active');
-                    
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Screen wake lock was released');
-                    });
+        /**
+         * Detects if Screen Wake Lock API is supported by the current browser
+         * @returns {boolean} True if wake lock is supported
+         */
+        function isWakeLockSupported() {
+            return 'wakeLock' in navigator && 'request' in navigator.wakeLock;
+        }
+
+        /**
+         * Shows a fallback message for browsers that don't support Screen Wake Lock API
+         * This is particularly useful for Safari on iOS and older browsers
+         */
+        function showWakeLockFallbackMessage() {
+            if (wakeLockFallbackShown) return; // Show only once per session
+            
+            wakeLockFallbackShown = true;
+            
+            // Detect if we're on iOS Safari specifically
+            const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+                               /Safari/.test(navigator.userAgent) && 
+                               !/Chrome|CriOS|FxiOS/.test(navigator.userAgent);
+            
+            let message = '';
+            let title = 'Mantieni lo schermo attivo';
+            
+            if (isIOSSafari) {
+                message = `Per evitare che lo schermo si spenga durante la partita:
+                
+1. Vai in Impostazioni > Schermo e luminosità
+2. Imposta "Blocco automatico" su "Mai"
+3. Ricordati di riattivarlo dopo la partita
+
+Oppure tocca periodicamente lo schermo per mantenerlo attivo.`;
+            } else {
+                message = `Il tuo browser non supporta il mantenimento automatico dello schermo attivo.
+                
+Per evitare che lo schermo si spenga:
+• Tocca periodicamente lo schermo
+• Modifica le impostazioni di risparmio energetico del dispositivo
+• Considera l'uso di Chrome o Edge per una migliore esperienza`;
+            }
+            
+            // Create and show a modal with the fallback instructions
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            modal.innerHTML = `
+                <div class="bg-slate-800 rounded-lg p-6 max-w-md w-full text-white">
+                    <h3 class="text-lg font-bold mb-4 text-yellow-400">${title}</h3>
+                    <p class="text-sm leading-relaxed mb-6 whitespace-pre-line">${message}</p>
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Ho capito
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Auto-remove after 10 seconds if user doesn't interact
+            setTimeout(() => {
+                if (document.body.contains(modal)) {
+                    modal.remove();
                 }
+            }, 10000);
+        }
+
+        /**
+         * Requests a screen wake lock to prevent the device from going to sleep
+         * Includes comprehensive error handling and automatic retry logic
+         */
+        async function requestWakeLock() {
+            // Check if we already have an active wake lock
+            if (wakeLock && !wakeLock.released) {
+                console.log('Screen wake lock already active');
+                return;
+            }
+            
+            try {
+                // Check if Screen Wake Lock API is supported
+                if (!isWakeLockSupported()) {
+                    console.warn('Screen Wake Lock API not supported by this browser');
+                    wakeLockSupported = false;
+                    showWakeLockFallbackMessage();
+                    return;
+                }
+                
+                wakeLockSupported = true;
+                
+                // Request the wake lock
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('✅ Screen wake lock is active');
+                
+                // Add event listener for when the wake lock is released
+                wakeLock.addEventListener('release', () => {
+                    console.log('⚠️ Screen wake lock was released');
+                    wakeLock = null;
+                });
+                
             } catch (err) {
-                console.error('Failed to request screen wake lock:', err);
+                console.error('❌ Failed to request screen wake lock:', err);
+                wakeLock = null;
+                
+                // Handle specific error cases
+                if (err.name === 'NotAllowedError') {
+                    console.warn('Screen wake lock permission denied by user or browser policy');
+                } else if (err.name === 'AbortError') {
+                    console.warn('Screen wake lock request was aborted');
+                } else {
+                    console.warn('Screen wake lock failed due to:', err.message);
+                }
+                
+                // Show fallback message if wake lock fails
+                if (!wakeLockFallbackShown) {
+                    showWakeLockFallbackMessage();
+                }
             }
         }
 
-        // Release wake lock
+        /**
+         * Releases the current screen wake lock if active
+         */
         function releaseWakeLock() {
-            if (wakeLock !== null) {
-                wakeLock.release();
-                wakeLock = null;
+            if (wakeLock && !wakeLock.released) {
+                try {
+                    wakeLock.release();
+                    console.log('🔓 Screen wake lock released manually');
+                } catch (err) {
+                    console.error('Error releasing wake lock:', err);
+                }
+            }
+            wakeLock = null;
+        }
+
+        /**
+         * Handles page visibility changes to maintain wake lock when page returns to foreground
+         * This is crucial because wake locks are automatically released when the page is hidden
+         */
+        function handleVisibilityChange() {
+            if (!document.hidden) {
+                // Page became visible again
+                console.log('📱 Page became visible - reactivating wake lock');
+                
+                // Re-request wake lock if it was previously supported
+                if (wakeLockSupported || isWakeLockSupported()) {
+                    requestWakeLock();
+                }
+                
+                // Also update timer if it's running (existing functionality)
+                if (typeof isRunning !== 'undefined' && isRunning) {
+                    updateTimerDisplay();
+                }
+            } else {
+                // Page became hidden
+                console.log('🙈 Page became hidden - wake lock will be auto-released');
+            }
+        }
+
+        /**
+         * Initializes wake lock support detection and logs browser capabilities
+         * This helps with debugging and provides early feedback about support
+         */
+        function initializeWakeLock() {
+            wakeLockSupported = isWakeLockSupported();
+            
+            if (wakeLockSupported) {
+                console.log('✅ Screen Wake Lock API is supported by this browser');
+            } else {
+                console.log('❌ Screen Wake Lock API is not supported by this browser');
+                
+                // Log browser info for debugging
+                const browserInfo = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    isIOSSafari: /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+                                /Safari/.test(navigator.userAgent) && 
+                                !/Chrome|CriOS|FxiOS/.test(navigator.userAgent)
+                };
+                console.log('🔍 Browser info:', browserInfo);
             }
         }
 
@@ -1572,7 +1731,9 @@
             welcomeScreen.style.display = 'none';
             mainApp.style.display = 'block';
             
-            // Request wake lock to keep screen on
+            // Request wake lock to keep screen on during the match
+            // This prevents the device from going to sleep while managing the game
+            // For unsupported browsers, a fallback message will guide the user
             requestWakeLock();
             
             // Setup Firebase history listener
@@ -3042,6 +3203,9 @@
             }
         }
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize wake lock support detection
+            initializeWakeLock();
+            
             // Login and navigation
             document.getElementById('login-btn').addEventListener('click', handleLogin);
             document.getElementById('login-code-input').addEventListener('keypress', (e) => {
@@ -3262,21 +3426,29 @@
             }
         }, 2000);
         
-        // Handle page visibility changes to update timer when returning from background
-        // This ensures timer accuracy even if the browser suspends JavaScript execution
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && isRunning) {
-                // Page became visible again while timer is running
-                // Update display immediately to show accurate time
+        // Handle page visibility changes to maintain wake lock and update timer
+        // This ensures both wake lock reactivation and timer accuracy when returning from background
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Also handle window focus events as an additional safeguard for wake lock and timer
+        window.addEventListener('focus', () => {
+            console.log('🎯 Window gained focus - ensuring wake lock is active');
+            
+            // Re-request wake lock if supported
+            if (wakeLockSupported || isWakeLockSupported()) {
+                requestWakeLock();
+            }
+            
+            // Update timer if running (existing functionality)
+            if (typeof isRunning !== 'undefined' && isRunning) {
                 updateTimerDisplay();
             }
         });
         
-        // Also handle window focus events as an additional safeguard
-        window.addEventListener('focus', () => {
-            if (isRunning) {
-                updateTimerDisplay();
-            }
+        // Handle page being unloaded/closed to clean up wake lock
+        window.addEventListener('beforeunload', () => {
+            console.log('🚪 Page unloading - releasing wake lock');
+            releaseWakeLock();
         });
     </script>
 </body>
