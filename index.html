@@ -2416,7 +2416,12 @@
                     }
                 }
                 
+                // Reset pendingDeleteMatchId after successful deletion
+                pendingDeleteMatchId = null;
+                
+                // Close any open modals
                 hideDeleteMatchModal();
+                
                 // Refresh the history display
                 await renderHistory();
                 
@@ -2424,12 +2429,16 @@
                 console.error('Error deleting match:', error);
                 alert('Errore durante l\'eliminazione della partita.');
                 vibrate([200, 100, 200]); // Error vibration
+                throw error; // Re-throw to allow proper error handling in calling function
             }
         }
 
         // Show password modal for deletion
         function showPasswordDeleteModal() {
-            hideDeleteMatchModal(); // Hide the first confirmation modal
+            // Hide the first confirmation modal WITHOUT resetting pendingDeleteMatchId
+            document.getElementById('delete-match-modal').classList.remove('is-active');
+            vibrate([30]); // Add haptic feedback
+            
             document.getElementById('password-delete-modal').classList.add('is-active');
             document.getElementById('delete-password-input').value = ''; // Clear previous input
             document.getElementById('password-error').classList.add('hidden'); // Hide error message
@@ -2445,8 +2454,13 @@
             document.getElementById('password-delete-modal').classList.remove('is-active');
             document.getElementById('delete-password-input').value = ''; // Clear input
             document.getElementById('password-error').classList.add('hidden'); // Hide error message
-            pendingDeleteMatchId = null; // Reset pending deletion
             vibrate([30]); // Add haptic feedback
+        }
+
+        function cancelPasswordDelete() {
+            // Reset pendingDeleteMatchId when user cancels
+            pendingDeleteMatchId = null;
+            hidePasswordDeleteModal();
         }
 
         async function confirmPasswordDelete() {
@@ -2471,9 +2485,18 @@
                 
                 if (result.success) {
                     // Password correct, proceed with deletion
-                    await confirmDeleteMatch();
-                    hidePasswordDeleteModal();
-                    vibrate([100]); // Success vibration
+                    try {
+                        await confirmDeleteMatch();
+                        // Only hide modal and provide feedback if deletion was successful
+                        hidePasswordDeleteModal();
+                        vibrate([100]); // Success vibration
+                    } catch (deleteError) {
+                        // If deletion fails, show error but keep modal open
+                        console.error('Deletion failed:', deleteError);
+                        errorDiv.textContent = 'Errore durante l\'eliminazione della partita';
+                        errorDiv.classList.remove('hidden');
+                        vibrate([200, 100, 200]); // Error vibration
+                    }
                 } else {
                     // Show error message
                     errorDiv.textContent = result.message || 'Password non corretta';
@@ -3107,7 +3130,7 @@
             
             // Password delete match event listeners
             document.getElementById('confirm-password-delete-button').addEventListener('click', confirmPasswordDelete);
-            document.getElementById('cancel-password-delete-button').addEventListener('click', hidePasswordDeleteModal);
+            document.getElementById('cancel-password-delete-button').addEventListener('click', cancelPasswordDelete);
             
             // Allow Enter key to submit password
             document.getElementById('delete-password-input').addEventListener('keypress', (e) => {
