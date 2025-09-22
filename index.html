@@ -1411,6 +1411,20 @@
         </div>
     </div>
 
+    <!-- Password input modal for match deletion -->
+    <div id="password-delete-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Conferma Password</div>
+            <p class="text-gray-400 mb-4">Inserisci la password della società per confermare l'eliminazione:</p>
+            <input type="password" id="delete-password-input" placeholder="Password società" class="w-full mb-4 modal-input">
+            <div id="password-error" class="text-red-400 mb-4 hidden">Password non corretta</div>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-password-delete-button" class="btn btn-reset px-8">Conferma</button>
+                <button id="cancel-password-delete-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let scoreTeam1 = 0;
@@ -2413,6 +2427,73 @@
             }
         }
 
+        // Show password modal for deletion
+        function showPasswordDeleteModal() {
+            hideDeleteMatchModal(); // Hide the first confirmation modal
+            document.getElementById('password-delete-modal').classList.add('is-active');
+            document.getElementById('delete-password-input').value = ''; // Clear previous input
+            document.getElementById('password-error').classList.add('hidden'); // Hide error message
+            vibrate([50]); // Add haptic feedback
+            
+            // Focus on the password input field
+            setTimeout(() => {
+                document.getElementById('delete-password-input').focus();
+            }, 100);
+        }
+
+        function hidePasswordDeleteModal() {
+            document.getElementById('password-delete-modal').classList.remove('is-active');
+            document.getElementById('delete-password-input').value = ''; // Clear input
+            document.getElementById('password-error').classList.add('hidden'); // Hide error message
+            pendingDeleteMatchId = null; // Reset pending deletion
+            vibrate([30]); // Add haptic feedback
+        }
+
+        async function confirmPasswordDelete() {
+            if (!pendingDeleteMatchId || !currentClub) {
+                hidePasswordDeleteModal();
+                return;
+            }
+
+            const password = document.getElementById('delete-password-input').value;
+            const errorDiv = document.getElementById('password-error');
+            
+            if (!password) {
+                errorDiv.textContent = 'Inserisci la password';
+                errorDiv.classList.remove('hidden');
+                vibrate([100, 50, 100]); // Error vibration
+                return;
+            }
+
+            try {
+                // Verify password with the society's codici array[1]
+                const result = await window.verificaPasswordSocieta(currentClub.id, password);
+                
+                if (result.success) {
+                    // Password correct, proceed with deletion
+                    await confirmDeleteMatch();
+                    hidePasswordDeleteModal();
+                    vibrate([100]); // Success vibration
+                } else {
+                    // Show error message
+                    errorDiv.textContent = result.message || 'Password non corretta';
+                    errorDiv.classList.remove('hidden');
+                    document.getElementById('delete-password-input').value = ''; // Clear input on error
+                    vibrate([100, 50, 100, 50, 100]); // Error vibration
+                    
+                    // Focus back on input field
+                    setTimeout(() => {
+                        document.getElementById('delete-password-input').focus();
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error verifying password:', error);
+                errorDiv.textContent = 'Errore di connessione';
+                errorDiv.classList.remove('hidden');
+                vibrate([200, 100, 200]); // Error vibration
+            }
+        }
+
         // Helper function to generate period statistics table for individual match history
         function generateMatchPeriodStatsTable(match) {
             // Check if match has period data
@@ -3021,8 +3102,20 @@
             document.getElementById('close-history-button').addEventListener('click', hideHistoryModal);
 
             // Delete match event listeners
-            document.getElementById('confirm-delete-match-button').addEventListener('click', confirmDeleteMatch);
+            document.getElementById('confirm-delete-match-button').addEventListener('click', showPasswordDeleteModal);
             document.getElementById('cancel-delete-match-button').addEventListener('click', hideDeleteMatchModal);
+            
+            // Password delete match event listeners
+            document.getElementById('confirm-password-delete-button').addEventListener('click', confirmPasswordDelete);
+            document.getElementById('cancel-password-delete-button').addEventListener('click', hidePasswordDeleteModal);
+            
+            // Allow Enter key to submit password
+            document.getElementById('delete-password-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    confirmPasswordDelete();
+                }
+            });
 
             // Save and share functionality - separate buttons
             document.getElementById('save-button').addEventListener('click', async () => {

@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, getDocs, query, where, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, getDocs, getDoc, query, where, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDMOK9DQmf3qmBbs9jWuPv6xnGOK8_a_SU",
@@ -171,12 +171,43 @@ window.aggiornaGiocatoriSocieta = async function(societaId, nuoviGiocatori, numP
   }
 };
 
+// Funzione per verificare la password di una società
+window.verificaPasswordSocieta = async function(societaId, password) {
+  try {
+    const societaRef = doc(db, "societa", societaId);
+    const societaDoc = await getDoc(societaRef);
+    
+    if (!societaDoc.exists()) {
+      return { success: false, message: "Società non trovata" };
+    }
+    
+    const societaData = societaDoc.data();
+    
+    // Verifica che esista l'array codici e che abbia almeno 2 elementi
+    if (!societaData.codici || !Array.isArray(societaData.codici) || societaData.codici.length < 2) {
+      return { success: false, message: "Password non configurata per questa società" };
+    }
+    
+    // Confronta con array[1] (secondo elemento dell'array codici)
+    const correctPassword = societaData.codici[1];
+    
+    if (password === correctPassword) {
+      return { success: true };
+    } else {
+      return { success: false, message: "Password non corretta" };
+    }
+  } catch (e) {
+    console.error("Errore verifica password società:", e);
+    return { success: false, message: "Errore di connessione" };
+  }
+};
+
 // Funzione per creare una società di esempio (facoltativo)
 window.creaSocietaEsempio = async function() {
   try {
     const societaRef = collection(db, "societa");
     await addDoc(societaRef, {
-      codici: ["Polis2013"], // Codice case-sensitive esatto
+      codici: ["Polis2013", "delete123"], // Codice case-sensitive esatto + password per eliminazione
       nome: "POLIS",
       numPeriods: 2, // Default to 2 periods
       giocatori: [
