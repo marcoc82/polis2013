@@ -638,30 +638,26 @@
         <!-- Squadra 1 -->
         <div class="team">
             <h2 class="team-title">POLIS</h2>
-            <div class="grid grid-cols-3 gap-3 mb-3">
+            <!-- First row: Gol and Tiro side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-goal" data-team="1" data-quarter="1°T" data-type="goal" data-action="add">Goal 1°T</button>
+                    <button class="btn btn-goal" data-team="1" data-type="goal" data-action="add">Gol</button>
                     <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
                 </div>
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-goal" data-team="1" data-quarter="2°T" data-type="goal" data-action="add">Goal 2°T</button>
-                    <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
-                </div>
-                <div class="flex flex-col items-center">
-                    <button class="btn btn-goal" data-team="1" data-quarter="3°T" data-type="goal" data-action="add">Goal 3°T</button>
-                    <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
+                    <button class="btn btn-stats-add" data-team="1" data-type="shot" data-action="add">Tiro</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="1" data-type="shot" data-action="remove">-</button>
                 </div>
             </div>
-            <div class="button-section">
-                <div class="button-grid-2">
+            <!-- Second row: Corner and Fallo side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
                     <button class="btn btn-stats-add" data-team="1" data-type="corner" data-action="add">Corner</button>
-                    <button class="btn btn-stats-add" data-team="1" data-type="shot" data-action="add">Tiri in porta</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="1" data-type="corner" data-action="remove">-</button>
                 </div>
-            </div>
-            <div class="button-section">
-                <div class="button-grid-2">
-                    <button class="btn btn-remove-stats" data-team="1" data-type="corner" data-action="remove">Rimuovi Corner</button>
-                    <button class="btn btn-remove-stats" data-team="1" data-type="shot" data-action="remove">Rimuovi Tiri</button>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add" data-team="1" data-type="foul" data-action="add">Fallo</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="1" data-type="foul" data-action="remove">-</button>
                 </div>
             </div>
         </div>
@@ -669,30 +665,26 @@
         <!-- Squadra 2 -->
         <div class="team">
             <h2 id="team2-name" class="team-title">Squadra 2</h2>
-            <div class="grid grid-cols-3 gap-3 mb-3">
+            <!-- First row: Gol and Tiro side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-goal" data-team="2" data-quarter="1°T" data-type="goal" data-action="add">Goal 1°T</button>
+                    <button class="btn btn-goal" data-team="2" data-type="goal" data-action="add">Gol</button>
                     <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
                 </div>
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-goal" data-team="2" data-quarter="2°T" data-type="goal" data-action="add">Goal 2°T</button>
-                    <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
-                </div>
-                <div class="flex flex-col items-center">
-                    <button class="btn btn-goal" data-team="2" data-quarter="3°T" data-type="goal" data-action="add">Goal 3°T</button>
-                    <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
+                    <button class="btn btn-stats-add" data-team="2" data-type="shot" data-action="add">Tiro</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="2" data-type="shot" data-action="remove">-</button>
                 </div>
             </div>
-            <div class="button-section">
-                <div class="button-grid-2">
+            <!-- Second row: Corner and Fallo side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
                     <button class="btn btn-stats-add" data-team="2" data-type="corner" data-action="add">Corner</button>
-                    <button class="btn btn-stats-add" data-team="2" data-type="shot" data-action="add">Tiri in porta</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="2" data-type="corner" data-action="remove">-</button>
                 </div>
-            </div>
-            <div class="button-section">
-                <div class="button-grid-2">
-                    <button class="btn btn-remove-stats" data-team="2" data-type="corner" data-action="remove">Rimuovi Corner</button>
-                    <button class="btn btn-remove-stats" data-team="2" data-type="shot" data-action="remove">Rimuovi Tiri</button>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add" data-team="2" data-type="foul" data-action="add">Fallo</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="2" data-type="foul" data-action="remove">-</button>
                 </div>
             </div>
         </div>
@@ -1512,7 +1504,7 @@
             const team = button.dataset.team;
             const type = button.dataset.type;
             const action = button.dataset.action;
-            const quarter = button.dataset.quarter;
+            const quarter = button.dataset.quarter || '1°T'; // Default to 1°T if no quarter specified
 
             if (action === 'add') {
                 if (type === 'goal') {
