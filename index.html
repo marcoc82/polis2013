@@ -1457,6 +1457,11 @@
         let isRunning = false;
         let lastSetSeconds = 18 * 60;
         let currentPeriod = null; // Track current period (1, 2, or 3)
+        
+        // New timer system variables based on real time
+        let timerStartTime = null; // When the timer was started (Date.now())
+        let pausedDuration = 0; // Total time spent paused (in milliseconds)
+        let pauseStartTime = null; // When the timer was paused (Date.now())
 
         // Audio preloading per fischio.mp3
         let fischioAudio;
@@ -1900,14 +1905,34 @@
 
         // Timer functions
         function updateTimerDisplay() {
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
+            // Calculate remaining time based on real elapsed time
+            let displaySeconds;
+            
+            if (isRunning && timerStartTime) {
+                // Timer is running: calculate elapsed time from start, accounting for pauses
+                const currentTime = Date.now();
+                const totalElapsedMs = (currentTime - timerStartTime) - pausedDuration;
+                const elapsedSeconds = Math.floor(totalElapsedMs / 1000);
+                displaySeconds = Math.max(0, lastSetSeconds - elapsedSeconds);
+            } else if (!isRunning && timerStartTime) {
+                // Timer is paused: use the time at pause moment
+                displaySeconds = totalSeconds;
+            } else {
+                // Timer not started yet or has been reset
+                displaySeconds = totalSeconds;
+            }
+            
+            const minutes = Math.floor(displaySeconds / 60);
+            const seconds = displaySeconds % 60;
             const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             document.getElementById('timer-display').textContent = formattedTime;
 
-            if (totalSeconds <= 0) {
+            // Check if timer has reached zero
+            if (displaySeconds <= 0 && isRunning) {
                 clearInterval(timerInterval);
                 isRunning = false;
+                timerStartTime = null; // Clear start time
+                pausedDuration = 0; // Reset pause duration
                 document.getElementById('timer-display').classList.remove('timer-running');
                 document.getElementById('timer-display').textContent = "00:00";
                 vibrate([5000]); // 5 second vibration when timer reaches zero
@@ -1918,8 +1943,28 @@
         function startTimer() {
             if (isRunning) return;
             
-            // Show period selection modal before starting timer
-            showPeriodSelectionModal();
+            // Check if this is a resume (timer was paused) or a fresh start
+            if (timerStartTime && pauseStartTime) {
+                // This is a resume: add pause duration to the total paused time
+                pausedDuration += (Date.now() - pauseStartTime);
+                pauseStartTime = null;
+                
+                // Resume the timer
+                isRunning = true;
+                document.getElementById('timer-display').classList.add('timer-running');
+                
+                // Update display every second
+                timerInterval = setInterval(() => {
+                    updateTimerDisplay();
+                }, 1000);
+                
+                // Initial display update
+                updateTimerDisplay();
+                vibrate([100]); // Resume timer feedback
+            } else {
+                // This is a fresh start: show period selection modal
+                showPeriodSelectionModal();
+            }
         }
 
         function showPeriodSelectionModal() {
@@ -1950,18 +1995,37 @@
             periodDisplay.textContent = `${period}° tempo`;
             periodDisplay.style.display = 'inline-block';
             
-            // Actually start the timer
+            // Start the new timer system based on real time
             isRunning = true;
+            timerStartTime = Date.now(); // Record the exact start time
+            pausedDuration = 0; // Reset any previous pause duration
+            pauseStartTime = null; // Clear pause start time
+            
             document.getElementById('timer-display').classList.add('timer-running');
+            
+            // Update display every second (or when page becomes active again)
             timerInterval = setInterval(() => {
-                totalSeconds--;
                 updateTimerDisplay();
             }, 1000);
+            
+            // Initial display update
+            updateTimerDisplay();
             vibrate([100]); // Start timer feedback
         }
 
         function pauseTimer() {
             if (!isRunning) return;
+            
+            // Record pause start time and calculate current totalSeconds for display
+            pauseStartTime = Date.now();
+            
+            if (timerStartTime) {
+                // Calculate how much time has elapsed and update totalSeconds for accurate display
+                const totalElapsedMs = (pauseStartTime - timerStartTime) - pausedDuration;
+                const elapsedSeconds = Math.floor(totalElapsedMs / 1000);
+                totalSeconds = Math.max(0, lastSetSeconds - elapsedSeconds);
+            }
+            
             isRunning = false;
             clearInterval(timerInterval);
             document.getElementById('timer-display').classList.remove('timer-running');
@@ -1970,7 +2034,12 @@
 
         function resetTimer() {
             pauseTimer();
+            
+            // Reset all timer variables to initial state
             totalSeconds = lastSetSeconds;
+            timerStartTime = null; // Clear start time
+            pausedDuration = 0; // Reset pause duration
+            pauseStartTime = null; // Clear pause start time
             currentPeriod = null;
             
             // Hide period display
@@ -3037,8 +3106,21 @@
                 const minutes = parseInt(document.getElementById('timer-minutes-input').value);
                 const seconds = parseInt(document.getElementById('timer-seconds-input').value);
                 if (!isNaN(minutes) && !isNaN(seconds)) {
+                    // Reset timer to new duration
+                    pauseTimer(); // Stop current timer if running
                     totalSeconds = (minutes * 60) + seconds;
                     lastSetSeconds = totalSeconds;
+                    
+                    // Reset all timer state variables
+                    timerStartTime = null;
+                    pausedDuration = 0;
+                    pauseStartTime = null;
+                    currentPeriod = null;
+                    
+                    // Hide period display
+                    const periodDisplay = document.getElementById('current-period-display');
+                    periodDisplay.style.display = 'none';
+                    
                     updateTimerDisplay();
                     document.getElementById('timer-setup-modal').classList.remove('is-active');
                     vibrate([100]); // Timer set confirmation
@@ -3179,6 +3261,23 @@
                 window.onFirebaseReady();
             }
         }, 2000);
+        
+        // Handle page visibility changes to update timer when returning from background
+        // This ensures timer accuracy even if the browser suspends JavaScript execution
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isRunning) {
+                // Page became visible again while timer is running
+                // Update display immediately to show accurate time
+                updateTimerDisplay();
+            }
+        });
+        
+        // Also handle window focus events as an additional safeguard
+        window.addEventListener('focus', () => {
+            if (isRunning) {
+                updateTimerDisplay();
+            }
+        });
     </script>
 </body>
 </html>
