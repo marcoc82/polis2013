@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1e293b;
+            color: white;
+        }
+        .teams-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 20px;
+        }
+        .team {
+            background-color: #334155;
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+        .team-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .btn {
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .btn-goal {
+            background: linear-gradient(to right, #22c55e, #16a34a);
+        }
+        .btn-stats-add {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+        }
+        .btn-remove-goal, .btn-remove-stats {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+            padding: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .mb-3 {
+            margin-bottom: 0.75rem;
+        }
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test - New Button Layout</h1>
+    
+    <div class="teams-container">
+        <!-- Team 1 -->
+        <div class="team">
+            <h2 class="team-title">POLIS</h2>
+            <!-- First row: Gol and Tiro side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-goal">Gol</button>
+                    <button class="btn btn-remove-goal mt-2">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add">Tiro</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+            </div>
+            <!-- Second row: Corner and Fallo side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add">Corner</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add">Fallo</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team 2 -->
+        <div class="team">
+            <h2 class="team-title">JUVENTUS</h2>
+            <!-- First row: Gol and Tiro side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-goal">Gol</button>
+                    <button class="btn btn-remove-goal mt-2">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add">Tiro</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+            </div>
+            <!-- Second row: Corner and Fallo side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add">Corner</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-stats-add">Fallo</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="margin-top: 30px;">Previous Layout (for comparison)</h2>
+    <p>Previously there were 3 goal buttons (Gol 1°T, Gol 2°T, Gol 3°T) in the first row, and Corner, Tiro, Fallo in the second row.</p>
+    <p><strong>New layout:</strong> Gol and Tiro in the first row, Corner and Fallo in the second row.</p>
+</body>
+</html>
