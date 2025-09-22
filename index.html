@@ -783,6 +783,26 @@
         body:has(#players-management-screen[style*="flex"]) .side-panel {
             display: none !important;
         }
+
+        /* Period statistics styles */
+        .period-stats {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .period-breakdown h5 {
+            color: #4a90e2;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .period-breakdown div {
+            margin-bottom: 0.25rem;
+            color: #e2e8f0;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -1012,6 +1032,9 @@
                     <div id="scorers-list-1" class="scorer-list">
                         <h4>Marcatori:</h4>
                     </div>
+                    <div id="period-stats-team1" class="period-stats">
+                        <!-- Period breakdown will be inserted here -->
+                    </div>
                 </div>
 
                 <!-- Statistiche Squadra 2 -->
@@ -1051,6 +1074,9 @@
                     </div>
                     <div id="scorers-list-2" class="scorer-list">
                         <h4>Marcatori:</h4>
+                    </div>
+                    <div id="period-stats-team2" class="period-stats">
+                        <!-- Period breakdown will be inserted here -->
                     </div>
                 </div>
             </div>
@@ -1236,6 +1262,20 @@
         let shotsTeam2 = 0;
         let cornersTeam2 = 0;
         let foulsTeam2 = 0;
+        
+        // Period-based statistics storage
+        let eventsByPeriod = {
+            team1: {
+                shots: { '1': 0, '2': 0, '3': 0 },
+                corners: { '1': 0, '2': 0, '3': 0 },
+                fouls: { '1': 0, '2': 0, '3': 0 }
+            },
+            team2: {
+                shots: { '1': 0, '2': 0, '3': 0 },
+                corners: { '1': 0, '2': 0, '3': 0 },
+                fouls: { '1': 0, '2': 0, '3': 0 }
+            }
+        };
         let team1Scorers = [];
         let team2Scorers = [];
         let pendingRemovalAction = null;
@@ -1578,8 +1618,21 @@
             updateStats();
         }
 
-        // Update stats
+        // Calculate total stats from period data
+        function calculateTotals() {
+            shotsTeam1 = eventsByPeriod.team1.shots['1'] + eventsByPeriod.team1.shots['2'] + eventsByPeriod.team1.shots['3'];
+            cornersTeam1 = eventsByPeriod.team1.corners['1'] + eventsByPeriod.team1.corners['2'] + eventsByPeriod.team1.corners['3'];
+            foulsTeam1 = eventsByPeriod.team1.fouls['1'] + eventsByPeriod.team1.fouls['2'] + eventsByPeriod.team1.fouls['3'];
+            shotsTeam2 = eventsByPeriod.team2.shots['1'] + eventsByPeriod.team2.shots['2'] + eventsByPeriod.team2.shots['3'];
+            cornersTeam2 = eventsByPeriod.team2.corners['1'] + eventsByPeriod.team2.corners['2'] + eventsByPeriod.team2.corners['3'];
+            foulsTeam2 = eventsByPeriod.team2.fouls['1'] + eventsByPeriod.team2.fouls['2'] + eventsByPeriod.team2.fouls['3'];
+        }
+
+        // Update stats display with period breakdown
         function updateStats() {
+            calculateTotals();
+            
+            // Update basic stats
             document.getElementById('goals-team1').textContent = scoreTeam1;
             document.getElementById('goals-team2-taken').textContent = scoreTeam2;
             document.getElementById('shots-team1').textContent = shotsTeam1;
@@ -1597,6 +1650,38 @@
             document.getElementById('corners-team1-taken').textContent = cornersTeam1;
             document.getElementById('fouls-team2').textContent = foulsTeam2;
             document.getElementById('fouls-team1-taken').textContent = foulsTeam1;
+            
+            // Update period breakdown display
+            updatePeriodStats();
+        }
+
+        // Update period statistics display
+        function updatePeriodStats() {
+            // Team 1 period stats
+            const team1StatsDiv = document.getElementById('period-stats-team1');
+            if (team1StatsDiv) {
+                team1StatsDiv.innerHTML = `
+                    <div class="period-breakdown">
+                        <h5>Statistiche per tempo:</h5>
+                        <div>Tiri - 1°T: ${eventsByPeriod.team1.shots['1']}, 2°T: ${eventsByPeriod.team1.shots['2']}, 3°T: ${eventsByPeriod.team1.shots['3']} (Tot: ${shotsTeam1})</div>
+                        <div>Corner - 1°T: ${eventsByPeriod.team1.corners['1']}, 2°T: ${eventsByPeriod.team1.corners['2']}, 3°T: ${eventsByPeriod.team1.corners['3']} (Tot: ${cornersTeam1})</div>
+                        <div>Falli - 1°T: ${eventsByPeriod.team1.fouls['1']}, 2°T: ${eventsByPeriod.team1.fouls['2']}, 3°T: ${eventsByPeriod.team1.fouls['3']} (Tot: ${foulsTeam1})</div>
+                    </div>
+                `;
+            }
+            
+            // Team 2 period stats
+            const team2StatsDiv = document.getElementById('period-stats-team2');
+            if (team2StatsDiv) {
+                team2StatsDiv.innerHTML = `
+                    <div class="period-breakdown">
+                        <h5>Statistiche per tempo:</h5>
+                        <div>Tiri - 1°T: ${eventsByPeriod.team2.shots['1']}, 2°T: ${eventsByPeriod.team2.shots['2']}, 3°T: ${eventsByPeriod.team2.shots['3']} (Tot: ${shotsTeam2})</div>
+                        <div>Corner - 1°T: ${eventsByPeriod.team2.corners['1']}, 2°T: ${eventsByPeriod.team2.corners['2']}, 3°T: ${eventsByPeriod.team2.corners['3']} (Tot: ${cornersTeam2})</div>
+                        <div>Falli - 1°T: ${eventsByPeriod.team2.fouls['1']}, 2°T: ${eventsByPeriod.team2.fouls['2']}, 3°T: ${eventsByPeriod.team2.fouls['3']} (Tot: ${foulsTeam2})</div>
+                    </div>
+                `;
+            }
         }
 
         // Timer functions
@@ -1825,30 +1910,42 @@
                     scoreTeam1--;
                     team1Scorers.pop();
                     renderScorers(1);
-                } else if (type === 'corner' && cornersTeam1 > 0) {
-                    cornersTeam1--;
-                } else if (type === 'shot' && shotsTeam1 > 0) {
-                    shotsTeam1--;
-                } else if (type === 'foul' && foulsTeam1 > 0) {
-                    foulsTeam1--;
+                } else if (type === 'corner') {
+                    removeLatestEvent('team1', 'corners');
+                } else if (type === 'shot') {
+                    removeLatestEvent('team1', 'shots');
+                } else if (type === 'foul') {
+                    removeLatestEvent('team1', 'fouls');
                 }
             } else if (team === '2') {
                 if (type === 'goal' && scoreTeam2 > 0) {
                     scoreTeam2--;
                     team2Scorers.pop();
                     renderScorers(2);
-                } else if (type === 'corner' && cornersTeam2 > 0) {
-                    cornersTeam2--;
-                } else if (type === 'shot' && shotsTeam2 > 0) {
-                    shotsTeam2--;
-                } else if (type === 'foul' && foulsTeam2 > 0) {
-                    foulsTeam2--;
+                } else if (type === 'corner') {
+                    removeLatestEvent('team2', 'corners');
+                } else if (type === 'shot') {
+                    removeLatestEvent('team2', 'shots');
+                } else if (type === 'foul') {
+                    removeLatestEvent('team2', 'fouls');
                 }
             }
             updateScores();
             updateStats();
             hideRemoveModal();
             vibrate([100]); // Removal confirmation feedback
+        }
+
+        // Remove the latest event from the most recent period that has events
+        function removeLatestEvent(team, eventType) {
+            const events = eventsByPeriod[team][eventType];
+            // Check periods in reverse order (3, 2, 1) to remove from most recent
+            for (let period = 3; period >= 1; period--) {
+                if (events[period.toString()] > 0) {
+                    events[period.toString()]--;
+                    return;
+                }
+            }
         }
 
         function renderScorers(team) {
@@ -1885,6 +1982,20 @@
             foulsTeam2 = 0;
             team1Scorers = [];
             team2Scorers = [];
+
+            // Reset period-based statistics
+            eventsByPeriod = {
+                team1: {
+                    shots: { '1': 0, '2': 0, '3': 0 },
+                    corners: { '1': 0, '2': 0, '3': 0 },
+                    fouls: { '1': 0, '2': 0, '3': 0 }
+                },
+                team2: {
+                    shots: { '1': 0, '2': 0, '3': 0 },
+                    corners: { '1': 0, '2': 0, '3': 0 },
+                    fouls: { '1': 0, '2': 0, '3': 0 }
+                }
+            };
 
             updateScores();
             updateStats();
@@ -1995,7 +2106,9 @@
                 date: new Date().toISOString(),
                 scorers1: team1Scorers,
                 scorers2: team2Scorers,
-                societaId: currentClub?.id
+                societaId: currentClub?.id,
+                // Add period-based statistics
+                eventsByPeriod: eventsByPeriod
             };
 
             try {
@@ -2524,24 +2637,36 @@
                                 addGoalTeam2(quarter);
                             }
                         } else if (type === 'corner') {
+                            if (!currentPeriod) {
+                                alert('Seleziona prima il tempo per registrare gli eventi!');
+                                return;
+                            }
                             if (team === '1') {
-                                cornersTeam1++;
+                                eventsByPeriod.team1.corners[currentPeriod.toString()]++;
                             } else if (team === '2') {
-                                cornersTeam2++;
+                                eventsByPeriod.team2.corners[currentPeriod.toString()]++;
                             }
                             updateStats();
                         } else if (type === 'shot') {
+                            if (!currentPeriod) {
+                                alert('Seleziona prima il tempo per registrare gli eventi!');
+                                return;
+                            }
                             if (team === '1') {
-                                shotsTeam1++;
+                                eventsByPeriod.team1.shots[currentPeriod.toString()]++;
                             } else if (team === '2') {
-                                shotsTeam2++;
+                                eventsByPeriod.team2.shots[currentPeriod.toString()]++;
                             }
                             updateStats();
                         } else if (type === 'foul') {
+                            if (!currentPeriod) {
+                                alert('Seleziona prima il tempo per registrare gli eventi!');
+                                return;
+                            }
                             if (team === '1') {
-                                foulsTeam1++;
+                                eventsByPeriod.team1.fouls[currentPeriod.toString()]++;
                             } else if (team === '2') {
-                                foulsTeam2++;
+                                eventsByPeriod.team2.fouls[currentPeriod.toString()]++;
                             }
                             updateStats();
                         }

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StaKick - Period Stats Demo</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1A202C;
+            color: #E2E8F0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #2D3748;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .demo-section {
+            background-color: #334155;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .period-stats {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .period-breakdown h5 {
+            color: #4a90e2;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .period-breakdown div {
+            margin-bottom: 0.25rem;
+            color: #e2e8f0;
+            line-height: 1.4;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .team-title {
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+        .demo-title {
+            text-align: center;
+            color: #4a90e2;
+            margin-bottom: 30px;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background-color: #4A5568;
+        }
+        .after {
+            background-color: #2D3748;
+            border: 2px solid #4a90e2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="demo-title">StaKick - Period-Based Statistics Demo</h1>
+        
+        <div class="demo-section">
+            <h2>🎯 New Feature: Period-Based Event Tracking</h2>
+            <p>Events (shots, corners, fouls) are now tracked by period (1°T, 2°T, 3°T) and displayed with detailed breakdowns.</p>
+        </div>
+
+        <div class="before-after">
+            <div class="before">
+                <h3 style="color: #FC8181;">❌ Before (Old Display)</h3>
+                <div class="stat-item">
+                    <span>Tiri in porta</span>
+                    <span>5</span>
+                </div>
+                <div class="stat-item">
+                    <span>Corner</span>
+                    <span>3</span>
+                </div>
+                <div class="stat-item">
+                    <span>Falli</span>
+                    <span>2</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #A0AEC0;">Only total counts were shown</p>
+            </div>
+
+            <div class="after">
+                <h3 style="color: #68D391;">✅ After (New Display)</h3>
+                <div class="stat-item">
+                    <span>Tiri in porta</span>
+                    <span>5</span>
+                </div>
+                <div class="stat-item">
+                    <span>Corner</span>
+                    <span>3</span>
+                </div>
+                <div class="stat-item">
+                    <span>Falli</span>
+                    <span>2</span>
+                </div>
+                
+                <div class="period-stats">
+                    <div class="period-breakdown">
+                        <h5>Statistiche per tempo:</h5>
+                        <div>Tiri - 1°T: 2, 2°T: 3, 3°T: 0 (Tot: 5)</div>
+                        <div>Corner - 1°T: 1, 2°T: 2, 3°T: 0 (Tot: 3)</div>
+                        <div>Falli - 1°T: 0, 2°T: 1, 3°T: 1 (Tot: 2)</div>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #A0AEC0;">Period breakdown + totals shown</p>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🔧 How It Works:</h3>
+            <ol>
+                <li><strong>Period Selection:</strong> User selects 1°, 2°, or 3° tempo when starting timer</li>
+                <li><strong>Event Recording:</strong> Tiro/Corner/Fallo buttons require active period selection</li>
+                <li><strong>Smart Display:</strong> Shows both period breakdown and maintained totals</li>
+                <li><strong>Data Persistence:</strong> All period information saved with match data</li>
+                <li><strong>Smart Removal:</strong> Events removed from most recent period first</li>
+            </ol>
+        </div>
+
+        <div class="demo-section">
+            <h3>🎮 User Experience:</h3>
+            <ul>
+                <li>✅ <strong>Period Validation:</strong> Alert shown if trying to record events without period selection</li>
+                <li>✅ <strong>Backward Compatibility:</strong> All existing functionality preserved</li>
+                <li>✅ <strong>Clear Display:</strong> Period breakdowns appear below scorer lists</li>
+                <li>✅ <strong>Data Integrity:</strong> Totals always match sum of period data</li>
+            </ul>
+        </div>
+
+        <div class="demo-section" style="background-color: #2D5016; border-left: 4px solid #68D391;">
+            <h3 style="color: #68D391;">✅ Implementation Complete</h3>
+            <p>All requirements have been successfully implemented with minimal changes to existing code. The application now tracks events by period while maintaining all existing functionality.</p>
+        </div>
+    </div>
+</body>
+</html>
