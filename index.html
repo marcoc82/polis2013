@@ -245,6 +245,27 @@
             font-weight: 700;
             color: #f1f5f9;
             margin-bottom: 1rem;
+            /* Responsive team name fixes */
+            word-break: break-word;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            text-align: center;
+            /* Dynamic font sizing */
+            font-size: clamp(1rem, 3.5vw, 1.875rem);
+            line-height: 1.2;
+        }
+
+        /* Responsive team names above score display */
+        .text-3xl {
+            /* Fixes for responsive team names above score */
+            word-break: break-word;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            max-width: 45%; /* Prevent overlapping with other team name */
+            text-align: center;
+            /* Dynamic font sizing */
+            font-size: clamp(1rem, 4vw, 1.875rem) !important;
+            line-height: 1.2 !important;
         }
 
         /* Button styles consolidati */
@@ -758,6 +779,27 @@
                 margin-bottom: 1rem; /* Reduced margin */
             }
             
+            /* Mobile specific fixes for team names */
+            .text-3xl {
+                font-size: clamp(0.8rem, 5vw, 1.5rem) !important;
+                max-width: 42% !important; /* Slightly smaller on mobile */
+            }
+            
+            .team-title {
+                font-size: clamp(0.9rem, 4vw, 1.5rem) !important;
+            }
+            
+            /* Ensure table remains centered on mobile */
+            .period-stats-table {
+                font-size: 0.7rem;
+                margin: 0.5rem auto;
+            }
+            
+            .period-stats-table th,
+            .period-stats-table td {
+                padding: 0.3rem 0.2rem;
+            }
+            
             /* Improved history layout for mobile */
             .history-match-title {
                 font-size: 1.1rem !important; /* Slightly smaller on mobile */
@@ -826,8 +868,11 @@
         .period-stats-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 0.5rem;
+            margin: 0.5rem auto; /* Center the table */
             font-size: 0.8rem;
+            /* Ensure table is centered within its container */
+            margin-left: auto;
+            margin-right: auto;
         }
         .period-stats-table th,
         .period-stats-table td {
@@ -851,6 +896,19 @@
         .period-stats-table .totals-row td {
             background-color: #4a5568 !important;
             border-top: 2px solid #4a90e2;
+        }
+        
+        /* Container for period stats to ensure centering */
+        .period-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
         }
         
         /* Period statistics table for individual match history */
