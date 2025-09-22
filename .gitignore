@@ -1,5 +1,6 @@
-# Test files
+# Test files (not for production)
 test_save_restore.html
+set_test_data.html
 
 # Logs
 *.log
