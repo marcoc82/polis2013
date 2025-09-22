@@ -14,6 +14,22 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        /* Anti-pull-to-refresh CSS - Previene il refresh accidentale causato dal gesto di pull-to-refresh */
+        html, body {
+            overscroll-behavior-y: contain; /* Previene il pull-to-refresh su Chrome/Android e Edge */
+            -webkit-overflow-scrolling: touch; /* Migliora lo scrolling su iOS */
+            height: 100%; /* Necessario per il contenimento del overscroll */
+        }
+
+        /* Ulteriori precauzioni per iOS/Safari - limita il comportamento di overscroll */
+        body {
+            position: fixed; /* Alternativa per iOS quando overscroll-behavior non è supportato */
+            width: 100%;
+            top: 0;
+            left: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
