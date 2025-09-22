@@ -1,6 +1,8 @@
-127.0.0.1 - - [16/Sep/2025 09:52:58] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [16/Sep/2025 09:52:58] "GET /firebase-app-modular.js HTTP/1.1" 200 -
-127.0.0.1 - - [16/Sep/2025 09:53:06] "GET /polis%20v4.html HTTP/1.1" 200 -
-127.0.0.1 - - [16/Sep/2025 09:54:27] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [16/Sep/2025 09:54:27] "GET /firebase-app-modular.js HTTP/1.1" 200 -
-127.0.0.1 - - [16/Sep/2025 10:00:33] "GET /polis%20v4.html HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:43:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:43:35] "GET /firebase-app-modular.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:43:35] "GET /logo%20stakick.jpeg HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:43:58] "GET /fischio.mp3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:48:52] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:48:52] "GET /firebase-app-modular.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:48:52] "GET /logo%20stakick.jpeg HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2025 09:49:20] "GET /fischio.mp3 HTTP/1.1" 200 -

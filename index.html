@@ -834,6 +834,46 @@
             background-color: #4a5568 !important;
             border-top: 2px solid #4a90e2;
         }
+        
+        /* Period statistics table for individual match history */
+        .period-stats-table-history {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+        }
+        .period-stats-table-history th,
+        .period-stats-table-history td {
+            padding: 0.3rem 0.2rem;
+            text-align: center;
+            border: 1px solid #4a5568;
+        }
+        .period-stats-table-history th {
+            background-color: #4a90e2;
+            color: white;
+            font-weight: 600;
+            font-size: 0.65rem;
+        }
+        .period-stats-table-history td {
+            background-color: #374151;
+            color: #e2e8f0;
+        }
+        .period-stats-table-history .totals-row {
+            background-color: #4a5568 !important;
+        }
+        .period-stats-table-history .totals-row td {
+            background-color: #4a5568 !important;
+            border-top: 2px solid #4a90e2;
+        }
+        
+        /* Match period stats container */
+        .match-period-stats {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -2285,6 +2325,111 @@
             }
         }
 
+        // Helper function to generate period statistics table for individual match history
+        function generateMatchPeriodStatsTable(match) {
+            // Check if match has period data
+            if (!match.eventsByPeriod) {
+                return ''; // Return empty string for legacy matches without period data
+            }
+
+            const team1Events = match.eventsByPeriod.team1 || { shots: {}, corners: {}, fouls: {} };
+            const team2Events = match.eventsByPeriod.team2 || { shots: {}, corners: {}, fouls: {} };
+            
+            // Determine if 3rd period was used
+            const hasThirdPeriod = (team1Events.shots['3'] > 0) || (team1Events.corners['3'] > 0) || (team1Events.fouls['3'] > 0) ||
+                                   (team2Events.shots['3'] > 0) || (team2Events.corners['3'] > 0) || (team2Events.fouls['3'] > 0);
+
+            return `
+                <div class="match-period-stats mt-3">
+                    <h6 style="color: #4a90e2; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600;">Statistiche per tempo:</h6>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <h7 style="color: #68D391; font-size: 0.8rem; font-weight: 600;">${match.team1}</h7>
+                            <table class="period-stats-table-history">
+                                <thead>
+                                    <tr>
+                                        <th>Tempo</th>
+                                        <th>Tiri</th>
+                                        <th>Corner</th>
+                                        <th>Falli</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1° tempo</td>
+                                        <td>${team1Events.shots['1'] || 0}</td>
+                                        <td>${team1Events.corners['1'] || 0}</td>
+                                        <td>${team1Events.fouls['1'] || 0}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2° tempo</td>
+                                        <td>${team1Events.shots['2'] || 0}</td>
+                                        <td>${team1Events.corners['2'] || 0}</td>
+                                        <td>${team1Events.fouls['2'] || 0}</td>
+                                    </tr>
+                                    ${hasThirdPeriod ? `
+                                    <tr>
+                                        <td>3° tempo</td>
+                                        <td>${team1Events.shots['3'] || 0}</td>
+                                        <td>${team1Events.corners['3'] || 0}</td>
+                                        <td>${team1Events.fouls['3'] || 0}</td>
+                                    </tr>
+                                    ` : ''}
+                                    <tr class="totals-row">
+                                        <td><strong>Totale</strong></td>
+                                        <td><strong>${match.shots1 || 0}</strong></td>
+                                        <td><strong>${match.corners1 || 0}</strong></td>
+                                        <td><strong>${match.fouls1 || 0}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex-1">
+                            <h7 style="color: #FC8181; font-size: 0.8rem; font-weight: 600;">${match.team2}</h7>
+                            <table class="period-stats-table-history">
+                                <thead>
+                                    <tr>
+                                        <th>Tempo</th>
+                                        <th>Tiri</th>
+                                        <th>Corner</th>
+                                        <th>Falli</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1° tempo</td>
+                                        <td>${team2Events.shots['1'] || 0}</td>
+                                        <td>${team2Events.corners['1'] || 0}</td>
+                                        <td>${team2Events.fouls['1'] || 0}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2° tempo</td>
+                                        <td>${team2Events.shots['2'] || 0}</td>
+                                        <td>${team2Events.corners['2'] || 0}</td>
+                                        <td>${team2Events.fouls['2'] || 0}</td>
+                                    </tr>
+                                    ${hasThirdPeriod ? `
+                                    <tr>
+                                        <td>3° tempo</td>
+                                        <td>${team2Events.shots['3'] || 0}</td>
+                                        <td>${team2Events.corners['3'] || 0}</td>
+                                        <td>${team2Events.fouls['3'] || 0}</td>
+                                    </tr>
+                                    ` : ''}
+                                    <tr class="totals-row">
+                                        <td><strong>Totale</strong></td>
+                                        <td><strong>${match.shots2 || 0}</strong></td>
+                                        <td><strong>${match.corners2 || 0}</strong></td>
+                                        <td><strong>${match.fouls2 || 0}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         async function renderHistory() {
             let history = [];
             
@@ -2388,6 +2533,9 @@
                     const team2ScorersText = match.scorers2 && match.scorers2.length > 0 ? 
                         `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
 
+                    // Generate period statistics table for this match
+                    const periodStatsTable = generateMatchPeriodStatsTable(match);
+
                     historyItem.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
@@ -2400,6 +2548,7 @@
                                     ${team1ScorersText}
                                     ${team2ScorersText}
                                 </div>
+                                ${periodStatsTable}
                             </div>
                             <div class="flex gap-2 ml-4">
                                 <button class="btn btn-share px-3 py-2 text-sm share-match-btn" data-match-index="${index}">
