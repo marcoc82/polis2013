@@ -69,24 +69,87 @@ window.setupHistoryListener = function(updateHistoryUI, societaId) {
   });
 };
 
-// Verifica codice con array 'codici'
+// Verifica codice con array 'codici' - case-sensitive con logging per debug
 window.verificaCodice = async function(codice) {
   try {
+    // Log del codice inserito per debug
+    console.log("🔍 Verifica codice - Input ricevuto:", {
+      codice: codice,
+      lunghezza: codice.length,
+      hasSpacesInizio: codice !== codice.trimStart(),
+      hasSpacesFine: codice !== codice.trimEnd(),
+      codiceTrimmed: codice.trim()
+    });
+
+    // Controlla spazi iniziali/finali
+    const hasLeadingSpaces = codice !== codice.trimStart();
+    const hasTrailingSpaces = codice !== codice.trimEnd();
+    
+    if (hasLeadingSpaces || hasTrailingSpaces) {
+      console.log("⚠️ Rilevati spazi iniziali/finali nel codice inserito");
+    }
+
     const societaRef = collection(db, "societa");
+    // Query case-sensitive esatta
     const q = query(societaRef, where("codici", "array-contains", codice));
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
       const societaDoc = querySnapshot.docs[0];
+      const societaData = societaDoc.data();
+      
+      // Log dei codici trovati per debug
+      console.log("✅ Società trovata:", {
+        societaId: societaDoc.id,
+        nome: societaData.nome,
+        codiciDisponibili: societaData.codici
+      });
+      
       return { 
         success: true, 
         societa: { 
           id: societaDoc.id, 
-          ...societaDoc.data() 
+          ...societaData 
         } 
       };
     } else {
-      return { success: false, message: "Codice non valido" };
+      // Cerchiamo tutte le società per vedere quali codici esistono (per debug)
+      const allSocietaQuery = await getDocs(societaRef);
+      const allCodici = [];
+      
+      allSocietaQuery.forEach(doc => {
+        const data = doc.data();
+        if (data.codici && Array.isArray(data.codici)) {
+          allCodici.push(...data.codici.map(c => ({
+            codice: c,
+            societa: data.nome,
+            esatto: c === codice,
+            caseInsensitive: c.toLowerCase() === codice.toLowerCase()
+          })));
+        }
+      });
+      
+      console.log("❌ Nessuna corrispondenza esatta trovata per:", codice);
+      console.log("📋 Codici disponibili nel database:", allCodici);
+      
+      // Suggerisci possibili alternative
+      const possibiliAlternative = allCodici.filter(item => item.caseInsensitive && !item.esatto);
+      if (possibiliAlternative.length > 0) {
+        console.log("💡 Possibili alternative (case different):", possibiliAlternative.map(a => a.codice));
+      }
+      
+      let errorMessage = "Codice non trovato";
+      
+      // Migliora il messaggio di errore con suggerimenti
+      if (hasLeadingSpaces || hasTrailingSpaces) {
+        errorMessage = "Codice non valido. Controlla che non ci siano spazi all'inizio o alla fine.";
+      } else if (possibiliAlternative.length > 0) {
+        errorMessage = "Codice non valido. Controlla maiuscole/minuscole - il codice deve essere inserito esattamente come fornito.";
+      } else {
+        errorMessage = "Codice non trovato. Verifica di aver inserito il codice corretto, prestando attenzione a maiuscole/minuscole.";
+      }
+      
+      return { success: false, message: errorMessage };
     }
   } catch (e) {
     console.error("Errore verifica codice:", e);
@@ -113,7 +176,7 @@ window.creaSocietaEsempio = async function() {
   try {
     const societaRef = collection(db, "societa");
     await addDoc(societaRef, {
-      codici: ["POLIS2013"],
+      codici: ["Polis2013"], // Codice case-sensitive esatto
       nome: "POLIS",
       numPeriods: 2, // Default to 2 periods
       giocatori: [
@@ -128,7 +191,7 @@ window.creaSocietaEsempio = async function() {
         "21 TONINI LORENZO"
       ]
     });
-    console.log("Società esempio creata con codice POLIS2013");
+    console.log("Società esempio creata con codice case-sensitive: Polis2013");
   } catch (e) {
     console.error("Errore creazione società esempio:", e);
   }
