@@ -803,6 +803,37 @@
             color: #e2e8f0;
             line-height: 1.4;
         }
+        
+        /* Period statistics table */
+        .period-stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+        .period-stats-table th,
+        .period-stats-table td {
+            padding: 0.4rem 0.3rem;
+            text-align: center;
+            border: 1px solid #4a5568;
+        }
+        .period-stats-table th {
+            background-color: #4a90e2;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        .period-stats-table td {
+            background-color: #374151;
+            color: #e2e8f0;
+        }
+        .period-stats-table .totals-row {
+            background-color: #4a5568 !important;
+        }
+        .period-stats-table .totals-row td {
+            background-color: #4a5568 !important;
+            border-top: 2px solid #4a90e2;
+        }
     </style>
 </head>
 <body>
@@ -1657,30 +1688,71 @@
 
         // Update period statistics display
         function updatePeriodStats() {
+            // Generate HTML for period statistics table
+            function generatePeriodStatsTable(teamData, teamStats) {
+                const showThirdPeriod = teamNumPeriods === 3;
+                
+                return `
+                    <div class="period-breakdown">
+                        <h5>Statistiche per tempo:</h5>
+                        <table class="period-stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Tempo</th>
+                                    <th>Tiri</th>
+                                    <th>Corner</th>
+                                    <th>Falli</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1° tempo</td>
+                                    <td>${teamData.shots['1']}</td>
+                                    <td>${teamData.corners['1']}</td>
+                                    <td>${teamData.fouls['1']}</td>
+                                </tr>
+                                <tr>
+                                    <td>2° tempo</td>
+                                    <td>${teamData.shots['2']}</td>
+                                    <td>${teamData.corners['2']}</td>
+                                    <td>${teamData.fouls['2']}</td>
+                                </tr>
+                                ${showThirdPeriod ? `
+                                <tr>
+                                    <td>3° tempo</td>
+                                    <td>${teamData.shots['3']}</td>
+                                    <td>${teamData.corners['3']}</td>
+                                    <td>${teamData.fouls['3']}</td>
+                                </tr>
+                                ` : ''}
+                                <tr class="totals-row">
+                                    <td><strong>Totale</strong></td>
+                                    <td><strong>${teamStats.shots}</strong></td>
+                                    <td><strong>${teamStats.corners}</strong></td>
+                                    <td><strong>${teamStats.fouls}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
             // Team 1 period stats
             const team1StatsDiv = document.getElementById('period-stats-team1');
             if (team1StatsDiv) {
-                team1StatsDiv.innerHTML = `
-                    <div class="period-breakdown">
-                        <h5>Statistiche per tempo:</h5>
-                        <div>Tiri - 1°T: ${eventsByPeriod.team1.shots['1']}, 2°T: ${eventsByPeriod.team1.shots['2']}, 3°T: ${eventsByPeriod.team1.shots['3']} (Tot: ${shotsTeam1})</div>
-                        <div>Corner - 1°T: ${eventsByPeriod.team1.corners['1']}, 2°T: ${eventsByPeriod.team1.corners['2']}, 3°T: ${eventsByPeriod.team1.corners['3']} (Tot: ${cornersTeam1})</div>
-                        <div>Falli - 1°T: ${eventsByPeriod.team1.fouls['1']}, 2°T: ${eventsByPeriod.team1.fouls['2']}, 3°T: ${eventsByPeriod.team1.fouls['3']} (Tot: ${foulsTeam1})</div>
-                    </div>
-                `;
+                team1StatsDiv.innerHTML = generatePeriodStatsTable(
+                    eventsByPeriod.team1, 
+                    { shots: shotsTeam1, corners: cornersTeam1, fouls: foulsTeam1 }
+                );
             }
             
             // Team 2 period stats
             const team2StatsDiv = document.getElementById('period-stats-team2');
             if (team2StatsDiv) {
-                team2StatsDiv.innerHTML = `
-                    <div class="period-breakdown">
-                        <h5>Statistiche per tempo:</h5>
-                        <div>Tiri - 1°T: ${eventsByPeriod.team2.shots['1']}, 2°T: ${eventsByPeriod.team2.shots['2']}, 3°T: ${eventsByPeriod.team2.shots['3']} (Tot: ${shotsTeam2})</div>
-                        <div>Corner - 1°T: ${eventsByPeriod.team2.corners['1']}, 2°T: ${eventsByPeriod.team2.corners['2']}, 3°T: ${eventsByPeriod.team2.corners['3']} (Tot: ${cornersTeam2})</div>
-                        <div>Falli - 1°T: ${eventsByPeriod.team2.fouls['1']}, 2°T: ${eventsByPeriod.team2.fouls['2']}, 3°T: ${eventsByPeriod.team2.fouls['3']} (Tot: ${foulsTeam2})</div>
-                    </div>
-                `;
+                team2StatsDiv.innerHTML = generatePeriodStatsTable(
+                    eventsByPeriod.team2, 
+                    { shots: shotsTeam2, corners: cornersTeam2, fouls: foulsTeam2 }
+                );
             }
         }
 
