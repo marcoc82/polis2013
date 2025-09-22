@@ -105,10 +105,31 @@
             font-weight: 700;
             color: #f1f5f9;
             margin-bottom: 1rem;
+            /* Responsive team name fixes */
+            word-break: break-word;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            text-align: center;
+            /* Dynamic font sizing */
+            font-size: clamp(1rem, 3.5vw, 1.875rem);
+            line-height: 1.2;
         }
         .team-title[contenteditable="true"]:focus {
             outline: 2px solid #60a5fa;
             outline-offset: 4px;
+        }
+
+        /* Responsive team names above score display */
+        .text-3xl {
+            /* Fixes for responsive team names above score */
+            word-break: break-word;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            max-width: 45%; /* Prevent overlapping with other team name */
+            text-align: center;
+            /* Dynamic font sizing */
+            font-size: clamp(1rem, 4vw, 1.875rem) !important;
+            line-height: 1.2 !important;
         }
 
         /* Nuovi stili per i bottoni */
@@ -312,6 +333,14 @@
             }
             .team-title {
                 font-size: 1.5rem;
+                /* Mobile specific fixes for team names */
+                font-size: clamp(0.9rem, 4vw, 1.5rem) !important;
+            }
+            
+            /* Mobile specific fixes for team names above score */
+            .text-3xl {
+                font-size: clamp(0.8rem, 5vw, 1.5rem) !important;
+                max-width: 42% !important; /* Slightly smaller on mobile */
             }
         }
 
