@@ -1776,11 +1776,98 @@
         }
 
         /**
+         * Ripristina direttamente la partita salvata bypassando login e menu
+         * Porta l'utente direttamente nella partita con tutti i dati ripristinati
+         */
+        function restoreAndGoToSavedGame() {
+            try {
+                // Controlla se c'è uno stato salvato
+                const savedState = localStorage.getItem('polis_current_game_state');
+                if (!savedState) {
+                    console.log('❌ Nessuno stato salvato disponibile');
+                    return false;
+                }
+
+                const gameState = JSON.parse(savedState);
+                
+                // Verifica se lo stato è recente (entro 24 ore)
+                const timeDiff = Date.now() - gameState.savedAt;
+                const maxAge = 24 * 60 * 60 * 1000; // 24 ore in millisecondi
+                
+                if (timeDiff > maxAge) {
+                    console.log('⏰ Stato salvato troppo vecchio');
+                    localStorage.removeItem('polis_current_game_state');
+                    return false;
+                }
+
+                // Ripristina lo stato completamente (già fatto dalla funzione restoreGameState)
+                const restorationInfo = restoreGameState();
+                if (!restorationInfo) {
+                    return false;
+                }
+
+                // Ripristina i giocatori se disponibili
+                if (gameState.currentPlayers && gameState.currentPlayers.length > 0) {
+                    players = [...gameState.currentPlayers];
+                }
+
+                // Nascondi tutti gli altri schermi e vai direttamente alla partita
+                loadingScreen.style.display = 'none';
+                loginScreen.style.display = 'none';
+                menuScreen.style.display = 'none';
+                welcomeScreen.style.display = 'none';
+                playersManagementScreen.style.display = 'none';
+                document.body.classList.remove('login-background');
+                
+                // Mostra l'app principale
+                mainApp.style.display = 'block';
+                
+                // Aggiorna tutti i display con i dati ripristinati
+                updateAllDisplays();
+                
+                // Aggiorna il display del timer
+                updateTimerDisplay();
+                
+                // Per il timer: se era in corso (running), riattivalo automaticamente dopo un breve delay
+                // per assicurarci che tutti i display siano aggiornati
+                setTimeout(() => {
+                    if (gameState.timer && gameState.timer.timerState === 'running') {
+                        console.log('⏱️ Riavvio automatico del timer dalla posizione corretta');
+                        
+                        // Trova e clicca il pulsante di avvio per riattivare il timer
+                        const startButton = document.getElementById('start-timer-button');
+                        if (startButton) {
+                            // Simula click sul pulsante start per riattivare il timer
+                            startButton.click();
+                            console.log('✅ Timer riavviato tramite click automatico sul pulsante');
+                        } else {
+                            console.log('⚠️ Pulsante start timer non trovato');
+                        }
+                    } else if (gameState.timer && gameState.timer.timerState === 'paused') {
+                        console.log('⏸️ Timer rimane in pausa come da stato salvato');
+                    }
+                }, 100);
+                
+                console.log('🎮 Partita salvata ripristinata e avviata direttamente');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Errore nel ripristino diretto della partita:', error);
+                return false;
+            }
+        }
+
+        /**
          * Mostra un messaggio di notifica per informare l'utente del ripristino
          * Include informazioni specifiche su timer e marcatori ripristinati
+         * Quando mostrato nella schermata di login, il messaggio è cliccabile per entrare direttamente nella partita
          */
         function showGameStateRestoredMessage(restorationInfo = null) {
             const notification = document.createElement('div');
+            
+            // Verifica se siamo nella schermata di login
+            const isOnLoginScreen = loginScreen.style.display !== 'none' && loginScreen.style.display !== '';
+            
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -1799,10 +1886,13 @@
                 text-align: center;
                 opacity: 0;
                 transition: opacity 0.3s ease;
+                ${isOnLoginScreen ? 'cursor: pointer; user-select: none;' : ''}
             `;
             
-            // Genera messaggio personalizzato basato su ciò che è stato ripristinato
-            let message = 'Partita ripristinata automaticamente dopo il reload';
+            // Genera messaggio personalizzato basato su dove siamo
+            let message = isOnLoginScreen 
+                ? '🎮 Partita salvata trovata - Clicca per continuare!'
+                : 'Partita ripristinata automaticamente dopo il reload';
             const details = [];
             
             if (restorationInfo && typeof restorationInfo === 'object') {
@@ -1820,12 +1910,50 @@
             notification.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px; justify-content: center; flex-direction: column;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 16px;">🔄</span>
+                        <span style="font-size: 16px;">${isOnLoginScreen ? '🎮' : '🔄'}</span>
                         <span>${message}</span>
                     </div>
                     ${details.length > 0 ? `<div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">${details.join(' • ')}</div>` : ''}
+                    ${isOnLoginScreen ? '<div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Tocca qui per entrare nella partita</div>' : ''}
                 </div>
             `;
+            
+            // Se siamo nella schermata di login, aggiungi il click handler
+            if (isOnLoginScreen) {
+                notification.addEventListener('click', () => {
+                    console.log('🎯 Click su notifica partita salvata - ripristino diretto');
+                    
+                    // Nascondi la notifica immediatamente
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                    
+                    // Ripristina e vai alla partita salvata
+                    const success = restoreAndGoToSavedGame();
+                    if (success) {
+                        // Vibrazione di feedback per successo
+                        vibrate([100, 50, 100]);
+                    } else {
+                        // Se fallisce, mostra un errore
+                        alert('Errore nel ripristino della partita salvata');
+                        vibrate([200, 100, 200]);
+                    }
+                });
+                
+                // Aggiungi effetto hover
+                notification.addEventListener('mouseenter', () => {
+                    notification.style.transform = 'translateX(-50%) scale(1.05)';
+                    notification.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                });
+                
+                notification.addEventListener('mouseleave', () => {
+                    notification.style.transform = 'translateX(-50%) scale(1)';
+                    notification.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                });
+            }
             
             document.body.appendChild(notification);
             
@@ -1834,7 +1962,9 @@
                 notification.style.opacity = '1';
             }, 100);
             
-            // Rimozione automatica dopo 5 secondi (più tempo per leggere i dettagli)
+            // Rimozione automatica dopo 8 secondi se siamo nel login (più tempo per cliccare)
+            // o 5 secondi se siamo nella partita
+            const autoRemoveDelay = isOnLoginScreen ? 8000 : 5000;
             setTimeout(() => {
                 notification.style.opacity = '0';
                 setTimeout(() => {
@@ -1842,7 +1972,7 @@
                         notification.parentNode.removeChild(notification);
                     }
                 }, 300);
-            }, 5000);
+            }, autoRemoveDelay);
         }
 
         /**
@@ -3716,14 +3846,50 @@ Per evitare che lo schermo si spenga:
             // Inizializza il sistema anti-pull-to-refresh e ripristino stato
             setupTouchEventsForPullToRefreshPrevention();
             
-            // Tenta di ripristinare lo stato della partita se presente
-            const restorationInfo = restoreGameState();
-            if (restorationInfo) {
-                // Aggiorna la UI con lo stato ripristinato
-                setTimeout(() => {
-                    updateAllDisplays();
-                    showGameStateRestoredMessage(restorationInfo);
-                }, 1000);
+            // Controlla se c'è una partita salvata disponibile prima di mostrare il login
+            // Questo permetterà di mostrare la notifica cliccabile nella schermata di login
+            const savedState = localStorage.getItem('polis_current_game_state');
+            let hasSavedGame = false;
+            let savedGameInfo = null;
+            
+            if (savedState) {
+                try {
+                    const gameState = JSON.parse(savedState);
+                    const timeDiff = Date.now() - gameState.savedAt;
+                    const maxAge = 24 * 60 * 60 * 1000; // 24 ore in millisecondi
+                    
+                    if (timeDiff <= maxAge) {
+                        hasSavedGame = true;
+                        // Crea le informazioni per la notifica senza ripristinare ancora il gioco
+                        savedGameInfo = {
+                            hasTimer: gameState.timer && (gameState.timer.timerState !== 'stopped'),
+                            hasScorers: ((gameState.team1Scorers && gameState.team1Scorers.length > 0) || 
+                                       (gameState.team2Scorers && gameState.team2Scorers.length > 0)),
+                            timerState: gameState.timer ? gameState.timer.timerState : 'unknown',
+                            scorersCount: (gameState.team1Scorers ? gameState.team1Scorers.length : 0) + 
+                                        (gameState.team2Scorers ? gameState.team2Scorers.length : 0)
+                        };
+                    } else {
+                        // Stato troppo vecchio, rimuovilo
+                        localStorage.removeItem('polis_current_game_state');
+                    }
+                } catch (error) {
+                    console.error('Errore nel controllo dello stato salvato:', error);
+                    localStorage.removeItem('polis_current_game_state');
+                }
+            }
+            
+            // Se non c'è una partita salvata, tenta di ripristinare lo stato della partita se presente
+            // (questo succede quando si ricarica la pagina durante una partita)
+            if (!hasSavedGame) {
+                const restorationInfo = restoreGameState();
+                if (restorationInfo) {
+                    // Aggiorna la UI con lo stato ripristinato
+                    setTimeout(() => {
+                        updateAllDisplays();
+                        showGameStateRestoredMessage(restorationInfo);
+                    }, 1000);
+                }
             }
             
             // Login and navigation
@@ -3733,6 +3899,43 @@ Per evitare che lo schermo si spenga:
                     handleLogin();
                 }
             });
+            
+            // Se c'è una partita salvata, aggiungi un listener per mostrare la notifica quando appare il login
+            if (hasSavedGame && savedGameInfo) {
+                // Observer per rilevare quando la schermata di login diventa visibile
+                const loginObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            const loginScreen = document.getElementById('login-screen');
+                            if (loginScreen.style.display === 'flex' || 
+                                (loginScreen.style.display === '' && window.getComputedStyle(loginScreen).display !== 'none')) {
+                                // La schermata di login è diventata visibile, mostra la notifica
+                                setTimeout(() => {
+                                    showGameStateRestoredMessage(savedGameInfo);
+                                }, 500);
+                                // Disconnetti l'observer dopo aver mostrato la notifica
+                                loginObserver.disconnect();
+                            }
+                        }
+                    });
+                });
+                
+                // Avvia l'osservazione della schermata di login
+                const loginScreen = document.getElementById('login-screen');
+                loginObserver.observe(loginScreen, { 
+                    attributes: true, 
+                    attributeFilter: ['style'] 
+                });
+                
+                // Controlla anche immediatamente se il login è già visibile
+                setTimeout(() => {
+                    if (loginScreen.style.display === 'flex' || 
+                        (loginScreen.style.display === '' && window.getComputedStyle(loginScreen).display !== 'none')) {
+                        showGameStateRestoredMessage(savedGameInfo);
+                        loginObserver.disconnect();
+                    }
+                }, 1500);
+            }
             
             // Menu buttons
             document.getElementById('start-match-btn').addEventListener('click', showMatchSetup);
