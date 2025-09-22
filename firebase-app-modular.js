@@ -45,9 +45,10 @@ window.saveGameToFirebase = async function(gameData) {
 window.deleteGameFromFirebase = async function(gameId) {
   try {
     await deleteDoc(doc(db, "partite", gameId));
+    return { success: true };
   } catch (e) {
-    alert("Errore eliminazione partita!");
-    console.error(e);
+    console.error("Errore eliminazione partita:", e);
+    throw new Error("Errore eliminazione partita: " + e.message);
   }
 };
 
