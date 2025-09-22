@@ -1508,8 +1508,12 @@
         /**
          * Salvataggio automatico dello stato della partita in localStorage
          * Salva tutti i dati correnti della partita per permettere il ripristino in caso di reload accidentale
+         * Include stato completo del timer e timestamp dei marcatori per ripristino accurato
          */
         function saveCurrentGameState() {
+            // Calcola il tempo di gioco corrente per i marcatori
+            const currentGameTime = getCurrentGameTimeForScoring();
+            
             const gameState = {
                 // Punteggi e statistiche base
                 scoreTeam1,
@@ -1521,14 +1525,29 @@
                 cornersTeam2,
                 foulsTeam2,
                 
-                // Marcatori
+                // Marcatori con timestamp di inserimento
                 team1Scorers,
                 team2Scorers,
                 
                 // Statistiche per periodo
                 eventsByPeriod,
                 
-                // Timer e periodo corrente
+                // Timer - stato completo per ripristino accurato
+                timer: {
+                    totalSeconds,
+                    isRunning,
+                    currentPeriod,
+                    timerStartTime,
+                    pausedDuration,
+                    pauseStartTime,
+                    lastSetSeconds,
+                    // Timestamp di salvataggio per calcoli di recupero accurati
+                    saveTimestamp: Date.now(),
+                    // Stato del timer al momento del salvataggio
+                    timerState: isRunning ? 'running' : (timerStartTime ? 'paused' : 'stopped')
+                },
+                
+                // Backward compatibility - mantieni le vecchie proprietà
                 totalSeconds,
                 isRunning,
                 currentPeriod,
@@ -1549,7 +1568,7 @@
                 savedAt: Date.now(),
                 
                 // Versione per compatibilità futura
-                version: '1.0'
+                version: '1.1'
             };
             
             try {
@@ -1561,8 +1580,42 @@
         }
 
         /**
+         * Calcola il tempo di gioco corrente per l'inserimento dei marcatori
+         * Restituisce il tempo in minuti e secondi trascorsi dall'inizio del timer
+         */
+        function getCurrentGameTimeForScoring() {
+            if (!timerStartTime) {
+                return { minutes: 0, seconds: 0, totalSeconds: 0 };
+            }
+            
+            let elapsedMs;
+            if (isRunning) {
+                // Timer in corso: calcola tempo trascorso dal presente
+                elapsedMs = (Date.now() - timerStartTime) - pausedDuration;
+            } else if (pauseStartTime) {
+                // Timer in pausa: usa il tempo al momento della pausa
+                elapsedMs = (pauseStartTime - timerStartTime) - pausedDuration;
+            } else {
+                // Timer fermato o resetato
+                return { minutes: 0, seconds: 0, totalSeconds: 0 };
+            }
+            
+            const elapsedSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
+            const minutes = Math.floor(elapsedSeconds / 60);
+            const seconds = elapsedSeconds % 60;
+            
+            return { 
+                minutes, 
+                seconds, 
+                totalSeconds: elapsedSeconds,
+                formattedTime: `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+            };
+        }
+
+        /**
          * Ripristino dello stato della partita da localStorage
          * Carica e ripristina tutti i dati della partita precedentemente salvati
+         * Include ripristino accurato del timer e marcatori con timestamp
          */
         function restoreGameState() {
             try {
@@ -1598,10 +1651,60 @@
                 team2Scorers = gameState.team2Scorers || [];
                 eventsByPeriod = gameState.eventsByPeriod || { team1: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} }, team2: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} } };
                 
-                totalSeconds = gameState.totalSeconds || (18 * 60);
-                isRunning = false; // Non riprendere automaticamente il timer
-                currentPeriod = gameState.currentPeriod;
-                lastSetSeconds = gameState.lastSetSeconds || (18 * 60);
+                // Ripristino timer migliorato - gestisce stato completo del timer
+                if (gameState.timer && gameState.version === '1.1') {
+                    // Nuova versione con stato timer migliorato
+                    const timerData = gameState.timer;
+                    totalSeconds = timerData.totalSeconds || (18 * 60);
+                    currentPeriod = timerData.currentPeriod;
+                    lastSetSeconds = timerData.lastSetSeconds || (18 * 60);
+                    
+                    // Ripristina stato timer con calcoli temporali accurati
+                    if (timerData.timerState === 'running' && timerData.timerStartTime) {
+                        // Il timer era in corso: calcola il tempo trascorso durante l'assenza
+                        const timeSinceReload = Date.now() - timerData.saveTimestamp;
+                        timerStartTime = timerData.timerStartTime;
+                        pausedDuration = timerData.pausedDuration || 0;
+                        pauseStartTime = null;
+                        
+                        // Aggiorna totalSeconds considerando il tempo trascorso durante il reload
+                        const additionalElapsed = Math.floor(timeSinceReload / 1000);
+                        const originalElapsed = Math.floor(((timerData.saveTimestamp - timerStartTime) - pausedDuration) / 1000);
+                        const newElapsed = originalElapsed + additionalElapsed;
+                        totalSeconds = Math.max(0, lastSetSeconds - newElapsed);
+                        
+                        // Non riavviare automaticamente il timer per sicurezza
+                        isRunning = false;
+                        
+                        console.log(`⏱️ Timer era in corso: recuperati ${additionalElapsed}s durante il reload`);
+                    } else if (timerData.timerState === 'paused' && timerData.timerStartTime) {
+                        // Il timer era in pausa: ripristina lo stato esatto
+                        timerStartTime = timerData.timerStartTime;
+                        pausedDuration = timerData.pausedDuration || 0;
+                        pauseStartTime = timerData.pauseStartTime;
+                        totalSeconds = timerData.totalSeconds;
+                        isRunning = false;
+                        
+                        console.log('⏸️ Timer era in pausa: stato ripristinato esattamente');
+                    } else {
+                        // Timer non era attivo
+                        timerStartTime = null;
+                        pausedDuration = 0;
+                        pauseStartTime = null;
+                        isRunning = false;
+                        
+                        console.log('⏹️ Timer non era attivo');
+                    }
+                } else {
+                    // Backward compatibility con versione precedente
+                    totalSeconds = gameState.totalSeconds || (18 * 60);
+                    isRunning = false; // Non riprendere automaticamente il timer
+                    currentPeriod = gameState.currentPeriod;
+                    lastSetSeconds = gameState.lastSetSeconds || (18 * 60);
+                    timerStartTime = gameState.timerStartTime || null;
+                    pausedDuration = gameState.pausedDuration || 0;
+                    pauseStartTime = gameState.pauseStartTime || null;
+                }
                 
                 // Ripristina le impostazioni
                 teamNumPeriods = gameState.teamNumPeriods || 2;
@@ -1617,7 +1720,16 @@
                 }
                 
                 console.log('✅ Stato partita ripristinato con successo');
-                return true;
+                
+                // Crea oggetto con informazioni di ripristino per la notifica
+                const restorationInfo = {
+                    hasTimer: gameState.timer && (gameState.timer.timerState !== 'stopped'),
+                    hasScorers: (team1Scorers.length > 0 || team2Scorers.length > 0),
+                    timerState: gameState.timer ? gameState.timer.timerState : 'unknown',
+                    scorersCount: team1Scorers.length + team2Scorers.length
+                };
+                
+                return restorationInfo;
                 
             } catch (error) {
                 console.error('❌ Errore nel ripristino dello stato:', error);
@@ -1637,8 +1749,9 @@
 
         /**
          * Mostra un messaggio di notifica per informare l'utente del ripristino
+         * Include informazioni specifiche su timer e marcatori ripristinati
          */
-        function showGameStateRestoredMessage() {
+        function showGameStateRestoredMessage(restorationInfo = null) {
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -1659,10 +1772,30 @@
                 opacity: 0;
                 transition: opacity 0.3s ease;
             `;
+            
+            // Genera messaggio personalizzato basato su ciò che è stato ripristinato
+            let message = 'Partita ripristinata automaticamente dopo il reload';
+            const details = [];
+            
+            if (restorationInfo && typeof restorationInfo === 'object') {
+                if (restorationInfo.hasTimer) {
+                    const timerStateText = restorationInfo.timerState === 'running' ? 'in corso' : 
+                                         restorationInfo.timerState === 'paused' ? 'in pausa' : 'attivo';
+                    details.push(`⏱️ Timer ${timerStateText}`);
+                }
+                
+                if (restorationInfo.hasScorers) {
+                    details.push(`⚽ ${restorationInfo.scorersCount} marcatori`);
+                }
+            }
+            
             notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
-                    <span style="font-size: 16px;">🔄</span>
-                    <span>Partita ripristinata automaticamente dopo il reload</span>
+                <div style="display: flex; align-items: center; gap: 8px; justify-content: center; flex-direction: column;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">🔄</span>
+                        <span>${message}</span>
+                    </div>
+                    ${details.length > 0 ? `<div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">${details.join(' • ')}</div>` : ''}
                 </div>
             `;
             
@@ -1673,7 +1806,7 @@
                 notification.style.opacity = '1';
             }, 100);
             
-            // Rimozione automatica dopo 4 secondi
+            // Rimozione automatica dopo 5 secondi (più tempo per leggere i dettagli)
             setTimeout(() => {
                 notification.style.opacity = '0';
                 setTimeout(() => {
@@ -1681,7 +1814,7 @@
                         notification.parentNode.removeChild(notification);
                     }
                 }, 300);
-            }, 4000);
+            }, 5000);
         }
 
         /**
@@ -2364,6 +2497,7 @@ Per evitare che lo schermo si spenga:
 
         /**
          * Aggiorna la visualizzazione dei marcatori
+         * Gestisce sia il formato legacy che quello nuovo con timestamp
          */
         function updateScorersDisplay() {
             try {
@@ -2374,7 +2508,12 @@ Per evitare che lo schermo si spenga:
                     team1Scorers.forEach(scorer => {
                         const scorerDiv = document.createElement('div');
                         scorerDiv.classList.add('scorer-list-item');
-                        scorerDiv.textContent = `${scorer.player} (${scorer.period}°)`;
+                        
+                        // Backward compatibility: gestisce sia 'quarter' che 'period'
+                        const period = scorer.quarter || scorer.period || '?';
+                        const minute = scorer.minute || 0;
+                        
+                        scorerDiv.textContent = `${scorer.player} - ${minute}' (${period}°)`;
                         scorersList1.appendChild(scorerDiv);
                     });
                 }
@@ -2386,7 +2525,12 @@ Per evitare che lo schermo si spenga:
                     team2Scorers.forEach(scorer => {
                         const scorerDiv = document.createElement('div');
                         scorerDiv.classList.add('scorer-list-item');
-                        scorerDiv.textContent = `${scorer.player} (${scorer.period}°)`;
+                        
+                        // Backward compatibility: gestisce sia 'quarter' che 'period'
+                        const period = scorer.quarter || scorer.period || '?';
+                        const minute = scorer.minute || 0;
+                        
+                        scorerDiv.textContent = `${scorer.player} - ${minute}' (${period}°)`;
                         scorersList2.appendChild(scorerDiv);
                     });
                 }
@@ -2561,15 +2705,25 @@ Per evitare che lo schermo si spenga:
         function addGoalTeam1(player, quarter) {
             scoreTeam1++;
             
-            // Calculate minutes elapsed since timer started
-            const elapsedSeconds = (lastSetSeconds - totalSeconds);
-            const minute = Math.floor(elapsedSeconds / 60) + 1; // Add 1 so first minute shows as "1" instead of "0"
+            // Calcola tempo di gioco accurato e timestamp per il marcatore
+            const gameTime = getCurrentGameTimeForScoring();
+            const minute = Math.max(1, gameTime.minutes + 1); // Minuto di gioco (min 1)
+            
+            // Crea oggetto marcatore con timestamp completo
+            const scorerData = {
+                player: player,
+                quarter: quarter,
+                minute: minute,
+                timestamp: Date.now(), // Timestamp di inserimento del gol
+                gameTimeSeconds: gameTime.totalSeconds, // Secondi di gioco al momento del gol
+                gameTimeFormatted: gameTime.formattedTime // Tempo formattato per debug
+            };
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
             newScorer.textContent = `${player} - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-1').appendChild(newScorer);
-            team1Scorers.push({ player: player, quarter: quarter, minute: minute });
+            team1Scorers.push(scorerData);
 
             document.getElementById('score-team1').classList.add('is-pulsing');
             setTimeout(() => {
@@ -2588,15 +2742,25 @@ Per evitare che lo schermo si spenga:
         function addGoalTeam2(quarter) {
             scoreTeam2++;
             
-            // Calculate minutes elapsed since timer started
-            const elapsedSeconds = (lastSetSeconds - totalSeconds);
-            const minute = Math.floor(elapsedSeconds / 60) + 1; // Add 1 so first minute shows as "1" instead of "0"
+            // Calcola tempo di gioco accurato e timestamp per il marcatore
+            const gameTime = getCurrentGameTimeForScoring();
+            const minute = Math.max(1, gameTime.minutes + 1); // Minuto di gioco (min 1)
+            
+            // Crea oggetto marcatore con timestamp completo
+            const scorerData = {
+                player: 'Sconosciuto',
+                quarter: quarter,
+                minute: minute,
+                timestamp: Date.now(), // Timestamp di inserimento del gol
+                gameTimeSeconds: gameTime.totalSeconds, // Secondi di gioco al momento del gol
+                gameTimeFormatted: gameTime.formattedTime // Tempo formattato per debug
+            };
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
             newScorer.textContent = `Goal - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-2').appendChild(newScorer);
-            team2Scorers.push({ player: 'Sconosciuto', quarter: quarter, minute: minute });
+            team2Scorers.push(scorerData);
             updateScores();
             
             // Special vibration pattern for goals
@@ -3525,12 +3689,12 @@ Per evitare che lo schermo si spenga:
             setupTouchEventsForPullToRefreshPrevention();
             
             // Tenta di ripristinare lo stato della partita se presente
-            const wasRestored = restoreGameState();
-            if (wasRestored) {
+            const restorationInfo = restoreGameState();
+            if (restorationInfo) {
                 // Aggiorna la UI con lo stato ripristinato
                 setTimeout(() => {
                     updateAllDisplays();
-                    showGameStateRestoredMessage();
+                    showGameStateRestoredMessage(restorationInfo);
                 }, 1000);
             }
             
