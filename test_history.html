@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test History Layout</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1A202C;
+            color: #E2E8F0;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #2D3748;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        /* Button styles from original */
+        .btn {
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-share {
+            background: linear-gradient(to right, #8b5cf6, #7c3aed);
+        }
+        .btn-share:hover {
+            background: linear-gradient(to right, #7c3aed, #6d28d9);
+        }
+        .btn-reset {
+            background-color: #dc2626;
+        }
+        .btn-reset:hover {
+            background-color: #ef4444;
+        }
+        
+        /* History styles from original */
+        .history-list {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-height: 40vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1.5rem;
+        }
+        .history-item {
+            background-color: #334155;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .history-date {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Layout utilities */
+        .flex {
+            display: flex;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .items-start {
+            align-items: flex-start;
+        }
+        .gap-2 {
+            gap: 0.5rem;
+        }
+        .ml-4 {
+            margin-left: 1rem;
+        }
+        .flex-1 {
+            flex: 1;
+        }
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        .font-bold {
+            font-weight: 700;
+        }
+        .text-xl {
+            font-size: 1.25rem;
+        }
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        .text-gray-300 {
+            color: #d1d5db;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 0.75rem;
+            }
+            .history-item {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test History Layout - Current Issues</h1>
+        
+        <div class="history-list">
+            <!-- Sample history item with current layout (problematic) -->
+            <div class="history-item">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="history-date">22 settembre 2025, 10:30</div>
+                        <div class="font-bold text-xl">POLIS 3 - 2 Squadra con Nome Molto Lungo Che Causa Problemi Di Layout</div>
+                        <div class="mt-2 text-sm text-gray-300">
+                            <div>Tiri: 8 - 5</div>
+                            <div>Corner: 4 - 2</div>
+                            <div>Falli: 3 - 7</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <button class="btn btn-share px-3 py-2 text-sm">
+                            Condividi
+                        </button>
+                        <button class="btn btn-reset px-3 py-2 text-sm">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Another example -->
+            <div class="history-item">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="history-date">21 settembre 2025, 18:45</div>
+                        <div class="font-bold text-xl">POLIS 1 - 0 Real Madrid Champions League Winners 2024</div>
+                        <div class="mt-2 text-sm text-gray-300">
+                            <div>Tiri: 5 - 12</div>
+                            <div>Corner: 2 - 8</div>
+                            <div>Falli: 12 - 5</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <button class="btn btn-share px-3 py-2 text-sm">
+                            Condividi
+                        </button>
+                        <button class="btn btn-reset px-3 py-2 text-sm">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>Mobile Simulation</h2>
+        <div style="max-width: 375px; border: 2px solid #666; padding: 10px; border-radius: 8px;">
+            <div class="history-list">
+                <div class="history-item">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="history-date">22 settembre 2025, 10:30</div>
+                            <div class="font-bold text-xl">POLIS 3 - 2 Squadra con Nome Molto Lungo</div>
+                            <div class="mt-2 text-sm text-gray-300">
+                                <div>Tiri: 8 - 5</div>
+                                <div>Corner: 4 - 2</div>
+                                <div>Falli: 3 - 7</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button class="btn btn-share px-3 py-2 text-sm">
+                                Condividi
+                            </button>
+                            <button class="btn btn-reset px-3 py-2 text-sm">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
