@@ -1504,7 +1504,7 @@
             const team = button.dataset.team;
             const type = button.dataset.type;
             const action = button.dataset.action;
-            const quarter = button.dataset.quarter;
+            const quarter = button.dataset.quarter || '1°T'; // Default to 1°T if no quarter specified
 
             if (action === 'add') {
                 if (type === 'goal') {
