@@ -51,6 +51,12 @@
         .btn-stats-add {
             background: linear-gradient(to right, #3b82f6, #1d4ed8);
         }
+        .btn-yellow-card {
+            background: linear-gradient(to right, #eab308, #ca8a04);
+        }
+        .btn-red-card {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+        }
         .btn-remove-goal, .btn-remove-stats {
             background: linear-gradient(to right, #dc2626, #b91c1c);
             padding: 0.25rem;
@@ -109,6 +115,17 @@
                     <button class="btn btn-remove-stats mt-2">-</button>
                 </div>
             </div>
+            <!-- Third row: Yellow and Red cards side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-yellow-card">🟨 Giallo</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-red-card">🟥 Rosso</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+            </div>
         </div>
 
         <!-- Team 2 -->
@@ -136,11 +153,22 @@
                     <button class="btn btn-remove-stats mt-2">-</button>
                 </div>
             </div>
+            <!-- Third row: Yellow and Red cards side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-yellow-card">🟨 Giallo</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-red-card">🟥 Rosso</button>
+                    <button class="btn btn-remove-stats mt-2">-</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <h2 style="margin-top: 30px;">Previous Layout (for comparison)</h2>
     <p>Previously there were 3 goal buttons (Gol 1°T, Gol 2°T, Gol 3°T) in the first row, and Corner, Tiro, Fallo in the second row.</p>
-    <p><strong>New layout:</strong> Gol and Tiro in the first row, Corner and Fallo in the second row.</p>
+    <p><strong>New layout:</strong> Gol and Tiro in the first row, Corner and Fallo in the second row, Yellow and Red cards in the third row.</p>
 </body>
 </html>
