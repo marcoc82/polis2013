@@ -883,6 +883,59 @@
     <div class="modal-content max-w-lg">
         <div class="modal-header">Storico Partite e Statistiche</div>
         <div class="history-content">
+            <!-- Sezione Riepilogo Statistiche Totali -->
+            <div class="history-section">
+                <div>
+                    <span>Partite giocate totali: <span id="total-matches-played">0</span></span>
+                </div>
+                
+                <!-- Tabella Risultati Partite -->
+                <table class="scorers-table" style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Vinte</th>
+                            <th>Perse</th>
+                            <th>Pareggiate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="total-matches-won">0</td>
+                            <td id="total-matches-lost">0</td>
+                            <td id="total-matches-drawn">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Tabella Statistiche Totali -->
+                <table class="scorers-table" style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Statistica</th>
+                            <th>Fatti</th>
+                            <th>Subiti</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gol</td>
+                            <td id="total-goals-made">0</td>
+                            <td id="total-goals-conceded">0</td>
+                        </tr>
+                        <tr>
+                            <td>Tiri</td>
+                            <td id="total-shots-made">0</td>
+                            <td id="total-shots-conceded">0</td>
+                        </tr>
+                        <tr>
+                            <td>Corner</td>
+                            <td id="total-corners-made">0</td>
+                            <td id="total-corners-conceded">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
             <!-- Sezione Classifica Marcatori -->
             <div class="history-section">
                 <h3 class="history-section-title">Classifica Marcatori POLIS</h3>
@@ -1353,19 +1406,72 @@
         const history = loadMatchHistory().sort((a, b) => new Date(b.date) - new Date(a.date));
         historyList.innerHTML = '';
         
+        // Update total matches played
+        const totalMatchesElement = document.getElementById('total-matches-played');
+        if (totalMatchesElement) {
+            totalMatchesElement.textContent = history.length;
+        }
+        
+        // Calcola risultati partite (vinte, perse, pareggiate)
+        let matchesWon = 0, matchesLost = 0, matchesDrawn = 0;
+        history.forEach(match => {
+            const score1 = match.score1 || 0; // gol fatti da POLIS
+            const score2 = match.score2 || 0; // gol subiti da POLIS
+            
+            if (score1 > score2) {
+                matchesWon++;
+            } else if (score1 < score2) {
+                matchesLost++;
+            } else {
+                matchesDrawn++;
+            }
+        });
+        
+        // Aggiorna i totali dei risultati
+        document.getElementById('total-matches-won').textContent = matchesWon;
+        document.getElementById('total-matches-lost').textContent = matchesLost;
+        document.getElementById('total-matches-drawn').textContent = matchesDrawn;
+        
         // Calcola le statistiche generali e la classifica marcatori
         const allScorers = {};
         history.forEach(match => {
-            match.scorers1.forEach(scorer => {
-                if (!allScorers[scorer.player]) {
-                    allScorers[scorer.player] = 0;
-                }
-                allScorers[scorer.player]++;
-            });
+            if (match.scorers1 && Array.isArray(match.scorers1)) {
+                match.scorers1.forEach(scorer => {
+                    if (scorer.player) {
+                        if (!allScorers[scorer.player]) {
+                            allScorers[scorer.player] = 0;
+                        }
+                        allScorers[scorer.player]++;
+                    }
+                });
+            }
         });
         
         // Ordina i marcatori per numero di gol
         const sortedScorers = Object.entries(allScorers).sort(([, a], [, b]) => b - a);
+
+        // Calcola le statistiche totali per il riepilogo
+        let totalGoalsMade = 0, totalGoalsConceded = 0;
+        let totalShotsMade = 0, totalShotsConceded = 0;
+        let totalCornersMade = 0, totalCornersConceded = 0;
+
+        history.forEach(match => {
+            // POLIS è sempre team1, quindi:
+            totalGoalsMade += match.score1 || 0;        // gol fatti da POLIS
+            totalGoalsConceded += match.score2 || 0;    // gol subiti da POLIS
+            totalShotsMade += match.shots1 || 0;        // tiri fatti da POLIS  
+            totalShotsConceded += match.shots2 || 0;    // tiri subiti da POLIS
+            totalCornersMade += match.corners1 || 0;    // corner fatti da POLIS
+            totalCornersConceded += match.corners2 || 0; // corner subiti da POLIS
+        });
+
+        // Aggiorna le statistiche del riepilogo
+        document.getElementById('total-goals-made').textContent = totalGoalsMade;
+        document.getElementById('total-goals-conceded').textContent = totalGoalsConceded;
+        document.getElementById('total-shots-made').textContent = totalShotsMade;
+        document.getElementById('total-shots-conceded').textContent = totalShotsConceded;
+        document.getElementById('total-corners-made').textContent = totalCornersMade;
+        document.getElementById('total-corners-conceded').textContent = totalCornersConceded;
 
         // Renderizza la classifica marcatori
         scorersTableBody.innerHTML = '';
