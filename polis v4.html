@@ -692,8 +692,8 @@
     <div class="timer-container">
         <div class="timer-display-container">
             <span id="timer-display">20:00</span>
-            <span id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; margin-left: 1rem; display: none;">Recupero: 0:00</span>
         </div>
+        <div id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; text-align: center; margin-top: 0.5rem; display: none;">+ 0:00</div>
         <div class="timer-controls">
             <button id="start-timer-button" class="btn btn-start">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: currentColor;"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"></path></svg>
@@ -807,7 +807,8 @@
     <div class="stats-container">
         <!-- Statistiche Squadra 1 -->
         <div class="stats-team">
-            <h3 class="team-title">Statistiche POLIS</h3>
+            <h3 class="team-title">Statistiche</h3>
+            <h4 class="team-name" style="margin-top: 0.5rem; margin-bottom: 1rem; font-size: 1.25rem; color: #94a3b8;">POLIS</h4>
             <div class="stat-item">
                 <span>Gol fatti:</span>
                 <span id="goals-team1">0</span>
@@ -860,7 +861,8 @@
 
         <!-- Statistiche Squadra 2 -->
         <div class="stats-team">
-            <h3 class="team-title" id="stats-team2-title">Statistiche Squadra 2</h3>
+            <h3 class="team-title">Statistiche</h3>
+            <h4 class="team-name" id="stats-team2-title" style="margin-top: 0.5rem; margin-bottom: 1rem; font-size: 1.25rem; color: #94a3b8;">Squadra 2</h4>
             <div class="stat-item">
                 <span>Gol fatti:</span>
                 <span id="goals-team2">0</span>
@@ -1647,7 +1649,7 @@
 
         // Resetta il nome della squadra 2
         team2NameElement.textContent = 'Squadra 2';
-        statsTeam2Title.textContent = 'Statistiche Squadra 2';
+        statsTeam2Title.textContent = 'Squadra 2';
         scoreTeam2NameDisplay.textContent = 'Squadra 2';
         teamNameInput.value = ''; // Pulisci l'input
 
@@ -1860,7 +1862,7 @@
             const recoveryMinutes = Math.floor(recoverySeconds / 60);
             const recoverySecondsDisplay = recoverySeconds % 60;
             const recoveryFormattedTime = `${recoveryMinutes}:${recoverySecondsDisplay.toString().padStart(2, '0')}`;
-            recoveryDisplay.textContent = `Recupero: ${recoveryFormattedTime}`;
+            recoveryDisplay.textContent = `+ ${recoveryFormattedTime}`;
             recoveryDisplay.style.display = 'inline';
         } else {
             // Normal time: show countdown
@@ -2258,7 +2260,7 @@
         const teamName = teamNameInput.value.trim();
         if (teamName !== '') {
             team2NameElement.textContent = teamName.toUpperCase();
-            statsTeam2Title.textContent = 'Statistiche ' + teamName.toUpperCase();
+            statsTeam2Title.textContent = teamName.toUpperCase();
             scoreTeam2NameDisplay.textContent = teamName.toUpperCase();
             initialSetupModal.classList.remove('is-active');
         } else {
