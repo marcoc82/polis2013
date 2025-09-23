@@ -180,6 +180,18 @@
             background: linear-gradient(to right, #f97316, #ea580c);
             padding: 1rem 1.5rem; /* Aumento la dimensione dei pulsanti stats */
         }
+        .btn-yellow-card {
+            background: linear-gradient(to right, #eab308, #ca8a04);
+            padding: 1rem 1.5rem;
+            color: white;
+            font-weight: 700;
+        }
+        .btn-red-card {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+            padding: 1rem 1.5rem;
+            color: white;
+            font-weight: 700;
+        }
         .btn-remove-goal {
             background-color: #ef4444;
             color: white;
@@ -695,6 +707,17 @@
                     <button class="btn btn-remove-stats mt-2" data-team="1" data-type="foul" data-action="remove">-</button>
                 </div>
             </div>
+            <!-- Third row: Yellow and Red cards side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-yellow-card" data-team="1" data-type="yellow-card" data-action="add">🟨 Giallo</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="1" data-type="yellow-card" data-action="remove">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-red-card" data-team="1" data-type="red-card" data-action="add">🟥 Rosso</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="1" data-type="red-card" data-action="remove">-</button>
+                </div>
+            </div>
         </div>
 
         <!-- Squadra 2 -->
@@ -720,6 +743,17 @@
                 <div class="flex flex-col items-center">
                     <button class="btn btn-stats-add" data-team="2" data-type="foul" data-action="add">Fallo</button>
                     <button class="btn btn-remove-stats mt-2" data-team="2" data-type="foul" data-action="remove">-</button>
+                </div>
+            </div>
+            <!-- Third row: Yellow and Red cards side by side -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-yellow-card" data-team="2" data-type="yellow-card" data-action="add">🟨 Giallo</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="2" data-type="yellow-card" data-action="remove">-</button>
+                </div>
+                <div class="flex flex-col items-center">
+                    <button class="btn btn-red-card" data-team="2" data-type="red-card" data-action="add">🟥 Rosso</button>
+                    <button class="btn btn-remove-stats mt-2" data-team="2" data-type="red-card" data-action="remove">-</button>
                 </div>
             </div>
         </div>
@@ -754,6 +788,30 @@
                 <span>Corner subiti:</span>
                 <span id="corners-team2-taken">0</span>
             </div>
+            <div class="stat-item">
+                <span>Falli fatti:</span>
+                <span id="fouls-team1">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Falli subiti:</span>
+                <span id="fouls-team2-taken">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini gialli:</span>
+                <span id="yellow-cards-team1">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini gialli subiti:</span>
+                <span id="yellow-cards-team2-taken">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini rossi:</span>
+                <span id="red-cards-team1">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini rossi subiti:</span>
+                <span id="red-cards-team2-taken">0</span>
+            </div>
             <div id="scorers-list-1" class="scorer-list">
                 <h4>Marcatori:</h4>
                 <!-- I marcatori verranno aggiunti qui -->
@@ -786,6 +844,30 @@
             <div class="stat-item">
                 <span>Corner subiti:</span>
                 <span id="corners-team1-taken">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Falli fatti:</span>
+                <span id="fouls-team2">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Falli subiti:</span>
+                <span id="fouls-team1-taken">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini gialli:</span>
+                <span id="yellow-cards-team2">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini gialli subiti:</span>
+                <span id="yellow-cards-team1-taken">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini rossi:</span>
+                <span id="red-cards-team2">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Cartellini rossi subiti:</span>
+                <span id="red-cards-team1-taken">0</span>
             </div>
             <div id="scorers-list-2" class="scorer-list">
                 <h4>Marcatori:</h4>
@@ -1031,16 +1113,28 @@
     const goalsTeam1Display = document.getElementById('goals-team1');
     const shotsTeam1Display = document.getElementById('shots-team1');
     const cornersTeam1Display = document.getElementById('corners-team1');
+    const foulsTeam1Display = document.getElementById('fouls-team1');
+    const yellowCardsTeam1Display = document.getElementById('yellow-cards-team1');
+    const redCardsTeam1Display = document.getElementById('red-cards-team1');
     const goalsTeam2TakenDisplay = document.getElementById('goals-team2-taken');
     const shotsTeam2TakenDisplay = document.getElementById('shots-team2-taken');
     const cornersTeam2TakenDisplay = document.getElementById('corners-team2-taken');
+    const foulsTeam2TakenDisplay = document.getElementById('fouls-team2-taken');
+    const yellowCardsTeam2TakenDisplay = document.getElementById('yellow-cards-team2-taken');
+    const redCardsTeam2TakenDisplay = document.getElementById('red-cards-team2-taken');
     
     const goalsTeam2Display = document.getElementById('goals-team2');
     const shotsTeam2Display = document.getElementById('shots-team2');
     const cornersTeam2Display = document.getElementById('corners-team2');
+    const foulsTeam2Display = document.getElementById('fouls-team2');
+    const yellowCardsTeam2Display = document.getElementById('yellow-cards-team2');
+    const redCardsTeam2Display = document.getElementById('red-cards-team2');
     const goalsTeam1TakenDisplay = document.getElementById('goals-team1-taken');
     const shotsTeam1TakenDisplay = document.getElementById('shots-team1-taken');
     const cornersTeam1TakenDisplay = document.getElementById('corners-team1-taken');
+    const foulsTeam1TakenDisplay = document.getElementById('fouls-team1-taken');
+    const yellowCardsTeam1TakenDisplay = document.getElementById('yellow-cards-team1-taken');
+    const redCardsTeam1TakenDisplay = document.getElementById('red-cards-team1-taken');
 
 
     const scorersList1 = document.getElementById('scorers-list-1');
@@ -1109,8 +1203,14 @@
     let scoreTeam2 = 0;
     let shotsTeam1 = 0;
     let cornersTeam1 = 0;
+    let foulsTeam1 = 0;
+    let yellowCardsTeam1 = 0;
+    let redCardsTeam1 = 0;
     let shotsTeam2 = 0;
     let cornersTeam2 = 0;
+    let foulsTeam2 = 0;
+    let yellowCardsTeam2 = 0;
+    let redCardsTeam2 = 0;
     
     // Lista dei marcatori e dei quarti in cui hanno segnato
     let team1Scorers = [];
@@ -1159,6 +1259,12 @@
         shotsTeam2TakenDisplay.textContent = shotsTeam2;
         cornersTeam1Display.textContent = cornersTeam1;
         cornersTeam2TakenDisplay.textContent = cornersTeam2;
+        if (foulsTeam1Display) foulsTeam1Display.textContent = foulsTeam1;
+        if (foulsTeam2TakenDisplay) foulsTeam2TakenDisplay.textContent = foulsTeam2;
+        if (yellowCardsTeam1Display) yellowCardsTeam1Display.textContent = yellowCardsTeam1;
+        if (yellowCardsTeam2TakenDisplay) yellowCardsTeam2TakenDisplay.textContent = yellowCardsTeam2;
+        if (redCardsTeam1Display) redCardsTeam1Display.textContent = redCardsTeam1;
+        if (redCardsTeam2TakenDisplay) redCardsTeam2TakenDisplay.textContent = redCardsTeam2;
     
         // Aggiorna le statistiche della squadra 2
         goalsTeam2Display.textContent = scoreTeam2;
@@ -1167,6 +1273,12 @@
         shotsTeam1TakenDisplay.textContent = shotsTeam1;
         cornersTeam2Display.textContent = cornersTeam2;
         cornersTeam1TakenDisplay.textContent = cornersTeam1;
+        if (foulsTeam2Display) foulsTeam2Display.textContent = foulsTeam2;
+        if (foulsTeam1TakenDisplay) foulsTeam1TakenDisplay.textContent = foulsTeam1;
+        if (yellowCardsTeam2Display) yellowCardsTeam2Display.textContent = yellowCardsTeam2;
+        if (yellowCardsTeam1TakenDisplay) yellowCardsTeam1TakenDisplay.textContent = yellowCardsTeam1;
+        if (redCardsTeam2Display) redCardsTeam2Display.textContent = redCardsTeam2;
+        if (redCardsTeam1TakenDisplay) redCardsTeam1TakenDisplay.textContent = redCardsTeam1;
     }
 
     // Funzione per far vibrare il dispositivo
@@ -1253,6 +1365,12 @@
             text = 'un corner';
         } else if (type === 'shot') {
             text = 'un tiro';
+        } else if (type === 'foul') {
+            text = 'un fallo';
+        } else if (type === 'yellow-card') {
+            text = 'un cartellino giallo';
+        } else if (type === 'red-card') {
+            text = 'un cartellino rosso';
         }
         removeModalHeader.textContent = `Sei sicuro di voler rimuovere ${text}?`;
         removeModalMessage.textContent = `Verrà rimosso l'ultimo ${text} segnato dalla squadra ${team}.`;
@@ -1741,6 +1859,57 @@
                         setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
                     }
                     updateStats();
+                } else if (type === 'foul') {
+                    if (team === '1') {
+                        foulsTeam1++;
+                        const statElement = document.getElementById('fouls-team1');
+                        if (statElement) {
+                            statElement.classList.add('is-pulsing-stat');
+                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                        }
+                    } else if (team === '2') {
+                        foulsTeam2++;
+                        const statElement = document.getElementById('fouls-team2');
+                        if (statElement) {
+                            statElement.classList.add('is-pulsing-stat');
+                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                        }
+                    }
+                    updateStats();
+                } else if (type === 'yellow-card') {
+                    if (team === '1') {
+                        yellowCardsTeam1++;
+                        const statElement = document.getElementById('yellow-cards-team1');
+                        if (statElement) {
+                            statElement.classList.add('is-pulsing-stat');
+                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                        }
+                    } else if (team === '2') {
+                        yellowCardsTeam2++;
+                        const statElement = document.getElementById('yellow-cards-team2');
+                        if (statElement) {
+                            statElement.classList.add('is-pulsing-stat');
+                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                        }
+                    }
+                    updateStats();
+                } else if (type === 'red-card') {
+                    if (team === '1') {
+                        redCardsTeam1++;
+                        const statElement = document.getElementById('red-cards-team1');
+                        if (statElement) {
+                            statElement.classList.add('is-pulsing-stat');
+                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                        }
+                    } else if (team === '2') {
+                        redCardsTeam2++;
+                        const statElement = document.getElementById('red-cards-team2');
+                        if (statElement) {
+                            statElement.classList.add('is-pulsing-stat');
+                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+                        }
+                    }
+                    updateStats();
                 }
             } else if (action === 'remove') {
                 showRemoveModal(type, team);
@@ -1761,6 +1930,12 @@
                 cornersTeam1--;
             } else if (type === 'shot' && shotsTeam1 > 0) {
                 shotsTeam1--;
+            } else if (type === 'foul' && foulsTeam1 > 0) {
+                foulsTeam1--;
+            } else if (type === 'yellow-card' && yellowCardsTeam1 > 0) {
+                yellowCardsTeam1--;
+            } else if (type === 'red-card' && redCardsTeam1 > 0) {
+                redCardsTeam1--;
             }
         } else if (team === '2') {
             if (type === 'goal' && scoreTeam2 > 0) {
@@ -1771,6 +1946,12 @@
                 cornersTeam2--;
             } else if (type === 'shot' && shotsTeam2 > 0) {
                 shotsTeam2--;
+            } else if (type === 'foul' && foulsTeam2 > 0) {
+                foulsTeam2--;
+            } else if (type === 'yellow-card' && yellowCardsTeam2 > 0) {
+                yellowCardsTeam2--;
+            } else if (type === 'red-card' && redCardsTeam2 > 0) {
+                redCardsTeam2--;
             }
         }
         updateScores();
