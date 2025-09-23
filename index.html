@@ -1064,7 +1064,7 @@
             <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
             <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v1.8
+                Versione: v1.9
             </div>
         </div>
     </div>
@@ -3388,6 +3388,7 @@ Per evitare che lo schermo si spenga:
                     
                     cardDiv.innerHTML = `
                         <img src="${iconSrc}" alt="${card.cardType} card">
+                        ${card.player} - ${card.minute}' (${card.quarter})
                     `;
                     cardsList2.appendChild(cardDiv);
                 });
@@ -3460,8 +3461,24 @@ Per evitare che lo schermo si spenga:
                     removeLatestEvent('team1', 'fouls');
                 } else if (type === 'yellow-card') {
                     removeLatestEvent('team1', 'yellowCards');
+                    // Rimuovi l'ultimo cartellino giallo dalla lista
+                    for (let i = team1Cards.length - 1; i >= 0; i--) {
+                        if (team1Cards[i].cardType === 'yellow') {
+                            team1Cards.splice(i, 1);
+                            break;
+                        }
+                    }
+                    updateCardsList();
                 } else if (type === 'red-card') {
                     removeLatestEvent('team1', 'redCards');
+                    // Rimuovi l'ultimo cartellino rosso dalla lista
+                    for (let i = team1Cards.length - 1; i >= 0; i--) {
+                        if (team1Cards[i].cardType === 'red') {
+                            team1Cards.splice(i, 1);
+                            break;
+                        }
+                    }
+                    updateCardsList();
                 }
             } else if (team === '2') {
                 if (type === 'goal' && scoreTeam2 > 0) {
@@ -3476,13 +3493,31 @@ Per evitare che lo schermo si spenga:
                     removeLatestEvent('team2', 'fouls');
                 } else if (type === 'yellow-card') {
                     removeLatestEvent('team2', 'yellowCards');
+                    // Rimuovi l'ultimo cartellino giallo dalla lista
+                    for (let i = team2Cards.length - 1; i >= 0; i--) {
+                        if (team2Cards[i].cardType === 'yellow') {
+                            team2Cards.splice(i, 1);
+                            break;
+                        }
+                    }
+                    updateCardsList();
                 } else if (type === 'red-card') {
                     removeLatestEvent('team2', 'redCards');
+                    // Rimuovi l'ultimo cartellino rosso dalla lista
+                    for (let i = team2Cards.length - 1; i >= 0; i--) {
+                        if (team2Cards[i].cardType === 'red') {
+                            team2Cards.splice(i, 1);
+                            break;
+                        }
+                    }
+                    updateCardsList();
                 }
             }
             updateScores();
             updateStats();
             hideRemoveModal();
+            // Salva lo stato dopo la rimozione
+            saveCurrentGameState();
             vibrate([100]); // Removal confirmation feedback
         }
 

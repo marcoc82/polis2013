@@ -34,13 +34,38 @@ signInAnonymously(auth)
 
 window.saveGameToFirebase = async function(gameData) {
   try {
-    // Assicurati che gameData abbia il campo societaId
-    await addDoc(collection(db, "partite"), gameData);
+    // Pulisci l'oggetto rimuovendo i campi undefined, in particolare per i cartellini
+    const cleanGameData = cleanDataForFirebase(gameData);
+    await addDoc(collection(db, "partite"), cleanGameData);
   } catch (e) {
     alert("Errore salvataggio partita!");
     console.error(e);
   }
 };
+
+// Funzione per pulire i dati prima del salvataggio su Firebase
+function cleanDataForFirebase(obj) {
+  if (obj === null || obj === undefined) {
+    return null;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => cleanDataForFirebase(item)).filter(item => item !== null && item !== undefined);
+  }
+  
+  if (typeof obj === 'object') {
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const cleanedValue = cleanDataForFirebase(value);
+      if (cleanedValue !== null && cleanedValue !== undefined) {
+        cleaned[key] = cleanedValue;
+      }
+    }
+    return cleaned;
+  }
+  
+  return obj;
+}
 
 window.deleteGameFromFirebase = async function(gameId) {
   try {
