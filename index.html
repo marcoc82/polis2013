@@ -274,18 +274,13 @@
         }
         
         .login-logo {
+            opacity: 0;
             animation: fadeInUp 0.8s ease-out forwards;
         }
         
         .login-form {
             opacity: 0;
             animation: fadeInUp 0.8s ease-out 0.3s forwards;
-        }
-
-        /* Ensure animations restart when login screen is shown */
-        #login-screen[style*="display: flex"] .login-logo,
-        #login-screen[style*="display: flex"] .login-form {
-            animation-play-state: running;
         }
 
         /* Teams container */
@@ -2456,8 +2451,16 @@ Per evitare che lo schermo si spenga:
         const startGameBtn = document.getElementById('start-game-btn');
         const welcomeOpponentName = document.getElementById('welcome-opponent-name');
 
-        // Function to restart login animations
+        // Flag to track if login animations have been played
+        let loginAnimationsPlayed = false;
+
+        // Function to restart login animations (only on first load)
         function restartLoginAnimations() {
+            // Only play animations if they haven't been played yet
+            if (loginAnimationsPlayed) {
+                return;
+            }
+
             const loginLogo = document.querySelector('.login-logo');
             const loginForm = document.querySelector('.login-form');
             
@@ -2474,6 +2477,9 @@ Per evitare che lo schermo si spenga:
                 // Re-apply animations
                 loginLogo.style.animation = 'fadeInUp 0.8s ease-out forwards';
                 loginForm.style.animation = 'fadeInUp 0.8s ease-out 0.3s forwards';
+                
+                // Mark animations as played
+                loginAnimationsPlayed = true;
             }
         }
 
@@ -2737,8 +2743,8 @@ Per evitare che lo schermo si spenga:
             loginScreen.style.display = 'flex';
             document.body.classList.add('login-background');
             
-            // Start login animations
-            setTimeout(restartLoginAnimations, 50);
+            // Don't restart animations when returning to login
+            // The elements should maintain their final animated state
             
             // Clear current club data
             currentClub = null;
