@@ -1286,13 +1286,13 @@
 
     // Funzione per aggiornare le statistiche visualizzate
     function updateStats() {
-        // Aggiorna le statistiche della squadra 1
-        goalsTeam1Display.textContent = scoreTeam1;
-        goalsTeam2TakenDisplay.textContent = scoreTeam2;
-        shotsTeam1Display.textContent = shotsTeam1;
-        shotsTeam2TakenDisplay.textContent = shotsTeam2;
-        cornersTeam1Display.textContent = cornersTeam1;
-        cornersTeam2TakenDisplay.textContent = cornersTeam2;
+        // Aggiorna le statistiche della squadra 1 con controlli null
+        if (goalsTeam1Display) goalsTeam1Display.textContent = scoreTeam1;
+        if (goalsTeam2TakenDisplay) goalsTeam2TakenDisplay.textContent = scoreTeam2;
+        if (shotsTeam1Display) shotsTeam1Display.textContent = shotsTeam1;
+        if (shotsTeam2TakenDisplay) shotsTeam2TakenDisplay.textContent = shotsTeam2;
+        if (cornersTeam1Display) cornersTeam1Display.textContent = cornersTeam1;
+        if (cornersTeam2TakenDisplay) cornersTeam2TakenDisplay.textContent = cornersTeam2;
         if (foulsTeam1Display) foulsTeam1Display.textContent = foulsTeam1;
         if (foulsTeam2TakenDisplay) foulsTeam2TakenDisplay.textContent = foulsTeam2;
         if (yellowCardsTeam1Display) yellowCardsTeam1Display.textContent = yellowCardsTeam1;
@@ -1300,13 +1300,13 @@
         if (redCardsTeam1Display) redCardsTeam1Display.textContent = redCardsTeam1;
         if (redCardsTeam2TakenDisplay) redCardsTeam2TakenDisplay.textContent = redCardsTeam2;
     
-        // Aggiorna le statistiche della squadra 2
-        goalsTeam2Display.textContent = scoreTeam2;
-        goalsTeam1TakenDisplay.textContent = scoreTeam1;
-        shotsTeam2Display.textContent = shotsTeam2;
-        shotsTeam1TakenDisplay.textContent = shotsTeam1;
-        cornersTeam2Display.textContent = cornersTeam2;
-        cornersTeam1TakenDisplay.textContent = cornersTeam1;
+        // Aggiorna le statistiche della squadra 2 con controlli null
+        if (goalsTeam2Display) goalsTeam2Display.textContent = scoreTeam2;
+        if (goalsTeam1TakenDisplay) goalsTeam1TakenDisplay.textContent = scoreTeam1;
+        if (shotsTeam2Display) shotsTeam2Display.textContent = shotsTeam2;
+        if (shotsTeam1TakenDisplay) shotsTeam1TakenDisplay.textContent = shotsTeam1;
+        if (cornersTeam2Display) cornersTeam2Display.textContent = cornersTeam2;
+        if (cornersTeam1TakenDisplay) cornersTeam1TakenDisplay.textContent = cornersTeam1;
         if (foulsTeam2Display) foulsTeam2Display.textContent = foulsTeam2;
         if (foulsTeam1TakenDisplay) foulsTeam1TakenDisplay.textContent = foulsTeam1;
         if (yellowCardsTeam2Display) yellowCardsTeam2Display.textContent = yellowCardsTeam2;
