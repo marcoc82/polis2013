@@ -1271,6 +1271,17 @@
                 </div>
             </div>
             
+            <!-- Sezione Note -->
+            <div class="notes-container mt-6">
+                <h3 class="text-lg font-semibold mb-3 text-center text-white">Note Partita</h3>
+                <textarea 
+                    id="match-notes" 
+                    placeholder="Inserisci qui le note della partita..." 
+                    class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:border-blue-400"
+                    rows="3"
+                ></textarea>
+            </div>
+            
             <!-- Pulsanti di azione -->
             <div class="flex justify-center items-center mt-8 gap-4 flex-wrap">
                 <button id="reset-button" class="btn btn-reset flex items-center justify-center gap-2">RESET</button>
@@ -1484,6 +1495,7 @@
         let shotsTeam2 = 0;
         let cornersTeam2 = 0;
         let foulsTeam2 = 0;
+        let matchNotes = '';
         
         // Period-based statistics storage
         let eventsByPeriod = {
@@ -1562,6 +1574,9 @@
                 // Marcatori con timestamp di inserimento
                 team1Scorers,
                 team2Scorers,
+                
+                // Note partita
+                matchNotes: document.getElementById('match-notes')?.value.trim() || '',
                 
                 // Statistiche per periodo
                 eventsByPeriod,
@@ -1686,6 +1701,13 @@
                 team1Scorers = gameState.team1Scorers || [];
                 team2Scorers = gameState.team2Scorers || [];
                 eventsByPeriod = gameState.eventsByPeriod || { team1: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} }, team2: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} } };
+                
+                // Ripristina le note della partita
+                matchNotes = gameState.matchNotes || '';
+                const notesElement = document.getElementById('match-notes');
+                if (notesElement) {
+                    notesElement.value = matchNotes;
+                }
                 
                 // Ripristino timer migliorato - gestisce stato completo del timer
                 if (gameState.timer) {
@@ -3169,6 +3191,7 @@ Per evitare che lo schermo si spenga:
             foulsTeam2 = 0;
             team1Scorers = [];
             team2Scorers = [];
+            matchNotes = '';
 
             // Reset period-based statistics
             eventsByPeriod = {
@@ -3189,6 +3212,12 @@ Per evitare che lo schermo si spenga:
 
             document.getElementById('scorers-list-1').innerHTML = '<h4>Marcatori:</h4>';
             document.getElementById('scorers-list-2').innerHTML = '<h4>Marcatori:</h4>';
+            
+            // Reset notes field
+            const notesElement = document.getElementById('match-notes');
+            if (notesElement) {
+                notesElement.value = '';
+            }
 
             resetTimer();
             hideResetModal();
@@ -3281,6 +3310,8 @@ Per evitare che lo schermo si spenga:
         async function saveMatch() {
             const team1Name = currentClub ? currentClub.nome : 'POLIS';
             const team2Name = document.getElementById('team2-name').textContent;
+            const notesElement = document.getElementById('match-notes');
+            matchNotes = notesElement ? notesElement.value.trim() : '';
 
             const match = {
                 team1: team1Name,
@@ -3297,6 +3328,7 @@ Per evitare che lo schermo si spenga:
                 scorers1: team1Scorers,
                 scorers2: team2Scorers,
                 societaId: currentClub?.id,
+                notes: matchNotes,
                 // Add period-based statistics
                 eventsByPeriod: eventsByPeriod
             };
@@ -3759,6 +3791,8 @@ Per evitare che lo schermo si spenga:
                         `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
                     const team2ScorersText = match.scorers2 && match.scorers2.length > 0 ? 
                         `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
+                    const notesText = match.notes && match.notes.trim() ? 
+                        `<br><span class="font-semibold text-yellow-300">Note: ${match.notes}</span>` : '';
 
                     // Generate period statistics table for this match
                     const periodStatsTable = generateMatchPeriodStatsTable(match);
@@ -3781,6 +3815,7 @@ Per evitare che lo schermo si spenga:
                                 <div>Falli: ${match.fouls1 || 0} - ${match.fouls2 || 0}</div>
                                 ${team1ScorersText}
                                 ${team2ScorersText}
+                                ${notesText}
                             </div>
                             ${periodStatsTable}
                         </div>
@@ -3813,7 +3848,7 @@ Per evitare che lo schermo si spenga:
         async function shareSingleMatch(matchData = null) {
             vibrate([50]); // Button feedback
             
-            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, scorers1, scorers2;
+            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, scorers1, scorers2, notes;
             
             if (matchData) {
                 // Use provided match data (for history sharing)
@@ -3829,6 +3864,7 @@ Per evitare che lo schermo si spenga:
                 fouls2 = matchData.fouls2 || 0;
                 scorers1 = matchData.scorers1 || [];
                 scorers2 = matchData.scorers2 || [];
+                notes = matchData.notes || '';
             } else {
                 // Use current game data (for main share button)
                 team1Name = currentClub ? currentClub.nome : 'POLIS';
@@ -3843,6 +3879,8 @@ Per evitare che lo schermo si spenga:
                 fouls2 = foulsTeam2;
                 scorers1 = team1Scorers;
                 scorers2 = team2Scorers;
+                const notesElement = document.getElementById('match-notes');
+                notes = notesElement ? notesElement.value.trim() : '';
             }
             
             try {
@@ -3850,11 +3888,13 @@ Per evitare che lo schermo si spenga:
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Calculate dynamic height based on number of scorers
+                // Calculate dynamic height based on number of scorers and notes
                 const baseHeight = 460; // Base height up to "Falli" line
                 const scorersMargin = 40; // Space between sections
                 const lineHeight = 25; // Height per scorer line
                 const headerHeight = 30; // Height for scorer headers
+                const notesMargin = 30; // Space for notes section
+                const notesLineHeight = 25; // Height per notes line
                 
                 let totalScorers = 0;
                 let scorerSections = 0;
@@ -3868,10 +3908,18 @@ Per evitare che lo schermo si spenga:
                     scorerSections++;
                 }
                 
+                // Calculate height for notes (assuming max 50 characters per line)
+                let notesLines = 0;
+                if (notes && notes.trim()) {
+                    notesLines = Math.ceil(notes.length / 50) + 1; // +1 for "Note:" header
+                }
+                
                 const dynamicHeight = baseHeight + 
                     (scorerSections * headerHeight) + 
                     (totalScorers * lineHeight) + 
                     (scorerSections * scorersMargin) + 
+                    (notesLines * notesLineHeight) +
+                    (notesLines > 0 ? notesMargin : 0) +
                     60; // Bottom padding
                 
                 // Set canvas size with dynamic height
@@ -3937,6 +3985,43 @@ Per evitare che lo schermo si spenga:
                         const text = typeof scorer === 'string' ? scorer : `Goal - ${scorer.minute || 0}' (${scorer.quarter})`;
                         ctx.fillText(text, 70, startY + 30 + (index * 25));
                     });
+                }
+                
+                // Notes
+                if (notes && notes.trim()) {
+                    let notesStartY;
+                    if (scorers2.length > 0) {
+                        notesStartY = 510 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
+                    } else if (scorers1.length > 0) {
+                        notesStartY = 510 + (scorers1.length * 25) + 30;
+                    } else {
+                        notesStartY = 480;
+                    }
+                    
+                    ctx.fillText('Note:', 50, notesStartY);
+                    
+                    // Break notes into lines (max 50 characters per line)
+                    const words = notes.split(' ');
+                    let currentLine = '';
+                    let lineIndex = 0;
+                    
+                    for (const word of words) {
+                        const testLine = currentLine + word + ' ';
+                        if (testLine.length <= 50) {
+                            currentLine = testLine;
+                        } else {
+                            if (currentLine) {
+                                ctx.fillText(currentLine.trim(), 70, notesStartY + 30 + (lineIndex * 25));
+                                lineIndex++;
+                            }
+                            currentLine = word + ' ';
+                        }
+                    }
+                    
+                    // Draw the last line
+                    if (currentLine) {
+                        ctx.fillText(currentLine.trim(), 70, notesStartY + 30 + (lineIndex * 25));
+                    }
                 }
                 
                 // Convert canvas to blob
@@ -4307,6 +4392,14 @@ Per evitare che lo schermo si spenga:
         // Handle page visibility changes to maintain wake lock and update timer
         // This ensures both wake lock reactivation and timer accuracy when returning from background
         document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Add event listener for notes field to auto-save
+        document.addEventListener('input', (event) => {
+            if (event.target.id === 'match-notes') {
+                // Auto-save game state when notes change
+                saveCurrentGameState();
+            }
+        });
         
         // Also handle window focus events as an additional safeguard for wake lock and timer
         window.addEventListener('focus', () => {

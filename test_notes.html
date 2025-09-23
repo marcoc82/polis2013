@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StaKick - Test Note</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1A202C;
+            color: #E2E8F0;
+        }
+        .notes-container {
+            margin-top: 1.5rem;
+        }
+        .stats-container {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .stats-team {
+            flex: 1;
+            background-color: #374151;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #4B5563;
+        }
+        .team-title {
+            color: #60A5FA;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8">StaKick - Test Note</h1>
+        
+        <!-- Sezione Statistiche -->
+        <div class="stats-container">
+            <!-- Statistiche Squadra 1 -->
+            <div class="stats-team">
+                <h3 class="team-title">Statistiche POLIS</h3>
+                <div class="stat-item">
+                    <span>Gol fatti</span>
+                    <span>2</span>
+                </div>
+                <div class="stat-item">
+                    <span>Gol subiti</span>
+                    <span>1</span>
+                </div>
+                <div class="stat-item">
+                    <span>Tiri in porta</span>
+                    <span>8</span>
+                </div>
+                <div class="stat-item">
+                    <span>Corner</span>
+                    <span>4</span>
+                </div>
+                <div class="stat-item">
+                    <span>Falli</span>
+                    <span>3</span>
+                </div>
+            </div>
+
+            <!-- Statistiche Squadra 2 -->
+            <div class="stats-team">
+                <h3 class="team-title">Statistiche Squadra Avversaria</h3>
+                <div class="stat-item">
+                    <span>Gol fatti</span>
+                    <span>1</span>
+                </div>
+                <div class="stat-item">
+                    <span>Gol subiti</span>
+                    <span>2</span>
+                </div>
+                <div class="stat-item">
+                    <span>Tiri in porta</span>
+                    <span>5</span>
+                </div>
+                <div class="stat-item">
+                    <span>Corner</span>
+                    <span>2</span>
+                </div>
+                <div class="stat-item">
+                    <span>Falli</span>
+                    <span>6</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sezione Note -->
+        <div class="notes-container">
+            <h3 class="text-lg font-semibold mb-3 text-center text-white">Note Partita</h3>
+            <textarea 
+                id="match-notes" 
+                placeholder="Inserisci qui le note della partita..." 
+                class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:border-blue-400"
+                rows="3"
+            >Ottima partita! Il nostro portiere ha fatto due parate fantastiche nel secondo tempo.</textarea>
+        </div>
+        
+        <!-- Simulazione storico -->
+        <div class="mt-8 p-4 bg-gray-800 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4 text-center text-white">Esempio Storico Partita</h3>
+            <div class="bg-gray-700 p-4 rounded-lg">
+                <div class="flex gap-2 mb-2">
+                    <button class="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded">Condividi</button>
+                    <button class="px-3 py-2 text-sm bg-red-600 hover:bg-red-700 rounded">🗑️</button>
+                </div>
+                <div class="text-sm text-gray-300 mb-2">sabato 23 settembre 2024, 08:30</div>
+                <div class="font-bold text-xl mb-2">POLIS 2 - 1 Squadra Avversaria</div>
+                <div class="text-sm text-gray-300">
+                    <div>Tiri: 8 - 5</div>
+                    <div>Corner: 4 - 2</div>
+                    <div>Falli: 3 - 6</div>
+                    <div class="font-semibold text-yellow-300 mt-2">Note: Ottima partita! Il nostro portiere ha fatto due parate fantastiche nel secondo tempo.</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test condivisione -->
+        <div class="mt-8 text-center">
+            <button onclick="testShare()" class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">
+                Test Condivisione (con Note)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function testShare() {
+            const notes = document.getElementById('match-notes').value;
+            alert('Note da includere nella condivisione:\n\n' + notes);
+        }
+    </script>
+</body>
+</html>
