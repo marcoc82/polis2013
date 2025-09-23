@@ -794,6 +794,17 @@
         </div>
     </div>
     
+    <!-- Sezione Note -->
+    <div class="notes-container mt-6">
+        <h3 class="text-lg font-semibold mb-3 text-center text-white">Note Partita</h3>
+        <textarea 
+            id="match-notes" 
+            placeholder="Inserisci qui le note della partita..." 
+            class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:border-blue-400"
+            rows="3"
+        ></textarea>
+    </div>
+    
     <!-- Pulsanti di azione a livello di pagina -->
     <div class="flex justify-center items-center mt-8 gap-4 flex-wrap">
         <button id="reset-button" class="btn btn-reset flex items-center justify-center gap-2">
@@ -1345,6 +1356,12 @@
         // Cancella le liste dei marcatori
         scorersList1.innerHTML = '<h4>Marcatori:</h4>';
         scorersList2.innerHTML = '<h4>Marcatori:</h4>';
+        
+        // Reset notes field
+        const notesElement = document.getElementById('match-notes');
+        if (notesElement) {
+            notesElement.value = '';
+        }
 
         // Resetta il nome della squadra 2
         team2NameElement.textContent = 'Squadra 2';
@@ -1366,6 +1383,8 @@
     function saveMatch() {
         const team1Name = 'POLIS';
         const team2Name = team2NameElement.textContent;
+        const notesElement = document.getElementById('match-notes');
+        const notes = notesElement ? notesElement.value.trim() : '';
         const history = loadMatchHistory();
 
         const match = {
@@ -1379,7 +1398,8 @@
             corners2: cornersTeam2,
             date: new Date().toISOString(), // Salva la data in formato ISO per l'ordinamento
             scorers1: team1Scorers,
-            scorers2: team2Scorers
+            scorers2: team2Scorers,
+            notes: notes
         };
         history.push(match);
         localStorage.setItem('polis_match_history', JSON.stringify(history));
@@ -1504,6 +1524,7 @@
                 
                 const team1ScorersText = match.scorers1.length > 0 ? `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} (${s.quarter})`).join(', ')}</span>` : '';
                 const team2ScorersText = match.scorers2.length > 0 ? `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal (${s.quarter})`).join(', ')}</span>` : '';
+                const notesText = match.notes && match.notes.trim() ? `<br><span class="font-semibold text-yellow-300">Note: ${match.notes}</span>` : '';
 
                 historyItem.innerHTML = `
                     <div class="history-item-header">
@@ -1529,6 +1550,7 @@
                         </div>
                         ${team1ScorersText}
                         ${team2ScorersText}
+                        ${notesText}
                     </div>
                 `;
                 historyList.appendChild(historyItem);
@@ -1634,6 +1656,8 @@
         const team2Name = team2NameElement.textContent;
         const scorers1 = team1Scorers.map(s => `${s.player} (${s.quarter})`);
         const scorers2 = team2Scorers.map(s => `Goal (${s.quarter})`);
+        const notesElement = document.getElementById('match-notes');
+        const notes = notesElement ? notesElement.value.trim() : '';
 
         let content = `
             <p class="font-bold text-lg mb-2 text-center">${team1Name} vs ${team2Name}</p>
@@ -1647,6 +1671,10 @@
         }
         if (scorers2.length > 0) {
             content += `<div class="share-scorers"><h4>Marcatori ${team2Name}:</h4><p>${scorers2.join(', ')}</p></div>`;
+        }
+        
+        if (notes) {
+            content += `<div class="share-scorers"><h4>Note:</h4><p>${notes}</p></div>`;
         }
 
         document.getElementById('share-summary-content').innerHTML = content;
