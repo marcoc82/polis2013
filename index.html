@@ -1019,7 +1019,7 @@
             <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
             <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v1.1
+                Versione: v1.3
             </div>
         </div>
     </div>
@@ -1836,6 +1836,12 @@
                 // Mostra l'app principale
                 mainApp.style.display = 'block';
                 
+                // Nascondi il tasto dello storico quando si rientra in una partita in corso
+                const historyButton = document.getElementById('show-history-button');
+                if (historyButton) {
+                    historyButton.style.display = 'none';
+                }
+                
                 // Aggiorna tutti i display con i dati ripristinati
                 updateAllDisplays();
                 
@@ -2270,6 +2276,12 @@ Per evitare che lo schermo si spenga:
             welcomeScreen.style.display = 'none';
             mainApp.style.display = 'block';
             
+            // Mostra il tasto dello storico quando si inizia una nuova partita
+            const historyButton = document.getElementById('show-history-button');
+            if (historyButton) {
+                historyButton.style.display = 'flex';
+            }
+            
             // Request wake lock to keep screen on during the match
             // This prevents the device from going to sleep while managing the game
             // For unsupported browsers, a fallback message will guide the user
@@ -2635,8 +2647,31 @@ Per evitare che lo schermo si spenga:
                 pausedDuration = 0; // Reset pause duration
                 document.getElementById('timer-display').classList.remove('timer-running');
                 document.getElementById('timer-display').textContent = "00:00";
+                
+                // Aggiorna lo stato del pulsante modifica
+                updateEditTimerButtonState();
+                
                 vibrate([5000]); // 5 second vibration when timer reaches zero
                 playTimerSound(); // Play timer sound
+            }
+        }
+
+        /**
+         * Aggiorna lo stato del pulsante modifica timer
+         * Disabilita il pulsante quando il timer è in corso
+         */
+        function updateEditTimerButtonState() {
+            const editButton = document.getElementById('edit-timer-button');
+            if (editButton) {
+                if (isRunning) {
+                    editButton.disabled = true;
+                    editButton.style.opacity = '0.5';
+                    editButton.style.cursor = 'not-allowed';
+                } else {
+                    editButton.disabled = false;
+                    editButton.style.opacity = '1';
+                    editButton.style.cursor = 'pointer';
+                }
             }
         }
 
@@ -2654,6 +2689,9 @@ Per evitare che lo schermo si spenga:
                 
                 // Aggiorna display del timer
                 updateTimerDisplay();
+                
+                // Aggiorna lo stato del pulsante modifica
+                updateEditTimerButtonState();
                 
                 // Aggiorna la visualizzazione dei marcatori
                 updateScorersDisplay();
@@ -2724,6 +2762,9 @@ Per evitare che lo schermo si spenga:
                 isRunning = true;
                 document.getElementById('timer-display').classList.add('timer-running');
                 
+                // Aggiorna lo stato del pulsante modifica
+                updateEditTimerButtonState();
+                
                 // Update display every second
                 timerInterval = setInterval(() => {
                     updateTimerDisplay();
@@ -2774,6 +2815,9 @@ Per evitare che lo schermo si spenga:
             
             document.getElementById('timer-display').classList.add('timer-running');
             
+            // Aggiorna lo stato del pulsante modifica
+            updateEditTimerButtonState();
+            
             // Update display every second (or when page becomes active again)
             timerInterval = setInterval(() => {
                 updateTimerDisplay();
@@ -2803,6 +2847,9 @@ Per evitare che lo schermo si spenga:
             isRunning = false;
             clearInterval(timerInterval);
             document.getElementById('timer-display').classList.remove('timer-running');
+            
+            // Aggiorna lo stato del pulsante modifica
+            updateEditTimerButtonState();
             vibrate([50]); // Pause timer feedback
             
             // Salva automaticamente lo stato quando il timer viene messo in pausa
@@ -2824,6 +2871,10 @@ Per evitare che lo schermo si spenga:
             periodDisplay.style.display = 'none';
             
             updateTimerDisplay();
+            
+            // Aggiorna lo stato del pulsante modifica
+            updateEditTimerButtonState();
+            
             vibrate([50, 50]); // Reset timer feedback
         }
 
