@@ -261,6 +261,33 @@
             animation: pulse 1s ease-in-out;
         }
 
+        /* Login screen fade-in animations */
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .login-logo {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .login-form {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.3s forwards;
+        }
+
+        /* Ensure animations restart when login screen is shown */
+        #login-screen[style*="display: flex"] .login-logo,
+        #login-screen[style*="display: flex"] .login-form {
+            animation-play-state: running;
+        }
+
         /* Teams container */
         .teams-container {
             display: grid;
@@ -1054,17 +1081,24 @@
     <!-- Schermata di login -->
     <div id="login-screen" style="display: none;">
         <div class="welcome-content">
-            <img src="logo stakick.png" alt="Logo StaKick" style="max-width: 260px; height: auto; margin-bottom: 1.5rem; display: block; margin-left: auto; margin-right: auto;">
-            <h1 class="polis-text" style="font-size: 5em;">StaKick</h1>
-            <hr class="my-6">
-            <h2 class="text-2xl font-bold mb-4">Accesso</h2>
-            <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
-            <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
-            <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
-            <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
-            <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
-            <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v2.3
+            <!-- Logo container with fade-in animation -->
+            <div class="login-logo">
+                <img src="logo stakick.png" alt="Logo StaKick" style="max-width: 260px; height: auto; margin-bottom: 1.5rem; display: block; margin-left: auto; margin-right: auto;">
+            </div>
+            
+            <!-- Login form container with delayed fade-in animation -->
+            <div class="login-form">
+                <h1 class="polis-text" style="font-size: 5em;">StaKick</h1>
+                <hr class="my-6">
+                <h2 class="text-2xl font-bold mb-4">Accesso</h2>
+                <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
+                <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
+                <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
+                <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
+                <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
+                <div class="app-version mt-4 text-center text-sm text-gray-500">
+                    Versione: v2.3
+                </div>
             </div>
         </div>
     </div>
@@ -2422,12 +2456,36 @@ Per evitare che lo schermo si spenga:
         const startGameBtn = document.getElementById('start-game-btn');
         const welcomeOpponentName = document.getElementById('welcome-opponent-name');
 
+        // Function to restart login animations
+        function restartLoginAnimations() {
+            const loginLogo = document.querySelector('.login-logo');
+            const loginForm = document.querySelector('.login-form');
+            
+            if (loginLogo && loginForm) {
+                // Remove animation classes
+                loginLogo.style.animation = 'none';
+                loginForm.style.animation = 'none';
+                loginForm.style.opacity = '0';
+                
+                // Force reflow
+                loginLogo.offsetHeight;
+                loginForm.offsetHeight;
+                
+                // Re-apply animations
+                loginLogo.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                loginForm.style.animation = 'fadeInUp 0.8s ease-out 0.3s forwards';
+            }
+        }
+
         // Function to be called when Firebase is ready
         window.onFirebaseReady = function() {
             console.log('Firebase is ready, transitioning to login screen');
             loadingScreen.style.display = 'none';
             loginScreen.style.display = 'flex';
             document.body.classList.add('login-background');
+            
+            // Start login animations
+            setTimeout(restartLoginAnimations, 50);
             
             // Crea società esempio se necessario (solo per testing)
             // window.creaSocietaEsempio();
@@ -2678,6 +2736,9 @@ Per evitare che lo schermo si spenga:
             menuScreen.style.display = 'none';
             loginScreen.style.display = 'flex';
             document.body.classList.add('login-background');
+            
+            // Start login animations
+            setTimeout(restartLoginAnimations, 50);
             
             // Clear current club data
             currentClub = null;
