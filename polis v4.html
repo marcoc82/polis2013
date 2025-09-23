@@ -648,6 +648,7 @@
     <div class="timer-container">
         <div class="timer-display-container">
             <span id="timer-display">20:00</span>
+            <span id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; margin-left: 1rem; display: none;">Recupero: 0:00</span>
         </div>
         <div class="timer-controls">
             <button id="start-timer-button" class="btn btn-start">Avvia</button>
@@ -1083,6 +1084,7 @@
 
     // Nuovi elementi per il timer
     const timerDisplay = document.getElementById('timer-display');
+    const recoveryDisplay = document.getElementById('recovery-display');
     const startTimerButton = document.getElementById('start-timer-button');
     const pauseTimerButton = document.getElementById('pause-timer-button');
     const resetTimerButton = document.getElementById('reset-timer-button');
@@ -1112,6 +1114,8 @@
     let timerInterval = null;
     let isRunning = false;
     let lastSetSeconds = 20 * 60;
+    let recoverySeconds = 0; // Secondi di recupero
+    let isInRecovery = false; // Indica se siamo nel tempo di recupero
 
     // Audio preloading per fischio.mp3
     let fischioAudio;
@@ -1542,18 +1546,40 @@
 
     // Funzioni per il timer
     function updateTimerDisplay() {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        timerDisplay.textContent = formattedTime;
-
-        if (totalSeconds <= 0) {
-            clearInterval(timerInterval);
-            isRunning = false;
-            timerDisplay.classList.remove('timer-running'); // Rimuove l'animazione
-            vibratePhone(); // Vibra al termine del tempo
-            playTimerSound(); // Emette un suono
+        let displayMinutes, displaySeconds, formattedTime;
+        
+        if (isInRecovery) {
+            // In recovery time: show 00:00 + recovery time
             timerDisplay.textContent = "00:00";
+            
+            // Show recovery time
+            const recoveryMinutes = Math.floor(recoverySeconds / 60);
+            const recoverySecondsDisplay = recoverySeconds % 60;
+            const recoveryFormattedTime = `${recoveryMinutes}:${recoverySecondsDisplay.toString().padStart(2, '0')}`;
+            recoveryDisplay.textContent = `Recupero: ${recoveryFormattedTime}`;
+            recoveryDisplay.style.display = 'inline';
+        } else {
+            // Normal time: show countdown
+            displayMinutes = Math.floor(totalSeconds / 60);
+            displaySeconds = totalSeconds % 60;
+            formattedTime = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+            timerDisplay.textContent = formattedTime;
+            
+            // Hide recovery display
+            recoveryDisplay.style.display = 'none';
+        }
+
+        // Check if we need to transition to recovery time
+        if (totalSeconds <= 0 && !isInRecovery) {
+            isInRecovery = true;
+            recoverySeconds = 0;
+            
+            // Play sound and vibrate when entering recovery
+            vibratePhone(); 
+            playTimerSound(); 
+            
+            // Don't stop the timer, continue running for recovery time
+            // The timer will keep running and increment recoverySeconds
         }
     }
 
@@ -1562,7 +1588,13 @@
         isRunning = true;
         timerDisplay.classList.add('timer-running'); // Aggiunge l'animazione
         timerInterval = setInterval(() => {
-            totalSeconds--;
+            if (isInRecovery) {
+                // In recovery time: increment recovery seconds
+                recoverySeconds++;
+            } else {
+                // Normal time: decrement total seconds
+                totalSeconds--;
+            }
             updateTimerDisplay();
         }, 1000);
     }
@@ -1577,6 +1609,8 @@
     function resetTimer() {
         pauseTimer();
         totalSeconds = lastSetSeconds;
+        recoverySeconds = 0;
+        isInRecovery = false;
         updateTimerDisplay();
     }
     
