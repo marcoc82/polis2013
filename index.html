@@ -443,7 +443,7 @@
             background-color: #dc2626;
         }
         .btn-remove-stats {
-            background-color: #ef4444;
+            background-color: #6b7280;
             color: white;
             border-radius: 50%; /* Round like goal buttons */
             height: 2.5rem; /* Reduced size */
@@ -453,9 +453,11 @@
             justify-content: center;
             align-items: center;
             font-size: 1rem;
+            border: 1px solid #9ca3af; /* Better visibility with border */
         }
         .btn-remove-stats:hover {
-            background-color: #dc2626;
+            background-color: #4b5563;
+            border-color: #6b7280;
         }
 
         /* Timer buttons */
@@ -1097,7 +1099,7 @@
                 <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                 <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                 <div class="app-version mt-4 text-center text-sm text-gray-500">
-                    Versione: v2.3
+                    Versione: v2.4
                 </div>
             </div>
         </div>
@@ -2456,24 +2458,41 @@ Per evitare che lo schermo si spenga:
         const startGameBtn = document.getElementById('start-game-btn');
         const welcomeOpponentName = document.getElementById('welcome-opponent-name');
 
+        // Flag to track if initial login animation has been played
+        let initialLoginAnimationPlayed = false;
+
         // Function to restart login animations
-        function restartLoginAnimations() {
+        function restartLoginAnimations(forcePlay = false) {
             const loginLogo = document.querySelector('.login-logo');
             const loginForm = document.querySelector('.login-form');
             
-            if (loginLogo && loginForm) {
-                // Remove animation classes
-                loginLogo.style.animation = 'none';
-                loginForm.style.animation = 'none';
-                loginForm.style.opacity = '0';
-                
-                // Force reflow
-                loginLogo.offsetHeight;
-                loginForm.offsetHeight;
-                
-                // Re-apply animations
-                loginLogo.style.animation = 'fadeInUp 0.8s ease-out forwards';
-                loginForm.style.animation = 'fadeInUp 0.8s ease-out 0.3s forwards';
+            // Only play animation on initial load or if forced
+            if (!initialLoginAnimationPlayed || forcePlay) {
+                if (loginLogo && loginForm) {
+                    // Remove animation classes
+                    loginLogo.style.animation = 'none';
+                    loginForm.style.animation = 'none';
+                    loginForm.style.opacity = '0';
+                    
+                    // Force reflow
+                    loginLogo.offsetHeight;
+                    loginForm.offsetHeight;
+                    
+                    // Re-apply animations
+                    loginLogo.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                    loginForm.style.animation = 'fadeInUp 0.8s ease-out 0.3s forwards';
+                    
+                    // Mark animation as played
+                    initialLoginAnimationPlayed = true;
+                }
+            } else {
+                // Just ensure elements are visible without animation
+                if (loginLogo && loginForm) {
+                    loginLogo.style.animation = 'none';
+                    loginForm.style.animation = 'none';
+                    loginForm.style.opacity = '1';
+                    loginLogo.style.opacity = '1';
+                }
             }
         }
 
@@ -2737,8 +2756,8 @@ Per evitare che lo schermo si spenga:
             loginScreen.style.display = 'flex';
             document.body.classList.add('login-background');
             
-            // Start login animations
-            setTimeout(restartLoginAnimations, 50);
+            // Show login elements without animation (since it's not initial load)
+            setTimeout(() => restartLoginAnimations(false), 50);
             
             // Clear current club data
             currentClub = null;
