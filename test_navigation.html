@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Navigation</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1A202C; 
+            color: white;
+        }
+        .screen { 
+            display: none; 
+            padding: 20px; 
+            border: 2px solid #333; 
+            margin: 10px 0; 
+            border-radius: 8px;
+        }
+        .screen.active { display: block; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-green { background: #10b981; color: white; }
+        .btn-gray { background: #6b7280; color: white; }
+        .btn-blue { background: #3b82f6; color: white; }
+        input { 
+            padding: 10px; 
+            margin: 5px; 
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #334155;
+            color: white;
+            width: 200px;
+        }
+        .button-grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Navigation Flow</h1>
+    
+    <div id="menu-screen" class="screen active">
+        <h2>Menu Screen</h2>
+        <p>Welcome to the menu!</p>
+        <button class="btn-green" onclick="showWelcomeScreen()">Inizia Partita</button>
+        <button class="btn-blue" onclick="alert('Gestione Giocatori')">Gestione Giocatori</button>
+    </div>
+    
+    <div id="welcome-screen" class="screen">
+        <h2>Welcome Screen (Opponent Input)</h2>
+        <p>Per iniziare, inserisci il nome della squadra avversaria:</p>
+        <input type="text" placeholder="Nome Squadra Avversaria" id="opponent-name">
+        <div class="button-grid-2">
+            <button class="btn-gray" onclick="backToMenu()">Indietro</button>
+            <button class="btn-green" onclick="startGame()">Inizia Partita</button>
+        </div>
+    </div>
+    
+    <div id="main-app" class="screen">
+        <h2>Main App</h2>
+        <p>Game in progress with opponent: <span id="opponent-display"></span></p>
+        <button class="btn-gray" onclick="showWelcomeScreen()">Back to Setup</button>
+    </div>
+    
+    <script>
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            // Show target screen
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function showWelcomeScreen() {
+            showScreen('welcome-screen');
+        }
+        
+        function backToMenu() {
+            showScreen('menu-screen');
+            // Clear the opponent name input
+            document.getElementById('opponent-name').value = '';
+        }
+        
+        function startGame() {
+            const opponentName = document.getElementById('opponent-name').value.trim() || 'Squadra 2';
+            document.getElementById('opponent-display').textContent = opponentName;
+            showScreen('main-app');
+        }
+    </script>
+</body>
+</html>
