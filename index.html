@@ -2435,15 +2435,25 @@ Per evitare che lo schermo si spenga:
             const opponentName = welcomeOpponentName.value.trim().toUpperCase() || 'SQUADRA 2';
             
             // Update opponent names in the interface
-            document.getElementById('score-team2-name').textContent = opponentName;
-            document.getElementById('team2-name').textContent = opponentName;
-            document.getElementById('stats-team2-title').textContent = 'Statistiche ' + opponentName;
+            const scoreTeam2NameElement = document.getElementById('score-team2-name');
+            if (scoreTeam2NameElement) scoreTeam2NameElement.textContent = opponentName;
+            
+            const team2NameElement = document.getElementById('team2-name');
+            if (team2NameElement) team2NameElement.textContent = opponentName;
+            
+            const statsTeam2TitleElement = document.getElementById('stats-team2-title');
+            if (statsTeam2TitleElement) statsTeam2TitleElement.textContent = 'Statistiche ' + opponentName;
 
             // Update team 1 name if we have a club
             if (currentClub) {
-                document.getElementById('score-team1-name').textContent = currentClub.nome;
-                document.getElementById('team1-title').textContent = currentClub.nome;
-                document.getElementById('stats-team1-title').textContent = 'Statistiche ' + currentClub.nome;
+                const scoreTeam1NameElement = document.getElementById('score-team1-name');
+                if (scoreTeam1NameElement) scoreTeam1NameElement.textContent = currentClub.nome;
+                
+                const team1TitleElement = document.getElementById('team1-title');
+                if (team1TitleElement) team1TitleElement.textContent = currentClub.nome;
+                
+                const statsTeam1TitleElement = document.getElementById('stats-team1-title');
+                if (statsTeam1TitleElement) statsTeam1TitleElement.textContent = 'Statistiche ' + currentClub.nome;
             }
 
             // Hide welcome screen and show main app
@@ -2505,8 +2515,11 @@ Per evitare che lo schermo si spenga:
                     teamNumPeriods = result.societa.numPeriods || 2; // Load team's period setting, default to 2
                     
                     // Update team names
-                    document.getElementById('menu-team-name').textContent = `Benvenuto, ${currentClub.nome}!`;
-                    document.getElementById('players-team-name').textContent = currentClub.nome;
+                    const menuTeamNameElement = document.getElementById('menu-team-name');
+                    if (menuTeamNameElement) menuTeamNameElement.textContent = `Benvenuto, ${currentClub.nome}!`;
+                    
+                    const playersTeamNameElement = document.getElementById('players-team-name');
+                    if (playersTeamNameElement) playersTeamNameElement.textContent = currentClub.nome;
                     
                     // Setup Firebase history listener for this team
                     setupFirebaseHistoryListener();
@@ -2680,13 +2693,20 @@ Per evitare che lo schermo si spenga:
         function setDate() {
             const today = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('current-date').textContent = today.toLocaleDateString('it-IT', options);
+            const currentDateElement = document.getElementById('current-date');
+            if (currentDateElement) {
+                currentDateElement.textContent = today.toLocaleDateString('it-IT', options);
+            }
         }
 
         // Update scores
         function updateScores() {
-            document.getElementById('score-team1').textContent = scoreTeam1;
-            document.getElementById('score-team2').textContent = scoreTeam2;
+            const scoreTeam1Element = document.getElementById('score-team1');
+            if (scoreTeam1Element) scoreTeam1Element.textContent = scoreTeam1;
+            
+            const scoreTeam2Element = document.getElementById('score-team2');
+            if (scoreTeam2Element) scoreTeam2Element.textContent = scoreTeam2;
+            
             updateStats();
         }
 
@@ -2708,32 +2728,69 @@ Per evitare che lo schermo si spenga:
         function updateStats() {
             calculateTotals();
             
-            // Update basic stats
-            document.getElementById('goals-team1').textContent = scoreTeam1;
-            document.getElementById('goals-team2-taken').textContent = scoreTeam2;
-            document.getElementById('shots-team1').textContent = shotsTeam1;
-            document.getElementById('shots-team2-taken').textContent = shotsTeam2;
-            document.getElementById('corners-team1').textContent = cornersTeam1;
-            document.getElementById('corners-team2-taken').textContent = cornersTeam2;
-            document.getElementById('fouls-team1').textContent = foulsTeam1;
-            document.getElementById('fouls-team2-taken').textContent = foulsTeam2;
-            document.getElementById('yellow-cards-team1').textContent = yellowCardsTeam1;
-            document.getElementById('yellow-cards-team2-taken').textContent = yellowCardsTeam2;
-            document.getElementById('red-cards-team1').textContent = redCardsTeam1;
-            document.getElementById('red-cards-team2-taken').textContent = redCardsTeam2;
+            // Update basic stats with null checks
+            const goalsTeam1Element = document.getElementById('goals-team1');
+            if (goalsTeam1Element) goalsTeam1Element.textContent = scoreTeam1;
             
-            document.getElementById('goals-team2').textContent = scoreTeam2;
-            document.getElementById('goals-team1-taken').textContent = scoreTeam1;
-            document.getElementById('shots-team2').textContent = shotsTeam2;
-            document.getElementById('shots-team1-taken').textContent = shotsTeam1;
-            document.getElementById('corners-team2').textContent = cornersTeam2;
-            document.getElementById('corners-team1-taken').textContent = cornersTeam1;
-            document.getElementById('fouls-team2').textContent = foulsTeam2;
-            document.getElementById('fouls-team1-taken').textContent = foulsTeam1;
-            document.getElementById('yellow-cards-team2').textContent = yellowCardsTeam2;
-            document.getElementById('yellow-cards-team1-taken').textContent = yellowCardsTeam1;
-            document.getElementById('red-cards-team2').textContent = redCardsTeam2;
-            document.getElementById('red-cards-team1-taken').textContent = redCardsTeam1;
+            const goalsTeam2TakenElement = document.getElementById('goals-team2-taken');
+            if (goalsTeam2TakenElement) goalsTeam2TakenElement.textContent = scoreTeam2;
+            
+            const shotsTeam1Element = document.getElementById('shots-team1');
+            if (shotsTeam1Element) shotsTeam1Element.textContent = shotsTeam1;
+            
+            const shotsTeam2TakenElement = document.getElementById('shots-team2-taken');
+            if (shotsTeam2TakenElement) shotsTeam2TakenElement.textContent = shotsTeam2;
+            
+            const cornersTeam1Element = document.getElementById('corners-team1');
+            if (cornersTeam1Element) cornersTeam1Element.textContent = cornersTeam1;
+            
+            const cornersTeam2TakenElement = document.getElementById('corners-team2-taken');
+            if (cornersTeam2TakenElement) cornersTeam2TakenElement.textContent = cornersTeam2;
+            
+            const foulsTeam1Element = document.getElementById('fouls-team1');
+            if (foulsTeam1Element) foulsTeam1Element.textContent = foulsTeam1;
+            
+            const foulsTeam2TakenElement = document.getElementById('fouls-team2-taken');
+            if (foulsTeam2TakenElement) foulsTeam2TakenElement.textContent = foulsTeam2;
+            
+            const yellowCardsTeam1Element = document.getElementById('yellow-cards-team1');
+            if (yellowCardsTeam1Element) yellowCardsTeam1Element.textContent = yellowCardsTeam1;
+            
+            const redCardsTeam1Element = document.getElementById('red-cards-team1');
+            if (redCardsTeam1Element) redCardsTeam1Element.textContent = redCardsTeam1;
+            
+            const goalsTeam2Element = document.getElementById('goals-team2');
+            if (goalsTeam2Element) goalsTeam2Element.textContent = scoreTeam2;
+            
+            const goalsTeam1TakenElement = document.getElementById('goals-team1-taken');
+            if (goalsTeam1TakenElement) goalsTeam1TakenElement.textContent = scoreTeam1;
+            
+            const shotsTeam2Element = document.getElementById('shots-team2');
+            if (shotsTeam2Element) shotsTeam2Element.textContent = shotsTeam2;
+            
+            const shotsTeam1TakenElement = document.getElementById('shots-team1-taken');
+            if (shotsTeam1TakenElement) shotsTeam1TakenElement.textContent = shotsTeam1;
+            
+            const cornersTeam2Element = document.getElementById('corners-team2');
+            if (cornersTeam2Element) cornersTeam2Element.textContent = cornersTeam2;
+            
+            const cornersTeam1TakenElement = document.getElementById('corners-team1-taken');
+            if (cornersTeam1TakenElement) cornersTeam1TakenElement.textContent = cornersTeam1;
+            
+            const foulsTeam2Element = document.getElementById('fouls-team2');
+            if (foulsTeam2Element) foulsTeam2Element.textContent = foulsTeam2;
+            
+            const foulsTeam1TakenElement = document.getElementById('fouls-team1-taken');
+            if (foulsTeam1TakenElement) foulsTeam1TakenElement.textContent = foulsTeam1;
+            
+            const yellowCardsTeam2Element = document.getElementById('yellow-cards-team2');
+            if (yellowCardsTeam2Element) yellowCardsTeam2Element.textContent = yellowCardsTeam2;
+            
+            const redCardsTeam2Element = document.getElementById('red-cards-team2');
+            if (redCardsTeam2Element) redCardsTeam2Element.textContent = redCardsTeam2;
+            
+            // Note: Removed references to non-existent elements like 'yellow-cards-team2-taken', etc.
+            // These elements don't exist in the HTML and were causing the null pointer errors
             
             // Update period breakdown display
             updatePeriodStats();
