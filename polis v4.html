@@ -710,11 +710,17 @@
             <!-- Third row: Yellow and Red cards side by side -->
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-yellow-card" data-team="1" data-type="yellow-card" data-action="add">🟨 Giallo</button>
+                    <button class="btn btn-yellow-card" data-team="1" data-type="yellow-card" data-action="add">
+                        <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo" style="width: 24px; height: 24px; margin-right: 8px;">
+                        Giallo
+                    </button>
                     <button class="btn btn-remove-stats mt-2" data-team="1" data-type="yellow-card" data-action="remove">-</button>
                 </div>
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-red-card" data-team="1" data-type="red-card" data-action="add">🟥 Rosso</button>
+                    <button class="btn btn-red-card" data-team="1" data-type="red-card" data-action="add">
+                        <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso" style="width: 24px; height: 24px; margin-right: 8px;">
+                        Rosso
+                    </button>
                     <button class="btn btn-remove-stats mt-2" data-team="1" data-type="red-card" data-action="remove">-</button>
                 </div>
             </div>
@@ -748,11 +754,17 @@
             <!-- Third row: Yellow and Red cards side by side -->
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-yellow-card" data-team="2" data-type="yellow-card" data-action="add">🟨 Giallo</button>
+                    <button class="btn btn-yellow-card" data-team="2" data-type="yellow-card" data-action="add">
+                        <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo" style="width: 24px; height: 24px; margin-right: 8px;">
+                        Giallo
+                    </button>
                     <button class="btn btn-remove-stats mt-2" data-team="2" data-type="yellow-card" data-action="remove">-</button>
                 </div>
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-red-card" data-team="2" data-type="red-card" data-action="add">🟥 Rosso</button>
+                    <button class="btn btn-red-card" data-team="2" data-type="red-card" data-action="add">
+                        <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso" style="width: 24px; height: 24px; margin-right: 8px;">
+                        Rosso
+                    </button>
                     <button class="btn btn-remove-stats mt-2" data-team="2" data-type="red-card" data-action="remove">-</button>
                 </div>
             </div>
@@ -1215,6 +1227,8 @@
     // Lista dei marcatori e dei quarti in cui hanno segnato
     let team1Scorers = [];
     let team2Scorers = [];
+    let team1Cards = []; // Array for team1 yellow and red cards with player details
+    let team2Cards = []; // Array for team2 yellow and red cards with player details
     
     let pendingRemovalAction = null;
     let matchHistory = [];
