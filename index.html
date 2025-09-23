@@ -1176,10 +1176,10 @@
             <div class="timer-container">
                 <div class="timer-display-container">
                     <span id="timer-display">18:00</span>
-                    <span id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; margin-left: 1rem; display: none;">+ 0:00</span>
                     <span id="current-period-display" class="current-period-indicator" style="display: none;"></span>
                     <button id="edit-timer-button" class="btn btn-start" style="padding: 0.5rem; font-size: 0.875rem;">Modifica</button>
                 </div>
+                <div id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; text-align: center; margin-top: 0.5rem; display: none;">+ 0:00</div>
                 <div class="timer-controls">
                     <button id="start-timer-button" class="btn btn-start">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: currentColor;"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"></path></svg>
@@ -1293,7 +1293,8 @@
             <div class="stats-container">
                 <!-- Statistiche Squadra 1 -->
                 <div class="stats-team">
-                    <h3 id="stats-team1-title" class="team-title">Statistiche POLIS</h3>
+                    <h3 class="team-title">Statistiche</h3>
+                    <h4 id="stats-team1-title" class="team-name" style="margin-top: 0.5rem; margin-bottom: 1rem; font-size: 1.25rem; color: #94a3b8;">POLIS</h4>
                     <div class="stat-item">
                         <span>Gol fatti</span>
                         <span id="goals-team1">0</span>
@@ -1347,7 +1348,8 @@
 
                 <!-- Statistiche Squadra 2 -->
                 <div class="stats-team">
-                    <h3 class="team-title" id="stats-team2-title">Statistiche Squadra 2</h3>
+                    <h3 class="team-title">Statistiche</h3>
+                    <h4 class="team-name" id="stats-team2-title" style="margin-top: 0.5rem; margin-bottom: 1rem; font-size: 1.25rem; color: #94a3b8;">Squadra 2</h4>
                     <div class="stat-item">
                         <span>Gol fatti</span>
                         <span id="goals-team2">0</span>
@@ -1963,7 +1965,7 @@
                         scoreTeam2NameElement.textContent = gameState.team2Name;
                     }
                     if (statsTeam2TitleElement) {
-                        statsTeam2TitleElement.textContent = 'Statistiche ' + gameState.team2Name;
+                        statsTeam2TitleElement.textContent = gameState.team2Name;
                     }
                 }
                 
@@ -2509,7 +2511,7 @@ Per evitare che lo schermo si spenga:
             if (team2NameElement) team2NameElement.textContent = opponentName;
             
             const statsTeam2TitleElement = document.getElementById('stats-team2-title');
-            if (statsTeam2TitleElement) statsTeam2TitleElement.textContent = 'Statistiche ' + opponentName;
+            if (statsTeam2TitleElement) statsTeam2TitleElement.textContent = opponentName;
 
             // Update team 1 name if we have a club
             if (currentClub) {
@@ -2520,7 +2522,7 @@ Per evitare che lo schermo si spenga:
                 if (team1TitleElement) team1TitleElement.textContent = currentClub.nome;
                 
                 const statsTeam1TitleElement = document.getElementById('stats-team1-title');
-                if (statsTeam1TitleElement) statsTeam1TitleElement.textContent = 'Statistiche ' + currentClub.nome;
+                if (statsTeam1TitleElement) statsTeam1TitleElement.textContent = currentClub.nome;
             }
 
             // Hide welcome screen and show main app
@@ -2981,7 +2983,7 @@ Per evitare che lo schermo si spenga:
                 const recoveryFormattedTime = `${recoveryMinutes}:${recoverySecondsDisplay.toString().padStart(2, '0')}`;
                 const recoveryDisplay = document.getElementById('recovery-display');
                 if (recoveryDisplay) {
-                    recoveryDisplay.textContent = `Recupero: ${recoveryFormattedTime}`;
+                    recoveryDisplay.textContent = `+ ${recoveryFormattedTime}`;
                     recoveryDisplay.style.display = 'inline';
                 }
             } else {
