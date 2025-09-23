@@ -2763,13 +2763,15 @@ Per evitare che lo schermo si spenga:
         function startTimer() {
             if (isRunning) return;
             
-            // Check if this is a resume (timer was paused) or a fresh start
-            if (timerStartTime && pauseStartTime) {
-                // This is a resume: add pause duration to the total paused time
-                pausedDuration += (Date.now() - pauseStartTime);
-                pauseStartTime = null;
+            // Check if this is a resume (timer was paused) or restart of existing game session
+            if (timerStartTime && (pauseStartTime || totalSeconds < lastSetSeconds)) {
+                // This is a resume or restart of existing session: add pause duration to the total paused time
+                if (pauseStartTime) {
+                    pausedDuration += (Date.now() - pauseStartTime);
+                    pauseStartTime = null;
+                }
                 
-                // Resume the timer
+                // Resume/restart the timer
                 isRunning = true;
                 document.getElementById('timer-display').classList.add('timer-running');
                 
