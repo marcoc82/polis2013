@@ -1680,12 +1680,14 @@
                 eventsByPeriod = gameState.eventsByPeriod || { team1: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} }, team2: { shots: {'1': 0, '2': 0, '3': 0}, corners: {'1': 0, '2': 0, '3': 0}, fouls: {'1': 0, '2': 0, '3': 0} } };
                 
                 // Ripristino timer migliorato - gestisce stato completo del timer
-                if (gameState.timer && gameState.version === '1.1') {
-                    // Nuova versione con stato timer migliorato
+                if (gameState.timer) {
+                    // Versione con stato timer migliorato (priorità al nuovo formato)
                     const timerData = gameState.timer;
                     totalSeconds = timerData.totalSeconds || (18 * 60);
                     currentPeriod = timerData.currentPeriod;
                     lastSetSeconds = timerData.lastSetSeconds || (18 * 60);
+                    
+                    console.log(`🔄 Ripristino timer: totalSeconds=${totalSeconds}, lastSetSeconds=${lastSetSeconds}, timerState=${timerData.timerState}`);
                     
                     // Ripristina stato timer con calcoli temporali accurati
                     if (timerData.timerState === 'running' && timerData.timerStartTime) {
@@ -1704,7 +1706,7 @@
                         // Non riavviare automaticamente il timer per sicurezza
                         isRunning = false;
                         
-                        console.log(`⏱️ Timer era in corso: recuperati ${additionalElapsed}s durante il reload`);
+                        console.log(`⏱️ Timer era in corso: recuperati ${additionalElapsed}s durante il reload, nuovo totalSeconds=${totalSeconds}`);
                     } else if (timerData.timerState === 'paused' && timerData.timerStartTime) {
                         // Il timer era in pausa: ripristina lo stato esatto
                         timerStartTime = timerData.timerStartTime;
@@ -1724,7 +1726,7 @@
                         console.log('⏹️ Timer non era attivo');
                     }
                 } else {
-                    // Backward compatibility con versione precedente
+                    // Backward compatibility con versione precedente (o stato timer mancante)
                     totalSeconds = gameState.totalSeconds || (18 * 60);
                     isRunning = false; // Non riprendere automaticamente il timer
                     currentPeriod = gameState.currentPeriod;
@@ -1732,6 +1734,8 @@
                     timerStartTime = gameState.timerStartTime || null;
                     pausedDuration = gameState.pausedDuration || 0;
                     pauseStartTime = gameState.pauseStartTime || null;
+                    
+                    console.log(`🔙 Backward compatibility: totalSeconds=${totalSeconds}, lastSetSeconds=${lastSetSeconds}`);
                 }
                 
                 // Ripristina le impostazioni
@@ -3520,12 +3524,22 @@ Per evitare che lo schermo si spenga:
             // Calcola risultati partite (vinte, perse, pareggiate)
             let matchesWon = 0, matchesLost = 0, matchesDrawn = 0;
             history.forEach(match => {
-                const score1 = match.score1 || 0; // gol fatti da POLIS
-                const score2 = match.score2 || 0; // gol subiti da POLIS
+                // Determina quale team rappresenta la squadra corrente
+                const currentTeamName = currentClub ? currentClub.nome : 'POLIS';
+                const isTeam1 = match.team1 === currentTeamName;
                 
-                if (score1 > score2) {
+                let ourScore, theirScore;
+                if (isTeam1) {
+                    ourScore = match.score1 || 0;
+                    theirScore = match.score2 || 0;
+                } else {
+                    ourScore = match.score2 || 0;
+                    theirScore = match.score1 || 0;
+                }
+                
+                if (ourScore > theirScore) {
                     matchesWon++;
-                } else if (score1 < score2) {
+                } else if (ourScore < theirScore) {
                     matchesLost++;
                 } else {
                     matchesDrawn++;
@@ -3540,8 +3554,15 @@ Per evitare che lo schermo si spenga:
             // Calcola le statistiche generali e la classifica marcatori
             const allScorers = {};
             history.forEach(match => {
-                if (match.scorers1 && Array.isArray(match.scorers1)) {
-                    match.scorers1.forEach(scorer => {
+                // Determina quale team rappresenta la squadra corrente
+                const currentTeamName = currentClub ? currentClub.nome : 'POLIS';
+                const isTeam1 = match.team1 === currentTeamName;
+                
+                // Usa i marcatori del team corretto
+                const ourScorers = isTeam1 ? match.scorers1 : match.scorers2;
+                
+                if (ourScorers && Array.isArray(ourScorers)) {
+                    ourScorers.forEach(scorer => {
                         if (scorer.player) {
                             if (!allScorers[scorer.player]) {
                                 allScorers[scorer.player] = 0;
@@ -3562,15 +3583,31 @@ Per evitare che lo schermo si spenga:
             let totalFoulsMade = 0, totalFoulsConceded = 0;
 
             history.forEach(match => {
-                // POLIS è sempre team1, quindi:
-                totalGoalsMade += match.score1 || 0;        // gol fatti da POLIS
-                totalGoalsConceded += match.score2 || 0;    // gol subiti da POLIS
-                totalShotsMade += match.shots1 || 0;        // tiri fatti da POLIS  
-                totalShotsConceded += match.shots2 || 0;    // tiri subiti da POLIS
-                totalCornersMade += match.corners1 || 0;    // corner fatti da POLIS
-                totalCornersConceded += match.corners2 || 0; // corner subiti da POLIS
-                totalFoulsMade += match.fouls1 || 0;        // falli fatti da POLIS
-                totalFoulsConceded += match.fouls2 || 0;    // falli subiti da POLIS
+                // Determina quale team rappresenta la squadra corrente
+                const currentTeamName = currentClub ? currentClub.nome : 'POLIS';
+                const isTeam1 = match.team1 === currentTeamName;
+                
+                if (isTeam1) {
+                    // La squadra corrente è team1
+                    totalGoalsMade += match.score1 || 0;
+                    totalGoalsConceded += match.score2 || 0;
+                    totalShotsMade += match.shots1 || 0;
+                    totalShotsConceded += match.shots2 || 0;
+                    totalCornersMade += match.corners1 || 0;
+                    totalCornersConceded += match.corners2 || 0;
+                    totalFoulsMade += match.fouls1 || 0;
+                    totalFoulsConceded += match.fouls2 || 0;
+                } else {
+                    // La squadra corrente è team2
+                    totalGoalsMade += match.score2 || 0;
+                    totalGoalsConceded += match.score1 || 0;
+                    totalShotsMade += match.shots2 || 0;
+                    totalShotsConceded += match.shots1 || 0;
+                    totalCornersMade += match.corners2 || 0;
+                    totalCornersConceded += match.corners1 || 0;
+                    totalFoulsMade += match.fouls2 || 0;
+                    totalFoulsConceded += match.fouls1 || 0;
+                }
             });
 
             // Aggiorna le statistiche del riepilogo
@@ -3693,7 +3730,7 @@ Per evitare che lo schermo si spenga:
                 scorers2 = matchData.scorers2 || [];
             } else {
                 // Use current game data (for main share button)
-                team1Name = 'POLIS';
+                team1Name = currentClub ? currentClub.nome : 'POLIS';
                 team2Name = document.getElementById('team2-name').textContent;
                 score1 = scoreTeam1;
                 score2 = scoreTeam2;
