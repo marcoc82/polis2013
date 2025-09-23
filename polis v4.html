@@ -180,17 +180,24 @@
             background: linear-gradient(to right, #f97316, #ea580c);
             padding: 1rem 1.5rem; /* Aumento la dimensione dei pulsanti stats */
         }
-        .btn-yellow-card {
-            background: linear-gradient(to right, #eab308, #ca8a04);
-            padding: 1rem 1.5rem;
-            color: white;
-            font-weight: 700;
+        .btn-yellow-card, .btn-red-card {
+            background: transparent;
+            border: none;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem;
         }
-        .btn-red-card {
-            background: linear-gradient(to right, #dc2626, #b91c1c);
-            padding: 1rem 1.5rem;
-            color: white;
-            font-weight: 700;
+        .btn-yellow-card:hover, .btn-red-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        .btn-yellow-card img, .btn-red-card img {
+            width: 40px;
+            height: 40px;
+            margin: 0;
         }
         .btn-remove-goal {
             background-color: #ef4444;
@@ -736,15 +743,13 @@
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
                     <button class="btn btn-yellow-card" data-team="1" data-type="yellow-card" data-action="add">
-                        <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo" style="width: 24px; height: 24px; margin-right: 8px;">
-                        Giallo
+                        <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo">
                     </button>
                     <button class="btn btn-remove-stats mt-2" data-team="1" data-type="yellow-card" data-action="remove">-</button>
                 </div>
                 <div class="flex flex-col items-center">
                     <button class="btn btn-red-card" data-team="1" data-type="red-card" data-action="add">
-                        <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso" style="width: 24px; height: 24px; margin-right: 8px;">
-                        Rosso
+                        <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso">
                     </button>
                     <button class="btn btn-remove-stats mt-2" data-team="1" data-type="red-card" data-action="remove">-</button>
                 </div>
@@ -780,15 +785,13 @@
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
                     <button class="btn btn-yellow-card" data-team="2" data-type="yellow-card" data-action="add">
-                        <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo" style="width: 24px; height: 24px; margin-right: 8px;">
-                        Giallo
+                        <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo">
                     </button>
                     <button class="btn btn-remove-stats mt-2" data-team="2" data-type="yellow-card" data-action="remove">-</button>
                 </div>
                 <div class="flex flex-col items-center">
                     <button class="btn btn-red-card" data-team="2" data-type="red-card" data-action="add">
-                        <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso" style="width: 24px; height: 24px; margin-right: 8px;">
-                        Rosso
+                        <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso">
                     </button>
                     <button class="btn btn-remove-stats mt-2" data-team="2" data-type="red-card" data-action="remove">-</button>
                 </div>
