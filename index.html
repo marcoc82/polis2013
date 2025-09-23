@@ -1299,16 +1299,8 @@
                         <span id="yellow-cards-team1">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Cartellini gialli subiti</span>
-                        <span id="yellow-cards-team2-taken">0</span>
-                    </div>
-                    <div class="stat-item">
                         <span>Cartellini rossi</span>
                         <span id="red-cards-team1">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Cartellini rossi subiti</span>
-                        <span id="red-cards-team2-taken">0</span>
                     </div>
                     <div id="scorers-list-1" class="scorer-list">
                         <h4>Marcatori:</h4>
@@ -1361,16 +1353,8 @@
                         <span id="yellow-cards-team2">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Cartellini gialli subiti</span>
-                        <span id="yellow-cards-team1-taken">0</span>
-                    </div>
-                    <div class="stat-item">
                         <span>Cartellini rossi</span>
                         <span id="red-cards-team2">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Cartellini rossi subiti</span>
-                        <span id="red-cards-team1-taken">0</span>
                     </div>
                     <div id="scorers-list-2" class="scorer-list">
                         <h4>Marcatori:</h4>
@@ -3346,7 +3330,6 @@ Per evitare che lo schermo si spenga:
                     
                     cardDiv.innerHTML = `
                         <img src="${iconSrc}" alt="${card.cardType} card">
-                        ${card.player} - ${card.minute}' (${card.quarter})
                     `;
                     cardsList2.appendChild(cardDiv);
                 });
