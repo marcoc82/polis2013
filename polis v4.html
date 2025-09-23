@@ -334,6 +334,31 @@
             color: #cbd5e1;
         }
         
+        .cards-list {
+            text-align: left;
+            padding: 0.5rem 0 0 0;
+            border-top: 1px solid #475569;
+            margin-top: 1rem;
+        }
+        .cards-list h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #a0aec0;
+        }
+        .cards-list-item {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+        }
+        .cards-list-item img {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
+        
         /* Stili per mobile (schermi più stretti di 640px) */
         @media (max-width: 640px) {
             .teams-container, .stats-container, .goal-list-container {
@@ -828,6 +853,10 @@
                 <h4>Marcatori:</h4>
                 <!-- I marcatori verranno aggiunti qui -->
             </div>
+            <div id="cards-list-1" class="cards-list">
+                <h4>Cartellini:</h4>
+                <!-- I cartellini verranno aggiunti qui -->
+            </div>
         </div>
 
         <!-- Statistiche Squadra 2 -->
@@ -884,6 +913,10 @@
             <div id="scorers-list-2" class="scorer-list">
                 <h4>Marcatori:</h4>
                 <!-- I marcatori verranno aggiunti qui -->
+            </div>
+            <div id="cards-list-2" class="cards-list">
+                <h4>Cartellini:</h4>
+                <!-- I cartellini verranno aggiunti qui -->
             </div>
         </div>
     </div>
@@ -1469,6 +1502,130 @@
         updateScores();
     }
     
+    // Card player modal functions
+    function showCardPlayerModal(cardType) {
+        playerListContainer.innerHTML = '';
+        players.forEach(player => {
+            const playerButton = document.createElement('button');
+            playerButton.textContent = player;
+            playerButton.classList.add('player-btn');
+            playerButton.addEventListener('click', () => {
+                vibratePhone();
+                addCardTeam1(player, cardType);
+                hidePlayerModal();
+            });
+            playerListContainer.appendChild(playerButton);
+        });
+        playerModal.classList.add('is-active');
+    }
+
+    // Card functions
+    function addCardTeam1(player, cardType) {
+        const cardData = {
+            player: player,
+            cardType: cardType, // 'yellow' or 'red'
+            timestamp: Date.now()
+        };
+        
+        team1Cards.push(cardData);
+        
+        // Aggiorna le statistiche
+        if (cardType === 'yellow') {
+            yellowCardsTeam1++;
+            const statElement = document.getElementById('yellow-cards-team1');
+            if (statElement) {
+                statElement.classList.add('is-pulsing-stat');
+                setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+            }
+        } else if (cardType === 'red') {
+            redCardsTeam1++;
+            const statElement = document.getElementById('red-cards-team1');
+            if (statElement) {
+                statElement.classList.add('is-pulsing-stat');
+                setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+            }
+        }
+        
+        updateStats();
+        updateCardsList();
+        vibratePhone();
+    }
+
+    function addCardTeam2(cardType) {
+        const team2Name = document.getElementById('team2-name').textContent;
+        const cardData = {
+            player: team2Name,
+            cardType: cardType,
+            timestamp: Date.now()
+        };
+        
+        team2Cards.push(cardData);
+        
+        // Aggiorna le statistiche
+        if (cardType === 'yellow') {
+            yellowCardsTeam2++;
+            const statElement = document.getElementById('yellow-cards-team2');
+            if (statElement) {
+                statElement.classList.add('is-pulsing-stat');
+                setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+            }
+        } else if (cardType === 'red') {
+            redCardsTeam2++;
+            const statElement = document.getElementById('red-cards-team2');
+            if (statElement) {
+                statElement.classList.add('is-pulsing-stat');
+                setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
+            }
+        }
+        
+        updateStats();
+        updateCardsList();
+        vibratePhone();
+    }
+
+    // Update cards display function
+    function updateCardsList() {
+        // Update team 1 cards
+        const cardsList1 = document.getElementById('cards-list-1');
+        if (cardsList1) {
+            cardsList1.innerHTML = '<h4>Cartellini:</h4>';
+            team1Cards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('cards-list-item');
+                
+                const iconSrc = card.cardType === 'yellow' ? 
+                    'icons8-cartellino-giallo-calcio-96.png' : 
+                    'icons8-cartellino-rosso-calcio-96 (1).png';
+                
+                cardDiv.innerHTML = `
+                    <img src="${iconSrc}" alt="${card.cardType} card">
+                    ${card.player}
+                `;
+                cardsList1.appendChild(cardDiv);
+            });
+        }
+        
+        // Update team 2 cards
+        const cardsList2 = document.getElementById('cards-list-2');
+        if (cardsList2) {
+            cardsList2.innerHTML = '<h4>Cartellini:</h4>';
+            team2Cards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('cards-list-item');
+                
+                const iconSrc = card.cardType === 'yellow' ? 
+                    'icons8-cartellino-giallo-calcio-96.png' : 
+                    'icons8-cartellino-rosso-calcio-96 (1).png';
+                
+                cardDiv.innerHTML = `
+                    <img src="${iconSrc}" alt="${card.cardType} card">
+                    ${card.player}
+                `;
+                cardsList2.appendChild(cardDiv);
+            });
+        }
+    }
+    
     // Funzione per resettare il gioco e mostrare il popup iniziale
     function resetGame() {
         // Resetta tutti i dati del gioco
@@ -1480,14 +1637,17 @@
         cornersTeam2 = 0;
         team1Scorers = [];
         team2Scorers = [];
+        team1Cards = [];
+        team2Cards = [];
 
         // Aggiorna le visualizzazioni
         updateScores();
         updateStats();
 
-        // Cancella le liste dei marcatori
+        // Cancella le liste dei marcatori e cartellini
         scorersList1.innerHTML = '<h4>Marcatori:</h4>';
         scorersList2.innerHTML = '<h4>Marcatori:</h4>';
+        updateCardsList();
         
         // Reset notes field
         const notesElement = document.getElementById('match-notes');
@@ -1892,38 +2052,16 @@
                     updateStats();
                 } else if (type === 'yellow-card') {
                     if (team === '1') {
-                        yellowCardsTeam1++;
-                        const statElement = document.getElementById('yellow-cards-team1');
-                        if (statElement) {
-                            statElement.classList.add('is-pulsing-stat');
-                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
-                        }
+                        showCardPlayerModal('yellow');
                     } else if (team === '2') {
-                        yellowCardsTeam2++;
-                        const statElement = document.getElementById('yellow-cards-team2');
-                        if (statElement) {
-                            statElement.classList.add('is-pulsing-stat');
-                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
-                        }
+                        addCardTeam2('yellow');
                     }
-                    updateStats();
                 } else if (type === 'red-card') {
                     if (team === '1') {
-                        redCardsTeam1++;
-                        const statElement = document.getElementById('red-cards-team1');
-                        if (statElement) {
-                            statElement.classList.add('is-pulsing-stat');
-                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
-                        }
+                        showCardPlayerModal('red');
                     } else if (team === '2') {
-                        redCardsTeam2++;
-                        const statElement = document.getElementById('red-cards-team2');
-                        if (statElement) {
-                            statElement.classList.add('is-pulsing-stat');
-                            setTimeout(() => statElement.classList.remove('is-pulsing-stat'), 500);
-                        }
+                        addCardTeam2('red');
                     }
-                    updateStats();
                 }
             } else if (action === 'remove') {
                 showRemoveModal(type, team);
@@ -1948,8 +2086,24 @@
                 foulsTeam1--;
             } else if (type === 'yellow-card' && yellowCardsTeam1 > 0) {
                 yellowCardsTeam1--;
+                // Remove last yellow card from team1Cards
+                for (let i = team1Cards.length - 1; i >= 0; i--) {
+                    if (team1Cards[i].cardType === 'yellow') {
+                        team1Cards.splice(i, 1);
+                        break;
+                    }
+                }
+                updateCardsList();
             } else if (type === 'red-card' && redCardsTeam1 > 0) {
                 redCardsTeam1--;
+                // Remove last red card from team1Cards
+                for (let i = team1Cards.length - 1; i >= 0; i--) {
+                    if (team1Cards[i].cardType === 'red') {
+                        team1Cards.splice(i, 1);
+                        break;
+                    }
+                }
+                updateCardsList();
             }
         } else if (team === '2') {
             if (type === 'goal' && scoreTeam2 > 0) {
@@ -1964,8 +2118,24 @@
                 foulsTeam2--;
             } else if (type === 'yellow-card' && yellowCardsTeam2 > 0) {
                 yellowCardsTeam2--;
+                // Remove last yellow card from team2Cards
+                for (let i = team2Cards.length - 1; i >= 0; i--) {
+                    if (team2Cards[i].cardType === 'yellow') {
+                        team2Cards.splice(i, 1);
+                        break;
+                    }
+                }
+                updateCardsList();
             } else if (type === 'red-card' && redCardsTeam2 > 0) {
                 redCardsTeam2--;
+                // Remove last red card from team2Cards
+                for (let i = team2Cards.length - 1; i >= 0; i--) {
+                    if (team2Cards[i].cardType === 'red') {
+                        team2Cards.splice(i, 1);
+                        break;
+                    }
+                }
+                updateCardsList();
             }
         }
         updateScores();
