@@ -1064,7 +1064,7 @@
             <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
             <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v1.7
+                Versione: v1.8
             </div>
         </div>
     </div>
@@ -1734,7 +1734,7 @@
                 savedAt: Date.now(),
                 
                 // Versione per compatibilità futura
-                version: '1.5'
+                version: '1.6'
             };
             
             try {
@@ -3326,6 +3326,7 @@ Per evitare che lo schermo si spenga:
             // Team 2 non ha selezione giocatori, usa il nome della squadra
             const gameTime = getCurrentGameTimeForScoring();
             const minute = Math.max(1, gameTime.minutes + 1);
+            const team2Name = document.getElementById('team2-name').textContent;
             
             const cardData = {
                 player: team2Name,

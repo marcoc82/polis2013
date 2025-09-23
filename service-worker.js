@@ -1,5 +1,5 @@
 // Nome della cache
-const CACHE_NAME = 'polis-counter-v1.4';
+const CACHE_NAME = 'polis-counter-v1.5';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
