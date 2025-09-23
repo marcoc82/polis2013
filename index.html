@@ -559,6 +559,31 @@
             margin-bottom: 0.25rem;
             color: #cbd5e1;
         }
+        
+        .cards-list {
+            text-align: left;
+            padding: 0.5rem 0 0 0;
+            border-top: 1px solid #475569;
+            margin-top: 1rem;
+        }
+        .cards-list h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #a0aec0;
+        }
+        .cards-list-item {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+        }
+        .cards-list-item img {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
 
         /* Modal styles */
         .modal-overlay {
@@ -1035,7 +1060,7 @@
             <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
             <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v1.5
+                Versione: v1.6
             </div>
         </div>
     </div>
@@ -1171,11 +1196,17 @@
                     <!-- Third row: Yellow and Red cards side by side -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="flex flex-col items-center">
-                            <button class="btn btn-yellow-card" data-team="1" data-type="yellow-card" data-action="add">🟨 Giallo</button>
+                            <button class="btn btn-yellow-card" data-team="1" data-type="yellow-card" data-action="add">
+                                <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo" style="width: 24px; height: 24px; margin-right: 8px;">
+                                Giallo
+                            </button>
                             <button class="btn btn-remove-stats mt-2" data-team="1" data-type="yellow-card" data-action="remove">-</button>
                         </div>
                         <div class="flex flex-col items-center">
-                            <button class="btn btn-red-card" data-team="1" data-type="red-card" data-action="add">🟥 Rosso</button>
+                            <button class="btn btn-red-card" data-team="1" data-type="red-card" data-action="add">
+                                <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso" style="width: 24px; height: 24px; margin-right: 8px;">
+                                Rosso
+                            </button>
                             <button class="btn btn-remove-stats mt-2" data-team="1" data-type="red-card" data-action="remove">-</button>
                         </div>
                     </div>
@@ -1209,11 +1240,17 @@
                     <!-- Third row: Yellow and Red cards side by side -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="flex flex-col items-center">
-                            <button class="btn btn-yellow-card" data-team="2" data-type="yellow-card" data-action="add">🟨 Giallo</button>
+                            <button class="btn btn-yellow-card" data-team="2" data-type="yellow-card" data-action="add">
+                                <img src="icons8-cartellino-giallo-calcio-96.png" alt="Cartellino Giallo" style="width: 24px; height: 24px; margin-right: 8px;">
+                                Giallo
+                            </button>
                             <button class="btn btn-remove-stats mt-2" data-team="2" data-type="yellow-card" data-action="remove">-</button>
                         </div>
                         <div class="flex flex-col items-center">
-                            <button class="btn btn-red-card" data-team="2" data-type="red-card" data-action="add">🟥 Rosso</button>
+                            <button class="btn btn-red-card" data-team="2" data-type="red-card" data-action="add">
+                                <img src="icons8-cartellino-rosso-calcio-96 (1).png" alt="Cartellino Rosso" style="width: 24px; height: 24px; margin-right: 8px;">
+                                Rosso
+                            </button>
                             <button class="btn btn-remove-stats mt-2" data-team="2" data-type="red-card" data-action="remove">-</button>
                         </div>
                     </div>
@@ -1276,6 +1313,9 @@
                     <div id="scorers-list-1" class="scorer-list">
                         <h4>Marcatori:</h4>
                     </div>
+                    <div id="cards-list-1" class="cards-list">
+                        <h4>Cartellini:</h4>
+                    </div>
                     <div id="period-stats-team1" class="period-stats">
                         <!-- Period breakdown will be inserted here -->
                     </div>
@@ -1334,6 +1374,9 @@
                     </div>
                     <div id="scorers-list-2" class="scorer-list">
                         <h4>Marcatori:</h4>
+                    </div>
+                    <div id="cards-list-2" class="cards-list">
+                        <h4>Cartellini:</h4>
                     </div>
                     <div id="period-stats-team2" class="period-stats">
                         <!-- Period breakdown will be inserted here -->
@@ -1590,6 +1633,8 @@
         };
         let team1Scorers = [];
         let team2Scorers = [];
+        let team1Cards = []; // Array for team1 yellow and red cards with player details
+        let team2Cards = []; // Array for team2 yellow and red cards with player details
         let pendingRemovalAction = null;
         let totalSeconds = 18 * 60;
         let timerInterval = null;
@@ -1656,6 +1701,10 @@
                 // Marcatori con timestamp di inserimento
                 team1Scorers,
                 team2Scorers,
+                
+                // Cartellini con dettagli giocatori
+                team1Cards,
+                team2Cards,
                 
                 // Note partita
                 matchNotes: document.getElementById('match-notes')?.value.trim() || '',
@@ -1786,6 +1835,8 @@
                 
                 team1Scorers = gameState.team1Scorers || [];
                 team2Scorers = gameState.team2Scorers || [];
+                team1Cards = gameState.team1Cards || [];
+                team2Cards = gameState.team2Cards || [];
                 eventsByPeriod = gameState.eventsByPeriod || { 
                     team1: { 
                         shots: {'1': 0, '2': 0, '3': 0}, 
@@ -2877,6 +2928,9 @@ Per evitare che lo schermo si spenga:
                 // Aggiorna la visualizzazione dei marcatori
                 updateScorersDisplay();
                 
+                // Aggiorna la visualizzazione dei cartellini
+                updateCardsList();
+                
                 // Aggiorna i pulsanti dei goal in base al numero di periodi
                 updateGoalButtonsDisplay();
                 
@@ -3109,6 +3163,24 @@ Per evitare che lo schermo si spenga:
             vibrate([30]); // Modal close feedback
         }
 
+        // Card player modal functions
+        function showCardPlayerModal(cardType, quarter) {
+            const playerList = document.getElementById('player-list');
+            playerList.innerHTML = '';
+            players.forEach(player => {
+                const playerButton = document.createElement('button');
+                playerButton.textContent = player;
+                playerButton.classList.add('player-btn');
+                playerButton.addEventListener('click', () => {
+                    addCardTeam1(player, cardType, quarter);
+                    hidePlayerModal();
+                });
+                playerList.appendChild(playerButton);
+            });
+            document.getElementById('player-modal').classList.add('is-active');
+            vibrate([50]); // Modal open feedback
+        }
+
         // Goal functions
         function addGoalTeam1(player, quarter) {
             scoreTeam1++;
@@ -3176,6 +3248,109 @@ Per evitare che lo schermo si spenga:
             
             // Salva automaticamente lo stato dopo ogni goal
             saveCurrentGameState();
+        }
+
+        // Card functions
+        function addCardTeam1(player, cardType, quarter) {
+            // Calcola tempo di gioco accurato e timestamp per il cartellino
+            const gameTime = getCurrentGameTimeForScoring();
+            const minute = Math.max(1, gameTime.minutes + 1); // Minuto di gioco (min 1)
+            
+            // Crea oggetto cartellino con timestamp completo
+            const cardData = {
+                player: player,
+                cardType: cardType, // 'yellow' or 'red'
+                quarter: quarter,
+                minute: minute,
+                timestamp: gameTime.timestamp,
+                seconds: gameTime.seconds
+            };
+            
+            team1Cards.push(cardData);
+            
+            // Aggiorna le statistiche per periodo
+            if (cardType === 'yellow') {
+                eventsByPeriod.team1.yellowCards[currentPeriod.toString()]++;
+            } else if (cardType === 'red') {
+                eventsByPeriod.team1.redCards[currentPeriod.toString()]++;
+            }
+            
+            updateStats();
+            updateCardsList();
+            saveCurrentGameState();
+            vibrate([100]);
+        }
+
+        function addCardTeam2(cardType, quarter) {
+            // Team 2 non ha selezione giocatori, usa il nome della squadra
+            const gameTime = getCurrentGameTimeForScoring();
+            const minute = Math.max(1, gameTime.minutes + 1);
+            
+            const cardData = {
+                player: team2Name,
+                cardType: cardType,
+                quarter: quarter,
+                minute: minute,
+                timestamp: gameTime.timestamp,
+                seconds: gameTime.seconds
+            };
+            
+            team2Cards.push(cardData);
+            
+            // Aggiorna le statistiche per periodo
+            if (cardType === 'yellow') {
+                eventsByPeriod.team2.yellowCards[currentPeriod.toString()]++;
+            } else if (cardType === 'red') {
+                eventsByPeriod.team2.redCards[currentPeriod.toString()]++;
+            }
+            
+            updateStats();
+            updateCardsList();
+            saveCurrentGameState();
+            vibrate([100]);
+        }
+
+        // Update cards display function
+        function updateCardsList() {
+            // Update team 1 cards
+            const cardsList1 = document.getElementById('cards-list-1');
+            if (cardsList1) {
+                cardsList1.innerHTML = '<h4>Cartellini:</h4>';
+                team1Cards.forEach(card => {
+                    const cardDiv = document.createElement('div');
+                    cardDiv.classList.add('cards-list-item');
+                    
+                    const iconSrc = card.cardType === 'yellow' ? 
+                        'icons8-cartellino-giallo-calcio-96.png' : 
+                        'icons8-cartellino-rosso-calcio-96 (1).png';
+                    
+                    cardDiv.innerHTML = `
+                        <img src="${iconSrc}" alt="${card.cardType} card">
+                        ${card.player} - ${card.minute}' (${card.quarter})
+                    `;
+                    cardsList1.appendChild(cardDiv);
+                });
+            }
+            
+            // Update team 2 cards
+            const cardsList2 = document.getElementById('cards-list-2');
+            if (cardsList2) {
+                cardsList2.innerHTML = '<h4>Cartellini:</h4>';
+                team2Cards.forEach(card => {
+                    const cardDiv = document.createElement('div');
+                    cardDiv.classList.add('cards-list-item');
+                    
+                    const iconSrc = card.cardType === 'yellow' ? 
+                        'icons8-cartellino-giallo-calcio-96.png' : 
+                        'icons8-cartellino-rosso-calcio-96 (1).png';
+                    
+                    cardDiv.innerHTML = `
+                        <img src="${iconSrc}" alt="${card.cardType} card">
+                        ${card.player} - ${card.minute}' (${card.quarter})
+                    `;
+                    cardsList2.appendChild(cardDiv);
+                });
+            }
         }
 
         // Confetti function
@@ -3316,6 +3491,8 @@ Per evitare che lo schermo si spenga:
             foulsTeam2 = 0;
             team1Scorers = [];
             team2Scorers = [];
+            team1Cards = [];
+            team2Cards = [];
             matchNotes = '';
 
             // Reset period-based statistics
@@ -3323,12 +3500,16 @@ Per evitare che lo schermo si spenga:
                 team1: {
                     shots: { '1': 0, '2': 0, '3': 0 },
                     corners: { '1': 0, '2': 0, '3': 0 },
-                    fouls: { '1': 0, '2': 0, '3': 0 }
+                    fouls: { '1': 0, '2': 0, '3': 0 },
+                    yellowCards: { '1': 0, '2': 0, '3': 0 },
+                    redCards: { '1': 0, '2': 0, '3': 0 }
                 },
                 team2: {
                     shots: { '1': 0, '2': 0, '3': 0 },
                     corners: { '1': 0, '2': 0, '3': 0 },
-                    fouls: { '1': 0, '2': 0, '3': 0 }
+                    fouls: { '1': 0, '2': 0, '3': 0 },
+                    yellowCards: { '1': 0, '2': 0, '3': 0 },
+                    redCards: { '1': 0, '2': 0, '3': 0 }
                 }
             };
 
@@ -3337,6 +3518,8 @@ Per evitare che lo schermo si spenga:
 
             document.getElementById('scorers-list-1').innerHTML = '<h4>Marcatori:</h4>';
             document.getElementById('scorers-list-2').innerHTML = '<h4>Marcatori:</h4>';
+            document.getElementById('cards-list-1').innerHTML = '<h4>Cartellini:</h4>';
+            document.getElementById('cards-list-2').innerHTML = '<h4>Cartellini:</h4>';
             
             // Reset notes field
             const notesElement = document.getElementById('match-notes');
@@ -3456,6 +3639,8 @@ Per evitare che lo schermo si spenga:
                 date: new Date().toISOString(),
                 scorers1: team1Scorers,
                 scorers2: team2Scorers,
+                cards1: team1Cards,
+                cards2: team2Cards,
                 societaId: currentClub?.id,
                 notes: matchNotes,
                 // Add period-based statistics
@@ -3979,7 +4164,7 @@ Per evitare che lo schermo si spenga:
         async function shareSingleMatch(matchData = null) {
             vibrate([50]); // Button feedback
             
-            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, yellowCards1, yellowCards2, redCards1, redCards2, scorers1, scorers2, notes;
+            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, yellowCards1, yellowCards2, redCards1, redCards2, scorers1, scorers2, cards1, cards2, notes;
             
             if (matchData) {
                 // Use provided match data (for history sharing)
@@ -3999,6 +4184,8 @@ Per evitare che lo schermo si spenga:
                 redCards2 = matchData.redCards2 || 0;
                 scorers1 = matchData.scorers1 || [];
                 scorers2 = matchData.scorers2 || [];
+                cards1 = matchData.cards1 || [];
+                cards2 = matchData.cards2 || [];
                 notes = matchData.notes || '';
             } else {
                 // Use current game data (for main share button)
@@ -4018,6 +4205,8 @@ Per evitare che lo schermo si spenga:
                 redCards2 = redCardsTeam2;
                 scorers1 = team1Scorers;
                 scorers2 = team2Scorers;
+                cards1 = team1Cards;
+                cards2 = team2Cards;
                 const notesElement = document.getElementById('match-notes');
                 notes = notesElement ? notesElement.value.trim() : '';
             }
@@ -4027,7 +4216,7 @@ Per evitare che lo schermo si spenga:
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Calculate dynamic height based on number of scorers and notes
+                // Calculate dynamic height based on number of scorers, cards and notes
                 const baseHeight = 460; // Base height up to "Falli" line
                 const scorersMargin = 40; // Space between sections
                 const lineHeight = 25; // Height per scorer line
@@ -4037,6 +4226,8 @@ Per evitare che lo schermo si spenga:
                 
                 let totalScorers = 0;
                 let scorerSections = 0;
+                let totalCards = 0;
+                let cardSections = 0;
                 
                 if (scorers1.length > 0) {
                     totalScorers += scorers1.length;
@@ -4045,6 +4236,15 @@ Per evitare che lo schermo si spenga:
                 if (scorers2.length > 0) {
                     totalScorers += scorers2.length;
                     scorerSections++;
+                }
+                
+                if (cards1.length > 0) {
+                    totalCards += cards1.length;
+                    cardSections++;
+                }
+                if (cards2.length > 0) {
+                    totalCards += cards2.length;
+                    cardSections++;
                 }
                 
                 // Calculate height for notes (assuming max 50 characters per line)
@@ -4057,6 +4257,9 @@ Per evitare che lo schermo si spenga:
                     (scorerSections * headerHeight) + 
                     (totalScorers * lineHeight) + 
                     (scorerSections * scorersMargin) + 
+                    (cardSections * headerHeight) + 
+                    (totalCards * lineHeight) + 
+                    (cardSections * scorersMargin) + 
                     (notesLines * notesLineHeight) +
                     (notesLines > 0 ? notesMargin : 0) +
                     60; // Bottom padding
@@ -4128,15 +4331,48 @@ Per evitare che lo schermo si spenga:
                     });
                 }
                 
+                // Cards section
+                let cardsStartY;
+                if (scorers2.length > 0) {
+                    cardsStartY = 570 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
+                } else if (scorers1.length > 0) {
+                    cardsStartY = 570 + (scorers1.length * 25) + 30;
+                } else {
+                    cardsStartY = 540;
+                }
+                
+                if (cards1.length > 0) {
+                    ctx.fillText(`Cartellini ${team1Name}:`, 50, cardsStartY);
+                    cards1.forEach((card, index) => {
+                        const cardIcon = card.cardType === 'yellow' ? '🟨' : '🟥';
+                        const text = `${cardIcon} ${card.player} - ${card.minute}' (${card.quarter})`;
+                        ctx.fillText(text, 70, cardsStartY + 30 + (index * 25));
+                    });
+                }
+                
+                if (cards2.length > 0) {
+                    const cards2StartY = cards1.length > 0 ? cardsStartY + 30 + (cards1.length * 25) + 30 : cardsStartY;
+                    ctx.fillText(`Cartellini ${team2Name}:`, 50, cards2StartY);
+                    cards2.forEach((card, index) => {
+                        const cardIcon = card.cardType === 'yellow' ? '🟨' : '🟥';
+                        const text = `${cardIcon} ${card.player} - ${card.minute}' (${card.quarter})`;
+                        ctx.fillText(text, 70, cards2StartY + 30 + (index * 25));
+                    });
+                }
+                
                 // Notes
                 if (notes && notes.trim()) {
                     let notesStartY;
-                    if (scorers2.length > 0) {
-                        notesStartY = 510 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
+                    if (cards2.length > 0) {
+                        notesStartY = cardsStartY + 30 + (cards1.length * 25) + 30 + 30 + (cards2.length * 25) + 30;
+                    } else if (cards1.length > 0) {
+                        notesStartY = cardsStartY + 30 + (cards1.length * 25) + 30;
+                    } else if (scorers2.length > 0) {
+                        notesStartY = 570 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
                     } else if (scorers1.length > 0) {
-                        notesStartY = 510 + (scorers1.length * 25) + 30;
+                        notesStartY = 570 + (scorers1.length * 25) + 30;
                     } else {
-                        notesStartY = 480;
+                        notesStartY = 540;
                     }
                     
                     ctx.fillText('Note:', 50, notesStartY);
@@ -4460,27 +4696,23 @@ Per evitare che lo schermo si spenga:
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
                                 return;
                             }
+                            const quarter = `${currentPeriod}°T`;
                             if (team === '1') {
-                                eventsByPeriod.team1.yellowCards[currentPeriod.toString()]++;
+                                showCardPlayerModal('yellow', quarter);
                             } else if (team === '2') {
-                                eventsByPeriod.team2.yellowCards[currentPeriod.toString()]++;
+                                addCardTeam2('yellow', quarter);
                             }
-                            updateStats();
-                            // Salva automaticamente lo stato dopo ogni statistica
-                            saveCurrentGameState();
                         } else if (type === 'red-card') {
                             if (!currentPeriod) {
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
                                 return;
                             }
+                            const quarter = `${currentPeriod}°T`;
                             if (team === '1') {
-                                eventsByPeriod.team1.redCards[currentPeriod.toString()]++;
+                                showCardPlayerModal('red', quarter);
                             } else if (team === '2') {
-                                eventsByPeriod.team2.redCards[currentPeriod.toString()]++;
+                                addCardTeam2('red', quarter);
                             }
-                            updateStats();
-                            // Salva automaticamente lo stato dopo ogni statistica
-                            saveCurrentGameState();
                         }
                     } else if (action === 'remove') {
                         showRemoveModal(type, team);
