@@ -1073,7 +1073,7 @@
             
             <div class="button-grid-1 gap-2">
                 <button id="save-players-btn" class="btn-green btn-large rounded-2xl w-full mb-2">Salva Modifiche</button>
-                <button id="back-to-menu-btn" class="btn-gray btn-large rounded-2xl w-full">Torna al Menu</button>
+                <button id="back-to-menu-from-players-btn" class="btn-gray btn-large rounded-2xl w-full">Torna al Menu</button>
             </div>
         </div>
     </div>
@@ -1086,7 +1086,10 @@
             <h2 class="text-2xl font-bold mb-4">Benvenuto!</h2>
             <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria, poi ricordati di far partire il tempo!</p>
             <input type="text" id="welcome-opponent-name" placeholder="Nome Squadra Avversaria" class="w-full mb-4 modal-input">
-            <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
+            <div class="button-grid-2 gap-2">
+                <button id="back-to-menu-btn" class="btn-gray btn-large w-full">Indietro</button>
+                <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
+            </div>
         </div>
     </div>
     
@@ -2469,10 +2472,18 @@ Per evitare che lo schermo si spenga:
             }
         }
 
-        // Back to menu
-        function backToMenu() {
+        // Back to menu from players management
+        function backToMenuFromPlayers() {
             playersManagementScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
+        }
+        
+        // Back to menu from welcome screen
+        function backToMenu() {
+            welcomeScreen.style.display = 'none';
+            menuScreen.style.display = 'flex';
+            // Clear the opponent name input
+            welcomeOpponentName.value = '';
         }
 
         // Back to login
@@ -4049,6 +4060,7 @@ Per evitare che lo schermo si spenga:
                 }
             });
             document.getElementById('save-players-btn').addEventListener('click', savePlayersChanges);
+            document.getElementById('back-to-menu-from-players-btn').addEventListener('click', backToMenuFromPlayers);
             document.getElementById('back-to-menu-btn').addEventListener('click', backToMenu);
             
             // Start game button
