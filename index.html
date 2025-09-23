@@ -1741,9 +1741,19 @@
                 
                 // Ripristina il nome della squadra 2 se presente
                 if (gameState.team2Name) {
+                    // Aggiorna tutti gli elementi UI che mostrano il nome della squadra 2
                     const team2NameElement = document.getElementById('team2-name');
+                    const scoreTeam2NameElement = document.getElementById('score-team2-name');
+                    const statsTeam2TitleElement = document.getElementById('stats-team2-title');
+                    
                     if (team2NameElement) {
                         team2NameElement.textContent = gameState.team2Name;
+                    }
+                    if (scoreTeam2NameElement) {
+                        scoreTeam2NameElement.textContent = gameState.team2Name;
+                    }
+                    if (statsTeam2TitleElement) {
+                        statsTeam2TitleElement.textContent = 'Statistiche ' + gameState.team2Name;
                     }
                 }
                 
