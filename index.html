@@ -344,26 +344,27 @@
             transform: scale(0.95);
         }
         .btn-goal {
-            background: linear-gradient(to right, #fb923c, #f97316) !important;
-            color: #fff !important;
-            border: 2px solid #fb923c !important;
-            padding: 0.875rem 1.5rem; /* Reduced padding for mobile */
-            font-size: 0.8rem; /* Smaller font for goal buttons */
-            font-weight: 700 !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            background: transparent !important;
+            color: transparent !important;
+            border: none !important;
+            padding: 0.5rem !important;
+            font-size: 0 !important;
+            font-weight: normal !important;
+            text-shadow: none !important;
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: none !important;
         }
         .btn-goal:hover {
-            background: linear-gradient(to right, #fdba74, #fb923c) !important;
-            border-color: #fdba74 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4) !important;
+            background: transparent !important;
+            border: none !important;
+            transform: none !important;
+            box-shadow: none !important;
         }
         .btn-goal img {
-            width: 32px;
-            height: 32px;
+            width: 48px;
+            height: 48px;
             margin: 0;
         }
         .btn-stats-add {
@@ -878,12 +879,12 @@
             
             /* Improved mobile button layout */
             .btn-goal {
-                padding: 0.5rem 0.75rem; /* Even smaller on mobile */
-                font-size: 0.7rem;
+                padding: 0.25rem !important;
+                font-size: 0 !important;
             }
             .btn-goal img {
-                width: 24px !important;
-                height: 24px !important;
+                width: 36px !important;
+                height: 36px !important;
             }
             .btn-stats-add {
                 padding: 0.5rem 0.75rem;
@@ -1115,7 +1116,7 @@
                 <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                 <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                 <div class="app-version mt-4 text-center text-sm text-gray-500">
-                    Versione: v2.3
+                    Versione: v2.4
                 </div>
             </div>
         </div>
