@@ -21,9 +21,11 @@ signInAnonymously(auth)
     if (typeof window.onFirebaseReady === 'function') {
       window.onFirebaseReady();
     } else {
+      // Skip loading screen and go directly to login
       document.getElementById('loading-screen').style.display = 'none';
       if (document.getElementById('login-screen')) {
         document.getElementById('login-screen').style.display = 'flex';
+        document.body.classList.add('login-background');
       }
     }
   })
