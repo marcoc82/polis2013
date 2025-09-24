@@ -347,7 +347,7 @@
             background: transparent !important;
             color: transparent !important;
             border: none !important;
-            padding: 0.5rem !important;
+            padding: 0.75rem !important;
             font-size: 0 !important;
             font-weight: normal !important;
             text-shadow: none !important;
@@ -355,6 +355,8 @@
             justify-content: center;
             align-items: center;
             box-shadow: none !important;
+            min-width: 120px;
+            min-height: 120px;
         }
         .btn-goal:hover {
             background: transparent !important;
@@ -363,8 +365,8 @@
             box-shadow: none !important;
         }
         .btn-goal img {
-            width: 48px;
-            height: 48px;
+            width: 100px;
+            height: 100px;
             margin: 0;
         }
         .btn-stats-add {
@@ -879,12 +881,14 @@
             
             /* Improved mobile button layout */
             .btn-goal {
-                padding: 0.25rem !important;
+                padding: 0.5rem !important;
                 font-size: 0 !important;
+                min-width: 100px !important;
+                min-height: 100px !important;
             }
             .btn-goal img {
-                width: 36px !important;
-                height: 36px !important;
+                width: 80px !important;
+                height: 80px !important;
             }
             .btn-stats-add {
                 padding: 0.5rem 0.75rem;
@@ -1116,7 +1120,7 @@
                 <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                 <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                 <div class="app-version mt-4 text-center text-sm text-gray-500">
-                    Versione: v2.4
+                    Versione: v2.5
                 </div>
             </div>
         </div>
