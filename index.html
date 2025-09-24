@@ -344,30 +344,9 @@
             transform: scale(0.95);
         }
         .btn-goal {
-            background: transparent !important;
-            color: transparent !important;
-            border: none !important;
-            padding: 0.75rem !important;
-            font-size: 0 !important;
-            font-weight: normal !important;
-            text-shadow: none !important;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: none !important;
-            min-width: 120px;
-            min-height: 120px;
-        }
-        .btn-goal:hover {
-            background: transparent !important;
-            border: none !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-        .btn-goal img {
-            width: 100px;
-            height: 100px;
-            margin: 0;
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            padding: 0.875rem 1.5rem; /* Reduced padding for mobile */
+            font-size: 0.8rem; /* Smaller font for goal buttons */
         }
         .btn-stats-add {
             background: linear-gradient(to right, #f97316, #ea580c);
@@ -881,14 +860,8 @@
             
             /* Improved mobile button layout */
             .btn-goal {
-                padding: 0.5rem !important;
-                font-size: 0 !important;
-                min-width: 100px !important;
-                min-height: 100px !important;
-            }
-            .btn-goal img {
-                width: 80px !important;
-                height: 80px !important;
+                padding: 0.5rem 0.75rem; /* Even smaller on mobile */
+                font-size: 0.7rem;
             }
             .btn-stats-add {
                 padding: 0.5rem 0.75rem;
@@ -1120,7 +1093,7 @@
                 <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                 <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                 <div class="app-version mt-4 text-center text-sm text-gray-500">
-                    Versione: v2.5
+                    Versione: v2.3
                 </div>
             </div>
         </div>
@@ -1238,9 +1211,7 @@
                     <!-- First row: Gol and Tiro side by side -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="flex flex-col items-center">
-                            <button class="btn btn-goal" data-team="1" data-type="goal" data-action="add">
-                                <img src="gol.png" alt="Gol">
-                            </button>
+                            <button class="btn btn-goal" data-team="1" data-type="goal" data-action="add">Gol</button>
                             <button class="btn btn-remove-goal mt-2" data-team="1" data-type="goal" data-action="remove">-</button>
                         </div>
                         <div class="flex flex-col items-center">
@@ -1282,9 +1253,7 @@
                     <!-- First row: Gol and Tiro side by side -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="flex flex-col items-center">
-                            <button class="btn btn-goal" data-team="2" data-type="goal" data-action="add">
-                                <img src="gol.png" alt="Gol">
-                            </button>
+                            <button class="btn btn-goal" data-team="2" data-type="goal" data-action="add">Gol</button>
                             <button class="btn btn-remove-goal mt-2" data-team="2" data-type="goal" data-action="remove">-</button>
                         </div>
                         <div class="flex flex-col items-center">
