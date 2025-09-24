@@ -46,7 +46,25 @@
             margin-bottom: 0.5rem;
         }
         .btn-goal {
-            background: linear-gradient(to right, #22c55e, #16a34a);
+            background: linear-gradient(to right, #fb923c, #f97316) !important;
+            color: #fff !important;
+            border: 2px solid #fb923c !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-goal:hover {
+            background: linear-gradient(to right, #fdba74, #fb923c) !important;
+            border-color: #fdba74 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4) !important;
+        }
+        .btn-goal img {
+            width: 32px;
+            height: 32px;
+            margin: 0;
         }
         .btn-stats-add {
             background: linear-gradient(to right, #3b82f6, #1d4ed8);
@@ -101,7 +119,9 @@
             <!-- First row: Gol and Tiro side by side -->
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-goal">Gol</button>
+                    <button class="btn btn-goal">
+                        <img src="gol.png" alt="Gol">
+                    </button>
                     <button class="btn btn-remove-goal mt-2">-</button>
                 </div>
                 <div class="flex flex-col items-center">
@@ -139,7 +159,9 @@
             <!-- First row: Gol and Tiro side by side -->
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="flex flex-col items-center">
-                    <button class="btn btn-goal">Gol</button>
+                    <button class="btn btn-goal">
+                        <img src="gol.png" alt="Gol">
+                    </button>
                     <button class="btn btn-remove-goal mt-2">-</button>
                 </div>
                 <div class="flex flex-col items-center">
