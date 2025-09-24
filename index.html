@@ -273,6 +273,28 @@
             }
         }
         
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
         .login-logo {
             opacity: 0;
             animation: fadeInUp 0.8s ease-out forwards;
@@ -281,6 +303,16 @@
         .login-form {
             opacity: 0;
             animation: fadeInUp 0.8s ease-out 0.3s forwards;
+        }
+        
+        .login-access-section {
+            opacity: 0;
+            animation: slideInFromRight 0.6s ease-out 1.1s forwards;
+        }
+        
+        .login-button-section {
+            opacity: 0;
+            animation: slideInFromLeft 0.6s ease-out 1.4s forwards;
         }
 
         /* Teams container */
@@ -1098,16 +1130,18 @@
             
             <!-- Login form container with delayed fade-in animation -->
             <div class="login-form">
-                <h1 class="polis-text" style="font-size: 5em;">StaKick</h1>
-                <hr class="my-6">
-                <h2 class="text-2xl font-bold mb-4">Accesso</h2>
-                <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
-                <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
-                <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
-                <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
-                <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
-                <div class="app-version mt-4 text-center text-sm text-gray-500">
-                    Versione: v2.4
+                <div class="login-access-section">
+                    <h2 class="text-2xl font-bold mb-4">Accesso</h2>
+                    <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
+                    <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
+                    <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
+                </div>
+                <div class="login-button-section">
+                    <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
+                    <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
+                    <div class="app-version mt-4 text-center text-sm text-gray-500">
+                        Versione: v2.4
+                    </div>
                 </div>
             </div>
         </div>
@@ -2480,20 +2514,31 @@ Per evitare che lo schermo si spenga:
 
             const loginLogo = document.querySelector('.login-logo');
             const loginForm = document.querySelector('.login-form');
+            const loginAccessSection = document.querySelector('.login-access-section');
+            const loginButtonSection = document.querySelector('.login-button-section');
             
-            if (loginLogo && loginForm) {
+            if (loginLogo && loginForm && loginAccessSection && loginButtonSection) {
                 // Remove animation classes
                 loginLogo.style.animation = 'none';
                 loginForm.style.animation = 'none';
+                loginAccessSection.style.animation = 'none';
+                loginButtonSection.style.animation = 'none';
+                
                 loginForm.style.opacity = '0';
+                loginAccessSection.style.opacity = '0';
+                loginButtonSection.style.opacity = '0';
                 
                 // Force reflow
                 loginLogo.offsetHeight;
                 loginForm.offsetHeight;
+                loginAccessSection.offsetHeight;
+                loginButtonSection.offsetHeight;
                 
                 // Re-apply animations
                 loginLogo.style.animation = 'fadeInUp 0.8s ease-out forwards';
                 loginForm.style.animation = 'fadeInUp 0.8s ease-out 0.3s forwards';
+                loginAccessSection.style.animation = 'slideInFromRight 0.6s ease-out 1.1s forwards';
+                loginButtonSection.style.animation = 'slideInFromLeft 0.6s ease-out 1.4s forwards';
                 
                 // Mark animations as played
                 loginAnimationsPlayed = true;
