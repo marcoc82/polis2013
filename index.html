@@ -324,6 +324,14 @@
             white-space: nowrap;
         }
 
+        /* Specific styling for Team 2 name to handle long names better */
+        #score-team2-name {
+            font-size: clamp(1rem, 3vw, 1.4rem) !important;
+            white-space: nowrap;
+            text-align: left !important;
+            margin-left: -10px;
+        }
+
         /* Button styles consolidati */
         .btn {
             color: white;
@@ -898,6 +906,12 @@
             .text-3xl {
                 font-size: clamp(0.8rem, 5vw, 1.5rem) !important;
                 max-width: 42% !important; /* Slightly smaller on mobile */
+            }
+            
+            /* Mobile specific styling for Team 2 name */
+            #score-team2-name {
+                font-size: clamp(0.8rem, 3vw, 1.2rem) !important;
+                margin-left: -15px; /* Slightly more offset on mobile */
             }
             
             .team-title {
