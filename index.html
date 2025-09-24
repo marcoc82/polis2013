@@ -51,10 +51,10 @@
             color: #E2E8F0; /* Testo chiaro */
         }
 
-        /* Classe per sfondo bianco durante il login */
+        /* Classe per sfondo scuro durante il login (dark mode) */
         body.login-background {
-            background-color: #FFFFFF;
-            color: #1A202C;
+            background-color: #1A202C;
+            color: #E2E8F0;
         }
 
         /* Schermate overlay */
@@ -75,27 +75,27 @@
             background: #1A202C; 
         }
 
-        /* Sfondo bianco specifico per la schermata di login */
+        /* Sfondo scuro per la schermata di login (dark mode) */
         body.login-background #login-screen {
-            background: #FFFFFF !important;
+            background: #1A202C !important;
         }
 
-        /* Sfondo bianco per il contenuto della schermata di login */
+        /* Sfondo scuro per il contenuto della schermata di login */
         body.login-background #login-screen .welcome-content {
-            background: #FFFFFF !important;
+            background: #1A202C !important;
         }
 
-        /* Stili per testo nella schermata di login con sfondo bianco */
+        /* Stili per testo nella schermata di login con sfondo scuro */
         body.login-background #login-screen .welcome-content h2,
         body.login-background #login-screen .welcome-content p {
-            color: #1A202C;
+            color: #E2E8F0;
         }
 
-        /* Stili per input nella schermata di login con sfondo bianco */
+        /* Stili per input nella schermata di login con sfondo scuro */
         body.login-background #login-screen .modal-input {
-            background-color: #F7FAFC;
-            border-color: #CBD5E0;
-            color: #1A202C;
+            background-color: #2D3748;
+            border-color: #4A5568;
+            color: #E2E8F0;
         }
         
         /* Stili per la versione dell'app nella schermata di login */
@@ -103,9 +103,9 @@
             color: #94a3b8; /* Colore grigio per buona visibilità su sfondo scuro */
         }
         
-        /* Stili per la versione dell'app su sfondo bianco della login */
+        /* Stili per la versione dell'app nella schermata di login dark mode */
         body.login-background .app-version {
-            color: #6b7280; /* Colore grigio più scuro per buona visibilità su sfondo bianco */
+            color: #94a3b8; /* Stesso colore grigio per coerenza con il dark mode */
         }
         
         #players-management-screen { 
@@ -1081,15 +1081,15 @@
         }
     </style>
 </head>
-<body>
+<body class="login-background">
     <!-- Schermata di Loading -->
-    <div id="loading-screen">
+    <div id="loading-screen" style="display: none;">
         <h2 style="color:#4A90E2;">Connessione al database...</h2>
         <pre id="loading-log" style="margin-top:20px; color: #E2E8F0; font-family: monospace; background: #2D3748; padding: 20px; border-radius: 12px;"></pre>
     </div>
 
     <!-- Schermata di login -->
-    <div id="login-screen" style="display: none;">
+    <div id="login-screen" style="display: flex;">
         <div class="welcome-content">
             <!-- Logo container with fade-in animation -->
             <div class="login-logo">
@@ -1107,7 +1107,7 @@
                 <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                 <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                 <div class="app-version mt-4 text-center text-sm text-gray-500">
-                    Versione: v2.3
+                    Versione: v2.4
                 </div>
             </div>
         </div>
@@ -2502,7 +2502,8 @@ Per evitare che lo schermo si spenga:
 
         // Function to be called when Firebase is ready
         window.onFirebaseReady = function() {
-            console.log('Firebase is ready, transitioning to login screen');
+            console.log('Firebase is ready, showing login screen directly');
+            // Skip loading screen and go directly to login
             loadingScreen.style.display = 'none';
             loginScreen.style.display = 'flex';
             document.body.classList.add('login-background');
