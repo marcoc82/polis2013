@@ -130,6 +130,22 @@ Questa convenzione si applica a:
 - `index.html`: Favicon e apple-touch-icon
 - `service-worker.js`: File da mettere in cache
 
+### Persistenza dello Stato Login
+
+A partire dalla versione 3.0, l'applicazione implementa la persistenza dello stato login tramite localStorage:
+
+- **Durata**: Lo stato login viene conservato per 7 giorni
+- **Funzionamento**: Dopo aver effettuato il login, l'applicazione salva automaticamente lo stato dell'utente
+- **Ripristino automatico**: Al ricaricamento della pagina (refresh, swipe, pull-to-refresh), l'utente rimane loggato e viene reindirizzato direttamente alla pagina principale
+- **Logout esplicito**: L'utente può tornare al login usando il pulsante "Torna al Login" nel menu, che cancella lo stato salvato
+
+Questa funzionalità migliora l'esperienza utente su dispositivi mobili, evitando il reset alla pagina di login causato da gesti accidentali di pull-to-refresh o swipe.
+
+**Best Practice per dispositivi mobili**:
+- Il CSS `overscroll-behavior-y: contain` previene il pull-to-refresh su browser moderni
+- L'assenza di `position: fixed` sul body evita problemi di scroll position reset
+- Lo stato login persistente garantisce continuità nell'utilizzo dell'app
+
 ## Licenza
 
 ISC
