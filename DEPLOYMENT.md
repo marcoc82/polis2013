@@ -149,6 +149,21 @@ Dalla versione 3.0, StaKick è una PWA completa:
 2. **service-worker.js**: Gestisce cache e funzionamento offline (versione 3.0)
 3. **Icone**: Logo dell'app in varie dimensioni per installazione
 
+### Best Practice: Percorsi Relativi per GitHub Pages
+
+Per garantire la compatibilità con GitHub Pages (es. `https://marcoc82.github.io/polis2013/`), tutti i riferimenti ai file statici utilizzano percorsi relativi **senza slash iniziale**:
+
+**Configurazione corretta:**
+- `manifest.json`: Usa `"src": "logo-stakick.png"` per le icone (192x192, 512x512, 500x500)
+- `index.html`: Usa `href="logo-stakick.png"` per favicon e apple-touch-icon
+- `service-worker.js`: Usa `'logo-stakick.png'` nell'array urlsToCache
+
+**Esempi:**
+- ✅ **Corretto**: `logo-stakick.png`, `manifest.json`, `favicon.ico`
+- ❌ **Errato**: `/logo-stakick.png`, `/manifest.json`, `/favicon.ico`
+
+Questa convenzione garantisce che l'app funzioni correttamente sia nella root del dominio che in sottocartelle.
+
 ### Testing PWA
 
 Per testare la PWA localmente:
