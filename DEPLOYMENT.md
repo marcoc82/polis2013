@@ -161,6 +161,9 @@ Per garantire la compatibilità con GitHub Pages (es. `https://marcoc82.github.i
 **Esempi:**
 - ✅ **Corretto**: `logo-stakick.png`, `manifest.json`, `favicon.ico`
 - ❌ **Errato**: `/logo-stakick.png`, `/manifest.json`, `/favicon.ico`
+- ❌ **Errato**: `polis2013/logo-stakick.png` (non necessario, il repository è già nel contesto polis2013)
+
+**Importante**: Quando l'app è deployata su `https://marcoc82.github.io/polis2013/`, i percorsi relativi senza slash iniziale funzionano correttamente perché il browser risolve automaticamente i path relativi alla directory corrente. Non è necessario includere il nome del repository (`polis2013/`) nei percorsi dei file.
 
 Questa convenzione garantisce che l'app funzioni correttamente sia nella root del dominio che in sottocartelle.
 
