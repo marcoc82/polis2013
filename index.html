@@ -1153,6 +1153,43 @@
             border-radius: 0.5rem;
             font-size: 0.8rem;
         }
+        
+        /* Visual confirmation popup for button presses */
+        .action-confirmation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(72, 187, 120, 0.95);
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            padding: 2rem 3rem;
+            border-radius: 1rem;
+            z-index: 10000;
+            pointer-events: none;
+            animation: confirmationPop 1s ease-out forwards;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes confirmationPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            70% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+        }
     </style>
 </head>
 <body class="login-background">
@@ -1827,6 +1864,22 @@
             if ('vibrate' in navigator) {
                 navigator.vibrate(pattern);
             }
+        }
+
+        // Visual confirmation popup for button actions
+        function showActionConfirmation(text = '+') {
+            // Create popup element
+            const popup = document.createElement('div');
+            popup.className = 'action-confirmation';
+            popup.textContent = text;
+            
+            // Add to body
+            document.body.appendChild(popup);
+            
+            // Remove after animation completes (1 second)
+            setTimeout(() => {
+                popup.remove();
+            }, 1000);
         }
 
         /**
@@ -4111,30 +4164,39 @@ Per evitare che lo schermo si spenga:
             const notesElement = document.getElementById('match-notes');
             matchNotes = notesElement ? notesElement.value.trim() : '';
 
+            // Determina se è una partita in trasferta
+            const isAwayMatch = window.currentMatchType === 'away';
+            
+            // Se è trasferta, inverti i team nello storico
+            // (squadra avversaria a sinistra, squadra locale a destra)
             const match = {
-                team1: team1Name,
-                team2: team2Name,
-                score1: scoreTeam1,
-                score2: scoreTeam2,
-                shots1: shotsTeam1,
-                corners1: cornersTeam1,
-                fouls1: foulsTeam1,
-                yellowCards1: yellowCardsTeam1,
-                redCards1: redCardsTeam1,
-                shots2: shotsTeam2,
-                corners2: cornersTeam2,
-                fouls2: foulsTeam2,
-                yellowCards2: yellowCardsTeam2,
-                redCards2: redCardsTeam2,
+                team1: isAwayMatch ? team2Name : team1Name,
+                team2: isAwayMatch ? team1Name : team2Name,
+                score1: isAwayMatch ? scoreTeam2 : scoreTeam1,
+                score2: isAwayMatch ? scoreTeam1 : scoreTeam2,
+                shots1: isAwayMatch ? shotsTeam2 : shotsTeam1,
+                corners1: isAwayMatch ? cornersTeam2 : cornersTeam1,
+                fouls1: isAwayMatch ? foulsTeam2 : foulsTeam1,
+                yellowCards1: isAwayMatch ? yellowCardsTeam2 : yellowCardsTeam1,
+                redCards1: isAwayMatch ? redCardsTeam2 : redCardsTeam1,
+                shots2: isAwayMatch ? shotsTeam1 : shotsTeam2,
+                corners2: isAwayMatch ? cornersTeam1 : cornersTeam2,
+                fouls2: isAwayMatch ? foulsTeam1 : foulsTeam2,
+                yellowCards2: isAwayMatch ? yellowCardsTeam1 : yellowCardsTeam2,
+                redCards2: isAwayMatch ? redCardsTeam1 : redCardsTeam2,
                 date: new Date().toISOString(),
-                scorers1: team1Scorers,
-                scorers2: team2Scorers,
-                cards1: team1Cards,
-                cards2: team2Cards,
+                scorers1: isAwayMatch ? team2Scorers : team1Scorers,
+                scorers2: isAwayMatch ? team1Scorers : team2Scorers,
+                cards1: isAwayMatch ? team2Cards : team1Cards,
+                cards2: isAwayMatch ? team1Cards : team2Cards,
                 societaId: currentClub?.id,
                 notes: matchNotes,
-                // Add period-based statistics
-                eventsByPeriod: eventsByPeriod
+                matchType: window.currentMatchType || 'home',
+                // Add period-based statistics (swapped if away)
+                eventsByPeriod: isAwayMatch ? {
+                    team1: eventsByPeriod.team2,
+                    team2: eventsByPeriod.team1
+                } : eventsByPeriod
             };
 
             try {
@@ -5259,6 +5321,8 @@ Per evitare che lo schermo si spenga:
                                 eventsByPeriod.team2.corners[currentPeriod.toString()]++;
                             }
                             updateStats();
+                            // Show visual confirmation
+                            showActionConfirmation('+');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
                         } else if (type === 'shot') {
@@ -5272,6 +5336,8 @@ Per evitare che lo schermo si spenga:
                                 eventsByPeriod.team2.shots[currentPeriod.toString()]++;
                             }
                             updateStats();
+                            // Show visual confirmation
+                            showActionConfirmation('+');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
                         } else if (type === 'foul') {
@@ -5285,6 +5351,8 @@ Per evitare che lo schermo si spenga:
                                 eventsByPeriod.team2.fouls[currentPeriod.toString()]++;
                             }
                             updateStats();
+                            // Show visual confirmation
+                            showActionConfirmation('+');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
                         } else if (type === 'yellow-card') {

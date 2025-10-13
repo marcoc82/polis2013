@@ -21,4 +21,5 @@ build/
 
 # OS files
 .DS_Store
-Thumbs.db
+Thumbs.dbtest_confirmation.html
+test_confirmation_demo.html
