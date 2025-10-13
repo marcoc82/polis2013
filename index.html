@@ -1771,6 +1771,7 @@
         let matchHistory = [];
         let historyListener = null;
         let pendingDeleteMatchId = null;
+        let isFirstHistoryOpen = true; // Track if this is the first time opening history
 
         // Screen wake lock variables
         let wakeLock = null;
@@ -3960,7 +3961,10 @@ Per evitare che lo schermo si spenga:
         }
 
         function showHistoryModal() {
-            renderHistory();
+            renderHistory(!isFirstHistoryOpen); // Pass preserveSelection parameter
+            if (isFirstHistoryOpen) {
+                isFirstHistoryOpen = false; // Mark that history has been opened
+            }
             document.getElementById('history-modal').classList.add('is-active');
             vibrate([50]); // Add haptic feedback
         }
@@ -4208,9 +4212,12 @@ Per evitare che lo schermo si spenga:
         }
 
         // Function to populate month filter dropdown
-        function populateMonthFilter(history) {
+        function populateMonthFilter(history, preserveSelection = true) {
             const monthFilter = document.getElementById('month-filter');
             if (!monthFilter) return;
+            
+            // Save the currently selected value before repopulating
+            const currentSelection = preserveSelection ? monthFilter.value : null;
             
             // Get unique months from history
             const months = new Set();
@@ -4236,9 +4243,24 @@ Per evitare che lo schermo si spenga:
                 option.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
                 monthFilter.appendChild(option);
             });
+            
+            // Restore the previously selected value or default to the latest month
+            if (currentSelection && currentSelection !== 'all') {
+                // Try to restore the previous selection
+                const optionExists = Array.from(monthFilter.options).some(opt => opt.value === currentSelection);
+                if (optionExists) {
+                    monthFilter.value = currentSelection;
+                } else if (sortedMonths.length > 0) {
+                    // If previous selection no longer exists, select the latest month
+                    monthFilter.value = sortedMonths[0];
+                }
+            } else if (sortedMonths.length > 0 && (!preserveSelection || currentSelection === 'all')) {
+                // Default to the latest month if no selection or "all" was selected
+                monthFilter.value = sortedMonths[0];
+            }
         }
 
-        async function renderHistory() {
+        async function renderHistory(preserveSelection = true) {
             let history = [];
             
             // Try to use Firebase history first, then fallback to localStorage
@@ -4376,7 +4398,7 @@ Per evitare che lo schermo si spenga:
             historyList.innerHTML = '';
             
             // Populate month filter
-            populateMonthFilter(history);
+            populateMonthFilter(history, preserveSelection);
             
             // Get selected month filter
             const selectedMonth = document.getElementById('month-filter').value;
