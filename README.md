@@ -126,9 +126,22 @@ Per garantire la compatibilità con GitHub Pages (es. `https://marcoc82.github.i
 - ❌ **Errato**: `/logo-stakick.png`, `/manifest.json`, `/favicon.ico`
 
 Questa convenzione si applica a:
-- `manifest.json`: Icone dell'app (192x192, 512x512, 500x500)
+- `manifest.json`: Icone dell'app (192x192, 512x512)
 - `index.html`: Favicon e apple-touch-icon
 - `service-worker.js`: File da mettere in cache
+
+### Icone PWA e Standard di Compatibilità
+
+L'applicazione utilizza **logo-stakick.png** (512x512 px) come icona principale, conforme agli standard PWA:
+
+- **512x512 px**: Dimensione richiesta per PWA (Android, iOS, desktop)
+- **Formato PNG**: Con canale alpha per trasparenza
+- **Ottimizzato**: Compresso per prestazioni ottimali
+
+Le dimensioni delle icone dichiarate in `manifest.json` e `index.html` sono:
+- 48x48: Favicon per browser desktop (favicon-48x48.png)
+- 192x192: Icona standard PWA (logo-stakick.png)
+- 512x512: Icona ad alta risoluzione PWA (logo-stakick.png)
 
 ### Persistenza dello Stato Login
 

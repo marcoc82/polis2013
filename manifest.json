@@ -26,12 +26,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "logo-stakick.png",
-      "sizes": "500x500",
-      "type": "image/png",
-      "purpose": "any maskable"
     }
   ]
 }

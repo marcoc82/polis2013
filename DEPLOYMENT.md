@@ -154,9 +154,13 @@ Dalla versione 3.0, StaKick è una PWA completa:
 Per garantire la compatibilità con GitHub Pages (es. `https://marcoc82.github.io/polis2013/`), tutti i riferimenti ai file statici utilizzano percorsi relativi **senza slash iniziale**:
 
 **Configurazione corretta:**
-- `manifest.json`: Usa `"src": "logo-stakick.png"` per le icone (192x192, 512x512, 500x500)
+- `manifest.json`: Usa `"src": "logo-stakick.png"` per le icone (192x192, 512x512)
 - `index.html`: Usa `href="logo-stakick.png"` per favicon e apple-touch-icon
 - `service-worker.js`: Usa `'logo-stakick.png'` nell'array urlsToCache
+
+**Dimensioni icone PWA:**
+- Logo principale: **512x512 px** (logo-stakick.png) - conforme agli standard PWA
+- Favicon: 48x48 px (favicon-48x48.png)
 
 **Esempi:**
 - ✅ **Corretto**: `logo-stakick.png`, `manifest.json`, `favicon.ico`
