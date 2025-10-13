@@ -1,10 +1,10 @@
 // Nome della cache
-const CACHE_NAME = 'polis-counter-v1.6';
+const CACHE_NAME = 'polis-counter-v1.7';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
   './manifest.json',
-  'https://cdn.tailwindcss.com',
+  './dist/tailwind.css',
   'https://html2canvas.hertzen.com/dist/html2canvas.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap'
 ];
