@@ -145,6 +145,37 @@ Questa funzionalità migliora l'esperienza utente su dispositivi mobili, evitand
 - Il CSS `overscroll-behavior-y: contain` previene il pull-to-refresh su browser moderni
 - L'assenza di `position: fixed` sul body evita problemi di scroll position reset
 - Lo stato login persistente garantisce continuità nell'utilizzo dell'app
+- Lo scroll verticale rimane sempre abilitato, permettendo la normale risalita della pagina
+
+### Note Aggiuntive sulle Best Practice
+
+**Percorsi delle Risorse per GitHub Pages**:
+Quando l'applicazione è deployata su GitHub Pages (es. `https://marcoc82.github.io/polis2013/`), è fondamentale utilizzare percorsi relativi **senza slash iniziale**. Questo garantisce che le risorse vengano caricate correttamente sia dalla root che da sottocartelle.
+
+**Configurazione Corretta nei File**:
+- **manifest.json**: Utilizza `"src": "logo-stakick.png"` per tutte le icone dell'app
+- **index.html**: Utilizza `href="logo-stakick.png"` per favicon e apple-touch-icon  
+- **service-worker.js**: Utilizza `'logo-stakick.png'` nell'array urlsToCache
+
+**Esempi Pratici**:
+```
+✅ Corretto (percorso relativo):  logo-stakick.png
+❌ Errato (percorso assoluto):    /logo-stakick.png
+❌ Errato (con subdirectory):     /polis2013/logo-stakick.png
+```
+
+**Persistenza dello Stato**:
+L'applicazione utilizza `localStorage` per salvare:
+- Stato di login (valido per 7 giorni)
+- Codice di accesso (se l'utente seleziona "Ricorda codice")
+- Stato corrente della partita (per recupero dopo refresh)
+- Storico delle partite
+
+Questa implementazione garantisce un'esperienza utente fluida su dispositivi mobili, evitando perdite di dati causate da:
+- Swipe accidentali
+- Pull-to-refresh
+- Chiusura temporanea del browser
+- Cambio di app
 
 ## Licenza
 
