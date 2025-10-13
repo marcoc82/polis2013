@@ -584,6 +584,24 @@
             font-weight: bold;
             border-radius: 12px;
         }
+        
+        /* Red button for back to login */
+        .btn-back-login {
+            background-color: #E53E3E;
+            color: white;
+        }
+        .btn-back-login:hover {
+            background-color: #C53030;
+        }
+        
+        /* Gray button for history view */
+        .btn-history-view {
+            background-color: #718096;
+            color: white;
+        }
+        .btn-history-view:hover {
+            background-color: #4A5568;
+        }
 
         /* Stats container */
         .stats-container {
@@ -1157,8 +1175,8 @@
             <div class="button-grid-1 gap-4">
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Giocatori</button>
-                <button id="view-history-btn" class="btn-history btn-large w-full">Vedi Storico</button>
-                <button id="back-to-login-btn" class="btn-gray btn-large w-full">Torna alla Login</button>
+                <button id="view-history-btn" class="btn-history-view btn-large w-full">Vedi Storico</button>
+                <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Torna alla Login</button>
             </div>
         </div>
     </div>
@@ -5029,6 +5047,39 @@ Per evitare che lo schermo si spenga:
             console.log('🚪 Page unloading - releasing wake lock');
             releaseWakeLock();
         });
+    </script>
+    
+    <!-- Swipe down to reload script for mobile devices -->
+    <script>
+        (function() {
+            // Variables to track touch position
+            let touchStartY = 0;
+            let touchEndY = 0;
+            
+            // Listen for touch start event
+            document.addEventListener('touchstart', function(e) {
+                touchStartY = e.changedTouches[0].pageY;
+            }, { passive: true });
+            
+            // Listen for touch end event
+            document.addEventListener('touchend', function(e) {
+                touchEndY = e.changedTouches[0].pageY;
+                handleSwipe();
+            }, { passive: true });
+            
+            // Handle the swipe gesture
+            function handleSwipe() {
+                const deltaY = touchEndY - touchStartY;
+                
+                // Check if swipe is downward and exceeds 80px threshold
+                if (deltaY > 80) {
+                    console.log('📱 Swipe down detected (>80px), reloading page...');
+                    location.reload();
+                }
+            }
+            
+            console.log('📱 Swipe-to-reload script initialized');
+        })();
     </script>
 </body>
 </html>
