@@ -4721,10 +4721,19 @@ Per evitare che lo schermo si spenga:
                         minute: '2-digit' 
                     });
                     
-                    const team1ScorersText = match.scorers1 && match.scorers1.length > 0 ? 
-                        `<br><span>Marcatori POLIS: ${match.scorers1.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
-                    const team2ScorersText = match.scorers2 && match.scorers2.length > 0 ? 
-                        `<br><span>Marcatori ${match.team2}: ${match.scorers2.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
+                    // Determina quale team è la squadra corrente (POLIS)
+                    const currentTeamName = currentClub ? currentClub.nome : 'POLIS';
+                    const isTeam1 = match.team1 === currentTeamName;
+                    
+                    // Assegna i marcatori in base alla posizione effettiva della squadra
+                    const ourScorers = isTeam1 ? match.scorers1 : match.scorers2;
+                    const theirScorers = isTeam1 ? match.scorers2 : match.scorers1;
+                    const opponentName = isTeam1 ? match.team2 : match.team1;
+                    
+                    const team1ScorersText = ourScorers && ourScorers.length > 0 ? 
+                        `<br><span>Marcatori ${currentTeamName}: ${ourScorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
+                    const team2ScorersText = theirScorers && theirScorers.length > 0 ? 
+                        `<br><span>Marcatori ${opponentName}: ${theirScorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
                     const notesText = match.notes && match.notes.trim() ? 
                         `<br><span class="font-semibold text-yellow-300">Note: ${match.notes}</span>` : '';
 
