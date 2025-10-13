@@ -1795,6 +1795,170 @@
         }
 
         /**
+         * Navigation History Management System
+         * Manages browser history to allow back button navigation between app screens
+         */
+        let navigationHistoryEnabled = true;
+        let currentScreen = 'login'; // Track current screen state
+        
+        // Initialize history state on page load
+        function initializeNavigationHistory() {
+            // Set initial state
+            history.replaceState({ screen: 'login' }, '', '');
+            currentScreen = 'login';
+            
+            // Listen for popstate events (back button)
+            window.addEventListener('popstate', handlePopState);
+        }
+        
+        // Handle browser back button
+        function handlePopState(event) {
+            if (!navigationHistoryEnabled) return;
+            
+            const state = event.state;
+            if (!state || !state.screen) {
+                // If no state, default to login
+                navigateToScreen('login', false);
+                return;
+            }
+            
+            // Navigate to the screen without pushing a new history entry
+            navigateToScreen(state.screen, false);
+        }
+        
+        // Navigate to a specific screen
+        function navigateToScreen(screenName, pushState = true) {
+            console.log(`Navigating to screen: ${screenName}, pushState: ${pushState}`);
+            
+            // Push history state if requested
+            if (pushState && navigationHistoryEnabled) {
+                history.pushState({ screen: screenName }, '', '');
+            }
+            
+            currentScreen = screenName;
+            
+            // Route to appropriate screen handler
+            switch(screenName) {
+                case 'login':
+                    showLoginScreen();
+                    break;
+                case 'menu':
+                    showMenuScreen();
+                    break;
+                case 'welcome':
+                    showWelcomeScreenNav();
+                    break;
+                case 'players':
+                    showPlayersManagementNav();
+                    break;
+                case 'history':
+                    showHistoryModalNav();
+                    break;
+                case 'game':
+                    showGameScreen();
+                    break;
+                default:
+                    console.warn(`Unknown screen: ${screenName}`);
+            }
+        }
+        
+        // Screen display functions for navigation
+        function showLoginScreen() {
+            menuScreen.style.display = 'none';
+            welcomeScreen.style.display = 'none';
+            playersManagementScreen.style.display = 'none';
+            mainApp.style.display = 'none';
+            loginScreen.style.display = 'flex';
+            document.body.classList.add('login-background');
+            
+            // Hide history modal if open
+            const historyModal = document.getElementById('history-modal');
+            if (historyModal) {
+                historyModal.classList.remove('is-active');
+            }
+            
+            // Clear current club data
+            currentClub = null;
+            currentPlayers = [...defaultPlayers];
+            players = [...defaultPlayers];
+            
+            // Clear login form
+            document.getElementById('login-code-input').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        }
+        
+        function showMenuScreen() {
+            loginScreen.style.display = 'none';
+            welcomeScreen.style.display = 'none';
+            playersManagementScreen.style.display = 'none';
+            mainApp.style.display = 'none';
+            menuScreen.style.display = 'flex';
+            document.body.classList.remove('login-background');
+            
+            // Hide history modal if open
+            const historyModal = document.getElementById('history-modal');
+            if (historyModal) {
+                historyModal.classList.remove('is-active');
+            }
+        }
+        
+        function showWelcomeScreenNav() {
+            loginScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            playersManagementScreen.style.display = 'none';
+            mainApp.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            
+            // Hide history modal if open
+            const historyModal = document.getElementById('history-modal');
+            if (historyModal) {
+                historyModal.classList.remove('is-active');
+            }
+        }
+        
+        function showPlayersManagementNav() {
+            loginScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            welcomeScreen.style.display = 'none';
+            mainApp.style.display = 'none';
+            playersManagementScreen.style.display = 'flex';
+            
+            // Hide history modal if open
+            const historyModal = document.getElementById('history-modal');
+            if (historyModal) {
+                historyModal.classList.remove('is-active');
+            }
+            
+            // Update UI
+            updatePlayersListUI();
+        }
+        
+        function showHistoryModalNav() {
+            // History modal is shown over menu, so go back to menu
+            navigateToScreen('menu', false);
+            // Then show history modal
+            renderHistory(!isFirstHistoryOpen);
+            if (isFirstHistoryOpen) {
+                isFirstHistoryOpen = false;
+            }
+            document.getElementById('history-modal').classList.add('is-active');
+        }
+        
+        function showGameScreen() {
+            loginScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            welcomeScreen.style.display = 'none';
+            playersManagementScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            
+            // Hide history modal if open
+            const historyModal = document.getElementById('history-modal');
+            if (historyModal) {
+                historyModal.classList.remove('is-active');
+            }
+        }
+
+        /**
          * Salvataggio automatico dello stato della partita in localStorage
          * Salva tutti i dati correnti della partita per permettere il ripristino in caso di reload accidentale
          * Include stato completo del timer e timestamp dei marcatori per ripristino accurato
@@ -2639,9 +2803,8 @@ Per evitare che lo schermo si spenga:
                 if (statsTeam1TitleElement) statsTeam1TitleElement.textContent = currentClub.nome;
             }
 
-            // Hide welcome screen and show main app
-            welcomeScreen.style.display = 'none';
-            mainApp.style.display = 'block';
+            // Navigate to game screen with history management
+            navigateToScreen('game', true);
             
             // Mostra il tasto dello storico quando si inizia una nuova partita
             const historyButton = document.getElementById('show-history-button');
@@ -2717,10 +2880,8 @@ Per evitare che lo schermo si spenga:
                     // Setup Firebase history listener for this team
                     setupFirebaseHistoryListener();
                     
-                    // Hide login and show menu
-                    loginScreen.style.display = 'none';
-                    document.body.classList.remove('login-background');
-                    menuScreen.style.display = 'flex';
+                    // Navigate to menu screen with history management
+                    navigateToScreen('menu', true);
                     
                     // Clear input and hide error
                     document.getElementById('login-code-input').value = '';
@@ -2742,8 +2903,7 @@ Per evitare che lo schermo si spenga:
 
         // Show match setup (welcome screen)
         function showMatchSetup() {
-            menuScreen.style.display = 'none';
-            welcomeScreen.style.display = 'flex';
+            navigateToScreen('welcome', true);
             
             // Update team name in welcome screen if needed
             if (currentClub) {
@@ -2753,8 +2913,7 @@ Per evitare che lo schermo si spenga:
 
         // Show players management
         function showPlayersManagement() {
-            menuScreen.style.display = 'none';
-            playersManagementScreen.style.display = 'flex';
+            navigateToScreen('players', true);
             
             // Set the radio button based on current team's period setting
             document.getElementById('periods-2').checked = (teamNumPeriods === 2);
@@ -2851,35 +3010,24 @@ Per evitare che lo schermo si spenga:
 
         // Back to menu from players management
         function backToMenuFromPlayers() {
-            playersManagementScreen.style.display = 'none';
-            menuScreen.style.display = 'flex';
+            // Use browser back instead of direct navigation
+            // This maintains proper history stack
+            window.history.back();
         }
         
         // Back to menu from welcome screen
         function backToMenu() {
-            welcomeScreen.style.display = 'none';
-            menuScreen.style.display = 'flex';
+            // Use browser back instead of direct navigation
+            window.history.back();
             // Clear the opponent name input
             welcomeOpponentName.value = '';
         }
 
         // Back to login
         function backToLogin() {
-            menuScreen.style.display = 'none';
-            loginScreen.style.display = 'flex';
-            document.body.classList.add('login-background');
-            
-            // Don't restart animations when returning to login
-            // The elements should maintain their final animated state
-            
-            // Clear current club data
-            currentClub = null;
-            currentPlayers = [...defaultPlayers];
-            players = [...defaultPlayers];
-            
-            // Clear login form
-            document.getElementById('login-code-input').value = '';
-            document.getElementById('login-error').classList.add('hidden');
+            // Use browser back to return to login (or navigate directly if needed)
+            // Since login might not be in history after successful login, navigate directly
+            navigateToScreen('login', true);
             
             // Add vibration feedback
             vibrate([50]);
@@ -3975,16 +4123,13 @@ Per evitare che lo schermo si spenga:
         }
 
         function showHistoryModal() {
-            renderHistory(!isFirstHistoryOpen); // Pass preserveSelection parameter
-            if (isFirstHistoryOpen) {
-                isFirstHistoryOpen = false; // Mark that history has been opened
-            }
-            document.getElementById('history-modal').classList.add('is-active');
+            navigateToScreen('history', true);
             vibrate([50]); // Add haptic feedback
         }
 
         function hideHistoryModal() {
-            document.getElementById('history-modal').classList.remove('is-active');
+            // Use browser back to close history modal
+            window.history.back();
             vibrate([30]); // Add haptic feedback
         }
 
@@ -4814,6 +4959,9 @@ Per evitare che lo schermo si spenga:
             }
         }
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize navigation history management
+            initializeNavigationHistory();
+            
             // Initialize wake lock support detection
             initializeWakeLock();
             
