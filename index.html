@@ -795,9 +795,6 @@
             list-style: none;
             padding: 0;
             text-align: left;
-            max-height: 40vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
             margin-bottom: 1.5rem;
         }
         .history-item {
@@ -869,8 +866,6 @@
             flex-direction: column;
             gap: 1.5rem;
             flex: 1;
-            overflow-y: auto;
-            max-height: calc(90vh - 200px);
         }
         /* Special styling for history modal to allow larger width */
         #history-modal .modal-content {
@@ -1643,13 +1638,19 @@
                 <!-- Sezione Storico Partite -->
                 <div class="history-section">
                     <h3 class="history-section-title">Partite Giocate</h3>
+                    <div class="mb-4">
+                        <label for="month-filter" class="block text-sm font-medium mb-2">Filtra per mese:</label>
+                        <select id="month-filter" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white">
+                            <option value="all">Tutti i mesi</option>
+                        </select>
+                    </div>
                     <div id="history-list" class="history-list">
                         <!-- History items will be added here -->
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="close-history-button" class="btn btn-goal mt-4 px-8">Chiudi</button>
+                <button id="close-history-button" class="btn btn-back-login mt-4 px-8">Indietro</button>
             </div>
         </div>
     </div>
@@ -4174,6 +4175,37 @@ Per evitare che lo schermo si spenga:
             `;
         }
 
+        // Function to populate month filter dropdown
+        function populateMonthFilter(history) {
+            const monthFilter = document.getElementById('month-filter');
+            if (!monthFilter) return;
+            
+            // Get unique months from history
+            const months = new Set();
+            history.forEach(match => {
+                const matchDate = new Date(match.date);
+                const monthYear = `${matchDate.getFullYear()}-${String(matchDate.getMonth() + 1).padStart(2, '0')}`;
+                months.add(monthYear);
+            });
+            
+            // Sort months in descending order (most recent first)
+            const sortedMonths = Array.from(months).sort((a, b) => b.localeCompare(a));
+            
+            // Clear existing options except "all"
+            monthFilter.innerHTML = '<option value="all">Tutti i mesi</option>';
+            
+            // Add month options
+            sortedMonths.forEach(monthYear => {
+                const [year, month] = monthYear.split('-');
+                const date = new Date(year, parseInt(month) - 1);
+                const monthName = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+                const option = document.createElement('option');
+                option.value = monthYear;
+                option.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                monthFilter.appendChild(option);
+            });
+        }
+
         async function renderHistory() {
             let history = [];
             
@@ -4311,10 +4343,29 @@ Per evitare che lo schermo si spenga:
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
             
-            if (history.length === 0) {
+            // Populate month filter
+            populateMonthFilter(history);
+            
+            // Get selected month filter
+            const selectedMonth = document.getElementById('month-filter').value;
+            
+            // Filter history by selected month
+            let filteredHistory = history;
+            if (selectedMonth !== 'all') {
+                filteredHistory = history.filter(match => {
+                    const matchDate = new Date(match.date);
+                    const monthYear = `${matchDate.getFullYear()}-${String(matchDate.getMonth() + 1).padStart(2, '0')}`;
+                    return monthYear === selectedMonth;
+                });
+            }
+            
+            if (filteredHistory.length === 0) {
                 historyList.innerHTML = '<div class="text-center text-gray-400">Nessuna partita salvata.</div>';
             } else {
-                history.forEach((match, index) => {
+                filteredHistory.forEach((match) => {
+                    // Find the original index in the complete history array
+                    const originalIndex = history.findIndex(m => m.date === match.date && m.team1 === match.team1 && m.team2 === match.team2);
+                    
                     const historyItem = document.createElement('div');
                     historyItem.classList.add('history-item');
                     const formattedDate = new Date(match.date).toLocaleDateString('it-IT', { 
@@ -4338,10 +4389,10 @@ Per evitare che lo schermo si spenga:
                     historyItem.innerHTML = `
                         <div>
                             <div class="flex gap-2 mb-2">
-                                <button class="btn btn-share px-3 py-2 text-sm share-match-btn" data-match-index="${index}">
+                                <button class="btn btn-share px-3 py-2 text-sm share-match-btn" data-match-index="${originalIndex}">
                                     Condividi
                                 </button>
-                                <button class="btn btn-reset px-3 py-2 text-sm delete-match-btn" data-match-id="${match.id || index}">
+                                <button class="btn btn-reset px-3 py-2 text-sm delete-match-btn" data-match-id="${match.id || originalIndex}">
                                     🗑️
                                 </button>
                             </div>
@@ -4955,6 +5006,11 @@ Per evitare che lo schermo si spenga:
             // History event listeners
             document.getElementById('show-history-button').addEventListener('click', showHistoryModal);
             document.getElementById('close-history-button').addEventListener('click', hideHistoryModal);
+            
+            // Month filter event listener
+            document.getElementById('month-filter').addEventListener('change', async () => {
+                await renderHistory();
+            });
 
             // Delete match event listeners
             document.getElementById('confirm-delete-match-button').addEventListener('click', showPasswordDeleteModal);
