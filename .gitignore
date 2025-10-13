@@ -10,8 +10,9 @@ test_player_list_comparison.html
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
+# Build outputs (except dist/tailwind.css which is needed for production)
+dist/*
+!dist/tailwind.css
 build/
 
 # IDE files
