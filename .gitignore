@@ -2,6 +2,7 @@
 test_save_restore.html
 set_test_data.html
 test_notes.html
+test_player_list_comparison.html
 
 # Logs
 *.log
