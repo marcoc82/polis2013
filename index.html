@@ -1176,6 +1176,10 @@
                     <h2 class="text-2xl font-bold mb-4">Accesso</h2>
                     <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
                     <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="remember-code-checkbox" class="mr-2 w-4 h-4 cursor-pointer">
+                        <label for="remember-code-checkbox" class="text-sm cursor-pointer select-none">Ricorda il codice</label>
+                    </div>
                     <div id="login-error" class="text-red-400 mb-4 hidden">Codice non valido</div>
                 </div>
                 <div class="login-button-section">
@@ -2667,6 +2671,7 @@ Per evitare che lo schermo si spenga:
         async function handleLogin() {
             const codeRaw = document.getElementById('login-code-input').value;
             const errorDiv = document.getElementById('login-error');
+            const rememberCheckbox = document.getElementById('remember-code-checkbox');
             
             // Log del codice inserito per debug
             console.log("🚀 Tentativo login con codice:", {
@@ -2687,6 +2692,15 @@ Per evitare che lo schermo si spenga:
                 
                 if (result.success) {
                     console.log("✅ Login riuscito per società:", result.societa.nome);
+                    
+                    // Save or remove the code from localStorage based on checkbox
+                    if (rememberCheckbox && rememberCheckbox.checked) {
+                        localStorage.setItem('polis_remembered_code', codeRaw);
+                        console.log('💾 Codice salvato in localStorage');
+                    } else {
+                        localStorage.removeItem('polis_remembered_code');
+                        console.log('🗑️ Codice rimosso da localStorage');
+                    }
                     
                     currentClub = result.societa;
                     currentPlayers = [...(result.societa.giocatori || defaultPlayers)];
@@ -4859,6 +4873,20 @@ Per evitare che lo schermo si spenga:
                     handleLogin();
                 }
             });
+            
+            // Pre-fill login code from localStorage if it was saved
+            const rememberedCode = localStorage.getItem('polis_remembered_code');
+            if (rememberedCode) {
+                const loginInput = document.getElementById('login-code-input');
+                const rememberCheckbox = document.getElementById('remember-code-checkbox');
+                if (loginInput) {
+                    loginInput.value = rememberedCode;
+                    console.log('✅ Codice precompilato da localStorage');
+                }
+                if (rememberCheckbox) {
+                    rememberCheckbox.checked = true;
+                }
+            }
             
             // Se c'è una partita salvata, aggiungi un listener per mostrare la notifica quando appare il login
             if (hasSavedGame && savedGameInfo) {
