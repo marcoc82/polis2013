@@ -118,6 +118,18 @@ Per installare l'app:
 2. Cercare l'opzione "Installa app" o "Aggiungi alla schermata home"
 3. L'app verrà installata e funzionerà anche offline
 
+### Best Practice: Percorsi Relativi per GitHub Pages
+
+Per garantire la compatibilità con GitHub Pages (es. `https://marcoc82.github.io/polis2013/`), tutti i riferimenti ai file statici utilizzano percorsi relativi **senza slash iniziale**:
+
+- ✅ **Corretto**: `logo-stakick.png`, `manifest.json`, `favicon.ico`
+- ❌ **Errato**: `/logo-stakick.png`, `/manifest.json`, `/favicon.ico`
+
+Questa convenzione si applica a:
+- `manifest.json`: Icone dell'app (192x192, 512x512, 500x500)
+- `index.html`: Favicon e apple-touch-icon
+- `service-worker.js`: File da mettere in cache
+
 ## Licenza
 
 ISC
