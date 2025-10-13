@@ -1,0 +1,17 @@
+{
+  "name": "polis2013",
+  "version": "1.0.0",
+  "main": "firebase-app-modular.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/styles.css -o ./dist/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./src/styles.css -o ./dist/tailwind.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "tailwindcss": "^3.4.18"
+  }
+}
