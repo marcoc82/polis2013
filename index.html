@@ -799,11 +799,43 @@
         }
         .history-item {
             background-color: #334155;
-            padding: 1rem;
+            padding: 0;
             border-radius: 0.75rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             font-size: 1.1rem;
-            text-align: center; /* Centra il contenuto degli elementi dello storico per una migliore leggibilità */
+            overflow: hidden;
+        }
+        .history-item-header {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s;
+        }
+        .history-item-header:hover {
+            background-color: #3f4c5e;
+        }
+        .history-item-summary {
+            flex: 1;
+            text-align: center;
+        }
+        .history-caret {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            user-select: none;
+        }
+        .history-caret.expanded {
+            transform: rotate(90deg);
+        }
+        .history-item-details {
+            display: none;
+            padding: 1rem;
+            border-top: 1px solid #475569;
+            background-color: #2d3748;
+        }
+        .history-item-details.expanded {
+            display: block;
         }
         .history-date {
             font-size: 0.9rem;
@@ -4387,8 +4419,15 @@ Per evitare che lo schermo si spenga:
                     const periodStatsTable = generateMatchPeriodStatsTable(match);
 
                     historyItem.innerHTML = `
-                        <div>
-                            <div class="flex gap-2 mb-2">
+                        <div class="history-item-header" data-match-index="${originalIndex}">
+                            <div class="history-item-summary">
+                                <div class="history-date">${formattedDate}</div>
+                                <div class="font-bold text-xl history-match-title">${match.team1} ${match.score1} - ${match.score2} ${match.team2}</div>
+                            </div>
+                            <span class="history-caret">▶</span>
+                        </div>
+                        <div class="history-item-details">
+                            <div class="flex gap-2 mb-3">
                                 <button class="btn btn-share px-3 py-2 text-sm share-match-btn" data-match-index="${originalIndex}">
                                     Condividi
                                 </button>
@@ -4396,8 +4435,6 @@ Per evitare che lo schermo si spenga:
                                     🗑️
                                 </button>
                             </div>
-                            <div class="history-date">${formattedDate}</div>
-                            <div class="font-bold text-xl history-match-title">${match.team1} ${match.score1} - ${match.score2} ${match.team2}</div>
                             <div class="mt-2 text-sm text-gray-300">
                                 <div>Tiri: ${match.shots1 || 0} - ${match.shots2 || 0}</div>
                                 <div>Corner: ${match.corners1 || 0} - ${match.corners2 || 0}</div>
@@ -4412,6 +4449,22 @@ Per evitare che lo schermo si spenga:
                         </div>
                     `;
                     historyList.appendChild(historyItem);
+                });
+                
+                // Add event listeners to expand/collapse match details
+                document.querySelectorAll('.history-item-header').forEach(header => {
+                    header.addEventListener('click', (e) => {
+                        const details = header.nextElementSibling;
+                        const caret = header.querySelector('.history-caret');
+                        
+                        if (details.classList.contains('expanded')) {
+                            details.classList.remove('expanded');
+                            caret.classList.remove('expanded');
+                        } else {
+                            details.classList.add('expanded');
+                            caret.classList.add('expanded');
+                        }
+                    });
                 });
                 
                 // Add event listeners to delete buttons
