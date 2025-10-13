@@ -1202,7 +1202,7 @@
             <p class="mb-6">Cosa vuoi fare?</p>
             <div class="button-grid-1 gap-4">
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
-                <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Giocatori</button>
+                <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Squadra</button>
                 <button id="view-history-btn" class="btn-history-view btn-large w-full">Vedi Storico</button>
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Torna alla Login</button>
             </div>
@@ -1212,7 +1212,7 @@
     <!-- Schermata gestione giocatori -->
     <div id="players-management-screen" style="display: none;">
         <div class="welcome-content">
-            <h1 class="font-normal text-white text-3xl">Gestione Giocatori</h1>
+            <h1 class="font-normal text-white text-3xl">Gestione Squadra</h1>
             <hr class="my-6">
             <h2 id="players-team-name" class="text-xl font-bold mb-4">POLIS</h2>
             
@@ -1229,6 +1229,23 @@
                         <span class="text-white">3 Tempi</span>
                     </label>
                 </div>
+            </div>
+
+            <!-- Selettore durata tempo -->
+            <div class="mb-4 p-4 bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 text-white">Durata del Tempo (minuti)</h3>
+                <select id="period-duration" class="w-full modal-input">
+                    <option value="10">10 minuti</option>
+                    <option value="12">12 minuti</option>
+                    <option value="15">15 minuti</option>
+                    <option value="18" selected>18 minuti</option>
+                    <option value="20">20 minuti</option>
+                    <option value="25">25 minuti</option>
+                    <option value="30">30 minuti</option>
+                    <option value="35">35 minuti</option>
+                    <option value="40">40 minuti</option>
+                    <option value="45">45 minuti</option>
+                </select>
             </div>
 
             <div class="mb-4">
@@ -1252,8 +1269,26 @@
         <div class="welcome-content">
             <h1 class="polis-text" style="font-size: 5em;">StaKick</h1>
             <hr class="my-6">
-            <p class="mb-6">Per iniziare, inserisci il nome della squadra avversaria, poi ricordati di far partire il tempo!</p>
+            <p class="mb-6">Configura i dettagli della partita prima di iniziare</p>
             <input type="text" id="welcome-opponent-name" placeholder="Nome Squadra Avversaria" class="w-full mb-4 modal-input">
+            
+            <!-- Home/Away selection -->
+            <div class="mb-4 p-4 bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-3 text-white">Tipo di Partita</h3>
+                <div class="flex gap-4 justify-center">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" id="match-type-home" name="matchType" value="home" checked class="mr-2">
+                        <span class="text-white">Casa</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" id="match-type-away" name="matchType" value="away" class="mr-2">
+                        <span class="text-white">Trasferta</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="welcome-error" class="text-red-400 mb-4 hidden text-center">Inserisci il nome della squadra avversaria</div>
+            
             <div class="button-grid-2 gap-2">
                 <button id="back-to-menu-btn" class="btn-gray btn-large w-full">Indietro</button>
                 <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
@@ -2779,7 +2814,24 @@ Per evitare che lo schermo si spenga:
 
         // Start game function
         function startGame() {
-            const opponentName = welcomeOpponentName.value.trim().toUpperCase() || 'SQUADRA 2';
+            const opponentName = welcomeOpponentName.value.trim().toUpperCase();
+            const errorDiv = document.getElementById('welcome-error');
+            
+            // Validate opponent name
+            if (!opponentName || opponentName === '') {
+                errorDiv.classList.remove('hidden');
+                vibrate([200]);
+                return;
+            }
+            
+            // Hide error if validation passes
+            errorDiv.classList.add('hidden');
+            
+            // Get match type (home/away)
+            const matchType = document.querySelector('input[name="matchType"]:checked')?.value || 'home';
+            
+            // Store match type for later use (can be saved with game data)
+            window.currentMatchType = matchType;
             
             // Update opponent names in the interface
             const scoreTeam2NameElement = document.getElementById('score-team2-name');
@@ -2801,6 +2853,13 @@ Per evitare che lo schermo si spenga:
                 
                 const statsTeam1TitleElement = document.getElementById('stats-team1-title');
                 if (statsTeam1TitleElement) statsTeam1TitleElement.textContent = currentClub.nome;
+                
+                // Load and apply saved period duration if available
+                if (currentClub.periodDuration) {
+                    totalSeconds = currentClub.periodDuration * 60;
+                    lastSetSeconds = totalSeconds;
+                    updateTimerDisplay();
+                }
             }
 
             // Navigate to game screen with history management
@@ -2919,6 +2978,11 @@ Per evitare che lo schermo si spenga:
             document.getElementById('periods-2').checked = (teamNumPeriods === 2);
             document.getElementById('periods-3').checked = (teamNumPeriods === 3);
             
+            // Set the period duration if available
+            if (currentClub && currentClub.periodDuration) {
+                document.getElementById('period-duration').value = currentClub.periodDuration.toString();
+            }
+            
             updatePlayersListUI();
         }
 
@@ -2968,13 +3032,19 @@ Per evitare che lo schermo si spenga:
             const selectedPeriods = document.querySelector('input[name="numPeriods"]:checked')?.value || '2';
             const numPeriodsValue = parseInt(selectedPeriods);
             
+            // Get selected period duration
+            const periodDuration = parseInt(document.getElementById('period-duration').value) || 18;
+            
             try {
-                const result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers, numPeriodsValue);
+                const result = await window.aggiornaGiocatoriSocieta(currentClub.id, currentPlayers, numPeriodsValue, periodDuration);
                 
                 if (result.success) {
                     // Update global variables
                     players = [...currentPlayers];
                     teamNumPeriods = numPeriodsValue;
+                    
+                    // Update currentClub with new period duration
+                    currentClub.periodDuration = periodDuration;
                     
                     // Update goal buttons display
                     updateGoalButtonsDisplay();
