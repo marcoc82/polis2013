@@ -2562,44 +2562,6 @@
         }
 
         /**
-         * Gestione eventi touch per prevenire il pull-to-refresh su iOS/Safari
-         * Intercetta gli eventi touch per evitare lo scroll eccessivo che causa il refresh
-         */
-        function setupTouchEventsForPullToRefreshPrevention() {
-            let startY = 0;
-            let isAtTop = false;
-            
-            // Controlla se siamo in cima alla pagina
-            function checkIfAtTop() {
-                return window.pageYOffset === 0 || document.documentElement.scrollTop === 0;
-            }
-            
-            // Gestisce l'inizio del touch
-            document.addEventListener('touchstart', function(e) {
-                startY = e.touches[0].pageY;
-                isAtTop = checkIfAtTop();
-            }, { passive: false });
-            
-            // Gestisce il movimento del touch
-            document.addEventListener('touchmove', function(e) {
-                if (!isAtTop) return; // Se non siamo in cima, permetti lo scroll normale
-                
-                const currentY = e.touches[0].pageY;
-                const deltaY = currentY - startY;
-                
-                // Se stiamo scorrendo verso il basso mentre siamo in cima alla pagina
-                // questo potrebbe attivare il pull-to-refresh
-                if (deltaY > 0) {
-                    // Previeni il pull-to-refresh su iOS/Safari
-                    e.preventDefault();
-                    console.log('🚫 Pull-to-refresh bloccato (iOS/Safari)');
-                }
-            }, { passive: false });
-            
-            console.log('📱 Sistema anti-pull-to-refresh attivato per iOS/Safari');
-        }
-
-        /**
          * Detects if Screen Wake Lock API is supported by the current browser
          * @returns {boolean} True if wake lock is supported
          */
@@ -5124,9 +5086,6 @@ Per evitare che lo schermo si spenga:
             // Initialize wake lock support detection
             initializeWakeLock();
             
-            // Inizializza il sistema anti-pull-to-refresh e ripristino stato
-            setupTouchEventsForPullToRefreshPrevention();
-            
             // Check and restore login state from localStorage if available
             const savedLoginState = localStorage.getItem('polis_login_state');
             let isLoggedIn = false;
@@ -5560,39 +5519,6 @@ Per evitare che lo schermo si spenga:
             console.log('🚪 Page unloading - releasing wake lock');
             releaseWakeLock();
         });
-    </script>
-    
-    <!-- Swipe down to reload script for mobile devices -->
-    <script>
-        (function() {
-            // Variables to track touch position
-            let touchStartY = 0;
-            let touchEndY = 0;
-            
-            // Listen for touch start event
-            document.addEventListener('touchstart', function(e) {
-                touchStartY = e.changedTouches[0].pageY;
-            }, { passive: true });
-            
-            // Listen for touch end event
-            document.addEventListener('touchend', function(e) {
-                touchEndY = e.changedTouches[0].pageY;
-                handleSwipe();
-            }, { passive: true });
-            
-            // Handle the swipe gesture
-            function handleSwipe() {
-                const deltaY = touchEndY - touchStartY;
-                
-                // Check if swipe is downward and exceeds 80px threshold
-                if (deltaY > 80) {
-                    console.log('📱 Swipe down detected (>80px), reloading page...');
-                    location.reload();
-                }
-            }
-            
-            console.log('📱 Swipe-to-reload script initialized');
-        })();
     </script>
 
     <!-- Service Worker Registration -->
