@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Visual Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #1A202C;
+            color: #E2E8F0;
+        }
+
+        .btn {
+            background: linear-gradient(to right, #f97316, #ea580c);
+            border: 2px solid #fb923c;
+            color: white;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(251, 146, 60, 0.4);
+        }
+
+        /* Visual confirmation popup for button presses */
+        .action-confirmation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(72, 187, 120, 0.95);
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            padding: 2rem 3rem;
+            border-radius: 1rem;
+            z-index: 10000;
+            pointer-events: none;
+            animation: confirmationPop 1s ease-out forwards;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes confirmationPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            70% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 2rem;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Conferma Visiva</h1>
+    <div>
+        <button class="btn" onclick="showConfirmation()">Tiro</button>
+        <button class="btn" onclick="showConfirmation()">Corner</button>
+        <button class="btn" onclick="showConfirmation()">Fallo</button>
+    </div>
+    <div class="info">
+        <p>Clicca uno dei pulsanti per vedere la conferma visiva (popup "+" per 1 secondo)</p>
+    </div>
+
+    <script>
+        function showConfirmation() {
+            // Create popup element
+            const popup = document.createElement('div');
+            popup.className = 'action-confirmation';
+            popup.textContent = '+';
+            
+            // Add to body
+            document.body.appendChild(popup);
+            
+            // Remove after animation completes (1 second)
+            setTimeout(() => {
+                popup.remove();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
