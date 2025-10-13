@@ -1,10 +1,14 @@
 // Nome della cache
-const CACHE_NAME = 'polis-counter-v1.7';
+const CACHE_NAME = 'polis-counter-v3.0';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
   './manifest.json',
   './dist/tailwind.css',
+  './logo stakick.png',
+  './favicon-48x48.png',
+  './gol.png',
+  './fischio.mp3',
   'https://html2canvas.hertzen.com/dist/html2canvas.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap'
 ];

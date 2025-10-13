@@ -1,5 +1,7 @@
 # Quick Reference Guide - Tailwind CSS Build
 
+**Versione 3.0 - Progressive Web App (PWA)**
+
 ## 🚀 Comandi Rapidi
 
 ### Setup Iniziale (una volta sola)
@@ -85,7 +87,9 @@ npm install
 - [ ] Verificato dimensione `dist/tailwind.css` (~10KB)
 - [ ] Testato l'applicazione con il CSS generato
 - [ ] File HTML non contengono riferimenti al CDN
-- [ ] Service worker aggiornato con la nuova versione
+- [ ] Service worker aggiornato alla versione 3.0
+- [ ] Manifest.json presente e valido
+- [ ] Testata funzionalità PWA (installazione e offline mode)
 
 ## 🎯 Struttura Progetto
 
@@ -96,10 +100,11 @@ polis2013/
 ├── dist/
 │   └── tailwind.css            # Output: CSS compilato
 ├── index.html                  # Include: ./dist/tailwind.css
+├── manifest.json               # PWA manifest (v3.0)
 ├── polis v4.html               # Include: ./dist/tailwind.css
-├── service-worker.js           # Cache: ./dist/tailwind.css
+├── service-worker.js           # Cache: ./dist/tailwind.css (v3.0)
 ├── tailwind.config.js          # Config: file da scansionare
-├── package.json                # Script: build:css, watch:css
+├── package.json                # Script: build:css, watch:css (v3.0.0)
 └── README.md                   # Documentazione completa
 ```
 
@@ -120,9 +125,16 @@ polis2013/
 
 ## 📞 Supporto
 
-- **README.md** - Documentazione generale
-- **DEPLOYMENT.md** - Guida al deployment
+- **README.md** - Documentazione generale e info PWA 3.0
+- **DEPLOYMENT.md** - Guida al deployment e testing PWA
 - **Questo file** - Quick reference
+
+## 📱 PWA Features (v3.0)
+
+- **Installabile**: L'app può essere installata su dispositivi
+- **Offline**: Funziona completamente offline
+- **Service Worker**: Cache automatica delle risorse (v3.0)
+- **Manifest**: Configurazione completa PWA
 
 ---
 *Ultima modifica: Ottobre 2025*
