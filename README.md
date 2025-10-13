@@ -2,6 +2,17 @@
 
 Applicazione web per il conteggio delle partite di calcio con statistiche in tempo reale.
 
+**Versione 3.0 - Progressive Web App (PWA)**
+
+## Caratteristiche PWA
+
+Dalla versione 3.0, StaKick è una Progressive Web App completa con:
+
+- 📱 **Installabile**: Può essere installata come app sul dispositivo
+- 🔌 **Offline**: Funziona completamente offline grazie al service worker
+- ⚡ **Veloce**: Risorse cached per caricamento istantaneo
+- 🎨 **Standalone**: Si apre come app nativa senza la barra del browser
+
 ## Requisiti
 
 - Node.js (versione 14 o superiore)
@@ -59,7 +70,8 @@ polis2013/
 ├── dist/
 │   └── tailwind.css        # CSS compilato e minificato (generato)
 ├── index.html              # File HTML principale
-├── service-worker.js       # Service worker per PWA
+├── manifest.json           # PWA manifest
+├── service-worker.js       # Service worker per PWA (v3.0)
 ├── tailwind.config.js      # Configurazione Tailwind CSS
 ├── package.json            # Dipendenze e script npm
 └── README.md               # Questo file
@@ -91,6 +103,20 @@ Questo progetto è stato migrato dall'utilizzo del CDN Tailwind CSS (`https://cd
 - **Offline**: L'applicazione funziona completamente offline grazie al service worker
 - **Sicurezza**: Riduce la dipendenza da risorse esterne
 - **Dimensioni**: Il file CSS finale è molto più piccolo del framework completo
+
+## Progressive Web App (PWA)
+
+Dalla versione 3.0, l'applicazione è una PWA completa:
+
+- **Manifest**: `manifest.json` definisce nome, icone, colori e comportamento dell'app
+- **Service Worker**: Cache intelligente delle risorse per funzionamento offline
+- **Installabile**: Gli utenti possono installare l'app sul proprio dispositivo
+- **Aggiornamenti automatici**: Il service worker gestisce automaticamente gli aggiornamenti
+
+Per installare l'app:
+1. Aprire l'applicazione in un browser compatibile (Chrome, Edge, Safari, ecc.)
+2. Cercare l'opzione "Installa app" o "Aggiungi alla schermata home"
+3. L'app verrà installata e funzionerà anche offline
 
 ## Licenza
 
