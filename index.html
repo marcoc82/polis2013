@@ -34,10 +34,9 @@
 
         /* Ulteriori precauzioni per iOS/Safari - limita il comportamento di overscroll */
         body {
-            position: fixed; /* Alternativa per iOS quando overscroll-behavior non è supportato */
+            /* position: fixed removed to prevent scroll position reset on swipe/reload */
+            /* overscroll-behavior-y: contain is sufficient for modern browsers */
             width: 100%;
-            top: 0;
-            left: 0;
             overflow-x: hidden;
             overflow-y: auto;
         }
@@ -2987,6 +2986,16 @@ Per evitare che lo schermo si spenga:
                     players = [...currentPlayers];
                     teamNumPeriods = result.societa.numPeriods || 2; // Load team's period setting, default to 2
                     
+                    // Save login state to localStorage for persistence across reloads/swipes
+                    const loginState = {
+                        club: result.societa,
+                        players: currentPlayers,
+                        numPeriods: teamNumPeriods,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('polis_login_state', JSON.stringify(loginState));
+                    console.log('💾 Stato login salvato in localStorage');
+                    
                     // Update team names
                     const menuTeamNameElement = document.getElementById('menu-team-name');
                     if (menuTeamNameElement) menuTeamNameElement.textContent = `Benvenuto, ${currentClub.nome}!`;
@@ -3153,6 +3162,10 @@ Per evitare che lo schermo si spenga:
 
         // Back to login
         function backToLogin() {
+            // Clear login state from localStorage when user explicitly logs out
+            localStorage.removeItem('polis_login_state');
+            console.log('🗑️ Stato login rimosso da localStorage');
+            
             // Use browser back to return to login (or navigate directly if needed)
             // Since login might not be in history after successful login, navigate directly
             navigateToScreen('login', true);
@@ -5114,6 +5127,50 @@ Per evitare che lo schermo si spenga:
             // Inizializza il sistema anti-pull-to-refresh e ripristino stato
             setupTouchEventsForPullToRefreshPrevention();
             
+            // Check and restore login state from localStorage if available
+            const savedLoginState = localStorage.getItem('polis_login_state');
+            let isLoggedIn = false;
+            
+            if (savedLoginState) {
+                try {
+                    const loginState = JSON.parse(savedLoginState);
+                    const timeDiff = Date.now() - loginState.timestamp;
+                    const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 giorni in millisecondi
+                    
+                    // Check if login state is still valid
+                    if (timeDiff <= maxAge && loginState.club) {
+                        // Restore login state
+                        currentClub = loginState.club;
+                        currentPlayers = loginState.players || [...defaultPlayers];
+                        players = [...currentPlayers];
+                        teamNumPeriods = loginState.numPeriods || 2;
+                        
+                        // Update team names in UI
+                        const menuTeamNameElement = document.getElementById('menu-team-name');
+                        if (menuTeamNameElement) menuTeamNameElement.textContent = `Benvenuto, ${currentClub.nome}!`;
+                        
+                        const playersTeamNameElement = document.getElementById('players-team-name');
+                        if (playersTeamNameElement) playersTeamNameElement.textContent = currentClub.nome;
+                        
+                        // Setup Firebase history listener for this team
+                        setupFirebaseHistoryListener();
+                        
+                        // Navigate to menu screen instead of showing login
+                        navigateToScreen('menu', false);
+                        isLoggedIn = true;
+                        
+                        console.log('✅ Stato login ripristinato da localStorage:', currentClub.nome);
+                    } else {
+                        // Login state expired or invalid
+                        localStorage.removeItem('polis_login_state');
+                        console.log('⏰ Stato login scaduto o non valido, rimosso da localStorage');
+                    }
+                } catch (error) {
+                    console.error('❌ Errore nel ripristino dello stato login:', error);
+                    localStorage.removeItem('polis_login_state');
+                }
+            }
+            
             // Controlla se c'è una partita salvata disponibile prima di mostrare il login
             // Questo permetterà di mostrare la notifica cliccabile nella schermata di login
             const savedState = localStorage.getItem('polis_current_game_state');
@@ -5149,7 +5206,7 @@ Per evitare che lo schermo si spenga:
             
             // Se non c'è una partita salvata, tenta di ripristinare lo stato della partita se presente
             // (questo succede quando si ricarica la pagina durante una partita)
-            if (!hasSavedGame) {
+            if (!hasSavedGame && isLoggedIn) {
                 const restorationInfo = restoreGameState();
                 if (restorationInfo) {
                     // Aggiorna la UI con lo stato ripristinato
