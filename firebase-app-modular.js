@@ -185,12 +185,13 @@ window.verificaCodice = async function(codice) {
   }
 };
 
-window.aggiornaGiocatoriSocieta = async function(societaId, nuoviGiocatori, numPeriods = 2) {
+window.aggiornaGiocatoriSocieta = async function(societaId, nuoviGiocatori, numPeriods = 2, periodDuration = 18) {
   try {
     const societaRef = doc(db, "societa", societaId);
     await updateDoc(societaRef, {
       giocatori: nuoviGiocatori,
-      numPeriods: numPeriods
+      numPeriods: numPeriods,
+      periodDuration: periodDuration
     });
     return { success: true };
   } catch (e) {
@@ -238,6 +239,7 @@ window.creaSocietaEsempio = async function() {
       codici: ["Polis2013", "delete123"], // Codice case-sensitive esatto + password per eliminazione
       nome: "POLIS",
       numPeriods: 2, // Default to 2 periods
+      periodDuration: 18, // Default period duration in minutes
       giocatori: [
         "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
         "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
