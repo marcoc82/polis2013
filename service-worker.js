@@ -5,7 +5,7 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   './dist/tailwind.css',
-  './logo-stakick.png',
+  'logo-stakick.png',
   './favicon-48x48.png',
   './gol.png',
   './fischio.mp3',
