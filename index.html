@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StaKick</title>
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <!-- Best practice: use relative paths (without leading slash) for GitHub Pages compatibility -->
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <link rel="stylesheet" href="./dist/tailwind.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -5537,11 +5538,12 @@ Per evitare che lo schermo si spenga:
     </script>
 
     <!-- Service Worker Registration -->
+    <!-- Best practice: use relative paths (without leading slash) for GitHub Pages compatibility -->
     <script>
         // Register service worker for PWA functionality
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('service-worker.js')
                     .then(registration => {
                         console.log('✅ Service Worker registered successfully:', registration.scope);
                     })
