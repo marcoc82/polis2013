@@ -66,7 +66,7 @@ I seguenti file devono essere presenti sul server:
 ├── service-worker.js         # Service worker per PWA (v3.0)
 ├── manifest.json             # Manifest PWA (OBBLIGATORIO per PWA)
 ├── firebase-app-modular.js   # Firebase SDK
-├── logo stakick.png          # Icona app (per PWA)
+├── logo-stakick.png          # Icona app (per PWA)
 ├── favicon-48x48.png         # Favicon (per PWA)
 └── [altri file statici]      # Immagini, icone, audio, ecc.
 ```
