@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Test PWA Files</title>
+  <style>
+    body { font-family: sans-serif; background: #141b2b; color: #e2e8f0; padding: 2em; }
+    .ok { color: #4ade80; font-weight: bold; }
+    .fail { color: #f87171; font-weight: bold; }
+    ul { margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Test PWA Files su GitHub Pages</h1>
+  <ul id="results"></ul>
+  <script>
+    async function checkFile(url) {
+      try {
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.ok) return `<li><span class="ok">${url} OK</span></li>`;
+        else return `<li><span class="fail">${url} Errore ${res.status}</span></li>`;
+      } catch (e) {
+        return `<li><span class="fail">${url} Errore</span></li>`;
+      }
+    }
+    (async function() {
+      const files = [
+        '/manifest.json',
+        '/service-worker.js'
+      ];
+      const results = await Promise.all(files.map(checkFile));
+      document.getElementById('results').innerHTML = results.join('');
+    })();
+  </script>
+</body>
+</html>
