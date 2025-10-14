@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v3.1
+                        Versione: v3.2
                     </div>
                 </div>
             </div>
@@ -1246,6 +1246,9 @@
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Squadra</button>
                 <button id="view-history-btn" class="btn-history-view btn-large w-full">Vedi Storico</button>
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Torna alla Login</button>
+            </div>
+            <div class="app-version mt-4 text-center text-sm text-gray-500">
+                Versione: v3.2
             </div>
         </div>
     </div>
@@ -1326,6 +1329,12 @@
                         <span class="text-white">Trasferta</span>
                     </label>
                 </div>
+            </div>
+            
+            <!-- Lineup button (optional) -->
+            <button id="insert-lineup-btn" class="btn-blue btn-large w-full mb-4">Inserisci Formazione (Opzionale)</button>
+            <div id="lineup-status" class="text-center text-sm mb-4 hidden">
+                <span class="text-green-400">✓ Formazione inserita (<span id="lineup-count">0</span> giocatori)</span>
             </div>
             
             <div id="welcome-error" class="text-red-400 mb-4 hidden text-center">Inserisci il nome della squadra avversaria</div>
@@ -1793,6 +1802,21 @@
         </div>
     </div>
 
+    <!-- Lineup selection modal -->
+    <div id="lineup-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Seleziona Formazione</div>
+            <p class="text-gray-400 mb-4 text-center">Seleziona i giocatori che partecipano alla partita</p>
+            <div id="lineup-player-list" class="player-list" style="max-height: 400px; overflow-y: auto;">
+                <!-- Player checkboxes will be added here via JavaScript -->
+            </div>
+            <div class="flex justify-center gap-4 mt-4">
+                <button id="confirm-lineup-button" class="btn btn-goal px-8">Conferma</button>
+                <button id="cancel-lineup-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let scoreTeam1 = 0;
@@ -1830,6 +1854,7 @@
         let team2Scorers = [];
         let team1Cards = []; // Array for team1 yellow and red cards with player details
         let team2Cards = []; // Array for team2 yellow and red cards with player details
+        let matchLineup = []; // Array for selected players in lineup
         let pendingRemovalAction = null;
         let totalSeconds = 18 * 60;
         let timerInterval = null;
@@ -2119,6 +2144,9 @@
                 currentClub,
                 currentPlayers,
                 
+                // Match lineup
+                matchLineup,
+                
                 // Nomi squadre se disponibili
                 team2Name: document.getElementById('team2-name')?.textContent || '',
                 
@@ -2126,7 +2154,7 @@
                 savedAt: Date.now(),
                 
                 // Versione per compatibilità futura
-                version: '1.6'
+                version: '1.7'
             };
             
             try {
@@ -2213,6 +2241,7 @@
                 team2Scorers = gameState.team2Scorers || [];
                 team1Cards = gameState.team1Cards || [];
                 team2Cards = gameState.team2Cards || [];
+                matchLineup = gameState.matchLineup || [];
                 eventsByPeriod = gameState.eventsByPeriod || { 
                     team1: { 
                         shots: {'1': 0, '2': 0, '3': 0}, 
@@ -3632,7 +3661,11 @@ Per evitare che lo schermo si spenga:
         function showPlayerModal(quarter) {
             const playerList = document.getElementById('player-list');
             playerList.innerHTML = '';
-            players.forEach(player => {
+            
+            // Use lineup if available, otherwise use all players
+            const availablePlayers = matchLineup.length > 0 ? matchLineup : players;
+            
+            availablePlayers.forEach(player => {
                 const playerButton = document.createElement('button');
                 playerButton.textContent = player;
                 playerButton.classList.add('player-btn');
@@ -3651,11 +3684,80 @@ Per evitare che lo schermo si spenga:
             vibrate([30]); // Modal close feedback
         }
 
+        // Lineup modal functions
+        function showLineupModal() {
+            const lineupPlayerList = document.getElementById('lineup-player-list');
+            lineupPlayerList.innerHTML = '';
+            
+            // Use currentPlayers if available, otherwise use players
+            const availablePlayers = currentPlayers.length > 0 ? currentPlayers : players;
+            
+            availablePlayers.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'flex items-center p-2 bg-gray-700 rounded mb-2';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `lineup-player-${index}`;
+                checkbox.value = player;
+                checkbox.className = 'mr-3';
+                
+                // Check if player is already in lineup
+                if (matchLineup.includes(player)) {
+                    checkbox.checked = true;
+                }
+                
+                const label = document.createElement('label');
+                label.htmlFor = `lineup-player-${index}`;
+                label.textContent = player;
+                label.className = 'text-white cursor-pointer flex-1';
+                
+                playerDiv.appendChild(checkbox);
+                playerDiv.appendChild(label);
+                lineupPlayerList.appendChild(playerDiv);
+            });
+            
+            document.getElementById('lineup-modal').classList.add('is-active');
+            vibrate([50]); // Modal open feedback
+        }
+        
+        function hideLineupModal() {
+            document.getElementById('lineup-modal').classList.remove('is-active');
+            vibrate([30]); // Modal close feedback
+        }
+        
+        function confirmLineup() {
+            // Get all checked players
+            matchLineup = [];
+            const checkboxes = document.querySelectorAll('#lineup-player-list input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                matchLineup.push(checkbox.value);
+            });
+            
+            // Update status display
+            const lineupStatus = document.getElementById('lineup-status');
+            const lineupCount = document.getElementById('lineup-count');
+            
+            if (matchLineup.length > 0) {
+                lineupCount.textContent = matchLineup.length;
+                lineupStatus.classList.remove('hidden');
+            } else {
+                lineupStatus.classList.add('hidden');
+            }
+            
+            hideLineupModal();
+            vibrate([100, 50, 100]); // Success feedback
+        }
+
         // Card player modal functions
         function showCardPlayerModal(cardType, quarter) {
             const playerList = document.getElementById('player-list');
             playerList.innerHTML = '';
-            players.forEach(player => {
+            
+            // Use lineup if available, otherwise use all players
+            const availablePlayers = matchLineup.length > 0 ? matchLineup : players;
+            
+            availablePlayers.forEach(player => {
                 const playerButton = document.createElement('button');
                 playerButton.textContent = player;
                 playerButton.classList.add('player-btn');
@@ -4016,6 +4118,7 @@ Per evitare che lo schermo si spenga:
             team2Scorers = [];
             team1Cards = [];
             team2Cards = [];
+            matchLineup = [];
             matchNotes = '';
 
             // Reset period-based statistics
@@ -4069,6 +4172,12 @@ Per evitare che lo schermo si spenga:
             mainApp.style.display = 'none';
             welcomeScreen.style.display = 'flex';
             welcomeOpponentName.value = '';
+            
+            // Hide lineup status
+            const lineupStatus = document.getElementById('lineup-status');
+            if (lineupStatus) {
+                lineupStatus.classList.add('hidden');
+            }
             
             vibrate([100, 50, 100]); // Reset feedback
         }
@@ -4172,6 +4281,8 @@ Per evitare che lo schermo si spenga:
                 societaId: currentClub?.id,
                 notes: matchNotes,
                 matchType: window.currentMatchType || 'home',
+                // Add match lineup
+                lineup: matchLineup,
                 // Add period-based statistics (swapped if away)
                 eventsByPeriod: isAwayMatch ? {
                     team1: eventsByPeriod.team2,
@@ -5251,6 +5362,11 @@ Per evitare che lo schermo si spenga:
             document.getElementById('save-players-btn').addEventListener('click', savePlayersChanges);
             document.getElementById('back-to-menu-from-players-btn').addEventListener('click', backToMenuFromPlayers);
             document.getElementById('back-to-menu-btn').addEventListener('click', backToMenu);
+            
+            // Lineup button
+            document.getElementById('insert-lineup-btn').addEventListener('click', showLineupModal);
+            document.getElementById('confirm-lineup-button').addEventListener('click', confirmLineup);
+            document.getElementById('cancel-lineup-button').addEventListener('click', hideLineupModal);
             
             // Start game button
             startGameBtn.addEventListener('click', startGame);
