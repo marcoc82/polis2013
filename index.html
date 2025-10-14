@@ -4993,6 +4993,14 @@ Per evitare che lo schermo si spenga:
                     cardSections++;
                 }
                 
+                // Calculate height for lineup (assuming max 50 characters per line)
+                let lineupLines = 0;
+                if (lineup && lineup.length > 0) {
+                    const lineupText = lineup.join(', ');
+                    // Count actual data lines (not including header)
+                    lineupLines = Math.ceil(lineupText.length / 45); // Conservative estimate (45 chars/line due to word wrapping)
+                }
+                
                 // Calculate height for notes (assuming max 50 characters per line)
                 let notesLines = 0;
                 if (notes && notes.trim()) {
@@ -5006,6 +5014,9 @@ Per evitare che lo schermo si spenga:
                     (cardSections * headerHeight) + 
                     (totalCards * lineHeight) + 
                     (cardSections * scorersMargin) + 
+                    (lineupLines > 0 ? headerHeight : 0) + // Header "Formazione:"
+                    (lineupLines * lineHeight) + // Data lines
+                    (lineupLines > 0 ? scorersMargin : 0) +
                     (notesLines * notesLineHeight) +
                     (notesLines > 0 ? notesMargin : 0) +
                     60; // Bottom padding
