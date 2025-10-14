@@ -4825,6 +4825,8 @@ Per evitare che lo schermo si spenga:
                         `<br><span>Marcatori ${currentTeamName}: ${ourScorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
                     const team2ScorersText = theirScorers && theirScorers.length > 0 ? 
                         `<br><span>Marcatori ${opponentName}: ${theirScorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
+                    const lineupText = match.lineup && match.lineup.length > 0 ?
+                        `<br><span class="font-semibold text-blue-300">Formazione: ${match.lineup.join(', ')}</span>` : '';
                     const notesText = match.notes && match.notes.trim() ? 
                         `<br><span class="font-semibold text-yellow-300">Note: ${match.notes}</span>` : '';
 
@@ -4856,6 +4858,7 @@ Per evitare che lo schermo si spenga:
                                 <div>Cartellini rossi: ${match.redCards1 || 0} - ${match.redCards2 || 0}</div>
                                 ${team1ScorersText}
                                 ${team2ScorersText}
+                                ${lineupText}
                                 ${notesText}
                             </div>
                             ${periodStatsTable}
@@ -4905,7 +4908,7 @@ Per evitare che lo schermo si spenga:
         async function shareSingleMatch(matchData = null) {
             vibrate([50]); // Button feedback
             
-            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, yellowCards1, yellowCards2, redCards1, redCards2, scorers1, scorers2, cards1, cards2, notes;
+            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, yellowCards1, yellowCards2, redCards1, redCards2, scorers1, scorers2, cards1, cards2, notes, lineup;
             
             if (matchData) {
                 // Use provided match data (for history sharing)
@@ -4928,6 +4931,7 @@ Per evitare che lo schermo si spenga:
                 cards1 = matchData.cards1 || [];
                 cards2 = matchData.cards2 || [];
                 notes = matchData.notes || '';
+                lineup = matchData.lineup || [];
             } else {
                 // Use current game data (for main share button)
                 team1Name = currentClub ? currentClub.nome : 'POLIS';
@@ -4950,6 +4954,7 @@ Per evitare che lo schermo si spenga:
                 cards2 = team2Cards;
                 const notesElement = document.getElementById('match-notes');
                 notes = notesElement ? notesElement.value.trim() : '';
+                lineup = matchLineup || [];
             }
             
             try {
@@ -5101,10 +5106,56 @@ Per evitare che lo schermo si spenga:
                     });
                 }
                 
+                // Lineup
+                let lineupStartY;
+                if (lineup && lineup.length > 0) {
+                    if (cards2.length > 0) {
+                        lineupStartY = cardsStartY + 30 + (cards1.length * 25) + 30 + 30 + (cards2.length * 25) + 30;
+                    } else if (cards1.length > 0) {
+                        lineupStartY = cardsStartY + 30 + (cards1.length * 25) + 30;
+                    } else if (scorers2.length > 0) {
+                        lineupStartY = 570 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
+                    } else if (scorers1.length > 0) {
+                        lineupStartY = 570 + (scorers1.length * 25) + 30;
+                    } else {
+                        lineupStartY = 540;
+                    }
+                    
+                    ctx.fillText('Formazione:', 50, lineupStartY);
+                    
+                    // Break lineup into lines (max 50 characters per line)
+                    const lineupText = lineup.join(', ');
+                    const words = lineupText.split(' ');
+                    let currentLine = '';
+                    let lineIndex = 0;
+                    
+                    for (const word of words) {
+                        const testLine = currentLine + word + ' ';
+                        if (testLine.length <= 50) {
+                            currentLine = testLine;
+                        } else {
+                            if (currentLine) {
+                                ctx.fillText(currentLine.trim(), 70, lineupStartY + 30 + (lineIndex * 25));
+                                lineIndex++;
+                            }
+                            currentLine = word + ' ';
+                        }
+                    }
+                    
+                    // Draw the last line
+                    if (currentLine) {
+                        ctx.fillText(currentLine.trim(), 70, lineupStartY + 30 + (lineIndex * 25));
+                    }
+                }
+                
                 // Notes
                 if (notes && notes.trim()) {
                     let notesStartY;
-                    if (cards2.length > 0) {
+                    if (lineup && lineup.length > 0) {
+                        // Calculate based on lineup position
+                        const lineupLines = Math.ceil(lineup.join(', ').length / 50);
+                        notesStartY = lineupStartY + 30 + (lineupLines * 25) + 30;
+                    } else if (cards2.length > 0) {
                         notesStartY = cardsStartY + 30 + (cards1.length * 25) + 30 + 30 + (cards2.length * 25) + 30;
                     } else if (cards1.length > 0) {
                         notesStartY = cardsStartY + 30 + (cards1.length * 25) + 30;
