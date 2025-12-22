@@ -2092,6 +2092,7 @@
                 // Punteggi e statistiche base
                 scoreTeam1,
                 scoreTeam2,
+		team1Shooters,
                 shotsTeam1,
                 cornersTeam1,
                 foulsTeam1,
@@ -2243,6 +2244,9 @@
                 
                 team1Scorers = gameState.team1Scorers || [];
                 team2Scorers = gameState.team2Scorers || [];
+		team1Shooters = gameState.team1Shooters || {};
+		// Aggiorna subito la lista visiva se ci sono dati
+		setTimeout(updateShootersList, 100);
                 team1Cards = gameState.team1Cards || [];
                 team2Cards = gameState.team2Cards || [];
                 matchLineup = gameState.matchLineup || [];
@@ -4336,6 +4340,7 @@ if(document.getElementById('shooters-list-1')) {
                 score1: isAwayMatch ? scoreTeam2 : scoreTeam1,
                 score2: isAwayMatch ? scoreTeam1 : scoreTeam2,
                 shots1: isAwayMatch ? shotsTeam2 : shotsTeam1,
+		shooters1: isAwayMatch ? {} : team1Shooters, // Salva l'oggetto dei tiratori
                 corners1: isAwayMatch ? cornersTeam2 : cornersTeam1,
                 fouls1: isAwayMatch ? foulsTeam2 : foulsTeam1,
                 yellowCards1: isAwayMatch ? yellowCardsTeam2 : yellowCardsTeam1,
@@ -4897,6 +4902,20 @@ if(document.getElementById('shooters-list-1')) {
                         `<br><span>Marcatori ${currentTeamName}: ${ourScorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
                     const team2ScorersText = theirScorers && theirScorers.length > 0 ? 
                         `<br><span>Marcatori ${opponentName}: ${theirScorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
+// --- NUOVO CODICE DA INSERIRE ---
+// Formatta l'oggetto shooters1 (es: "Rossi: 2, Bianchi: 1")
+let team1ShootersText = '';
+const shootersData = isTeam1 ? match.shooters1 : match.shooters2; // Prende i dati giusti
+
+if (shootersData && Object.keys(shootersData).length > 0) {
+    // Converte l'oggetto in una stringa leggibile
+    const shootersList = Object.entries(shootersData)
+        .map(([name, count]) => `${name} (${count})`)
+        .join(', ');
+    
+    team1ShootersText = `<br><span class="text-gray-400" style="font-size: 0.9em;">👟 Tiri ${currentTeamName}: ${shootersList}</span>`;
+}
+// --------------------------------
                     const lineupText = match.lineup && match.lineup.length > 0 ?
                         `<br><span class="font-semibold text-blue-300">Formazione: ${match.lineup.join(', ')}</span>` : '';
                     const notesText = match.notes && match.notes.trim() ? 
@@ -4929,6 +4948,7 @@ if(document.getElementById('shooters-list-1')) {
                                 <div>Cartellini gialli: ${match.yellowCards1 || 0} - ${match.yellowCards2 || 0}</div>
                                 <div>Cartellini rossi: ${match.redCards1 || 0} - ${match.redCards2 || 0}</div>
                                 ${team1ScorersText}
+				${team1ShootersText}  ${team2ScorersText}
                                 ${team2ScorersText}
                                 ${lineupText}
                                 ${notesText}
