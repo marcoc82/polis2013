@@ -1515,6 +1515,9 @@
                         <span>Cartellini rossi</span>
                         <span id="red-cards-team1">0</span>
                     </div>
+		    <div id="shooters-list-1" class="scorer-list">
+    			<h4>Tiri:</h4>
+		    </div>
                     <div id="scorers-list-1" class="scorer-list">
                         <h4>Marcatori:</h4>
                     </div>
@@ -1832,7 +1835,8 @@
         let yellowCardsTeam2 = 0;
         let redCardsTeam2 = 0;
         let matchNotes = '';
-        
+        let team1Shooters = {}; // Oggetto per contare i tiri per giocatore
+
         // Period-based statistics storage
         let eventsByPeriod = {
             team1: {
@@ -3501,6 +3505,24 @@ Per evitare che lo schermo si spenga:
             }
         }
 
+function updateShootersList() {
+    const list = document.getElementById('shooters-list-1');
+    if (!list) return;
+
+    list.innerHTML = '<h4>Tiri:</h4>';
+    
+    // Ordina i giocatori per numero di tiri (dal più alto al più basso)
+    const sortedShooters = Object.entries(team1Shooters).sort((a, b) => b[1] - a[1]);
+
+    sortedShooters.forEach(([player, count]) => {
+        const div = document.createElement('div');
+        div.classList.add('scorer-list-item');
+        // Mostra: Nome Giocatore: 3
+        div.textContent = `${player}: ${count}`;
+        list.appendChild(div);
+    });
+}
+
         function startTimer() {
             if (isRunning) return;
             
@@ -3709,16 +3731,19 @@ Per evitare che lo schermo si spenga:
 
 // --- NUOVA FUNZIONE DA AGGIUNGERE ---
 function addShotTeam1(player, quarter) {
-    // Incrementa il contatore dei tiri per il periodo corrente
+    // Incrementa contatore totale (codice vecchio)
     eventsByPeriod.team1.shots[currentPeriod.toString()]++;
     
-    // Qui potresti anche salvare il nome del tiratore in un array se volessi farne uno storico dettagliato
-    // Per ora aggiorniamo solo le statistiche numeriche come richiesto
-    
+    // NUOVO: Aggiorna il conteggio specifico del giocatore
+    if (!team1Shooters[player]) {
+        team1Shooters[player] = 0;
+    }
+    team1Shooters[player]++;
+
+    // Aggiorna l'interfaccia
+    updateShootersList();
     updateStats();
-    // Mostra conferma visiva
     showActionConfirmation('+');
-    // Salva lo stato
     saveCurrentGameState();
 }
 
@@ -4189,7 +4214,11 @@ function addShotTeam1(player, quarter) {
             document.getElementById('scorers-list-2').innerHTML = '<h4>Marcatori:</h4>';
             document.getElementById('cards-list-1').innerHTML = '<h4>Cartellini:</h4>';
             document.getElementById('cards-list-2').innerHTML = '<h4>Cartellini:</h4>';
-            
+            team1Shooters = {}; // Resetta variabile
+if(document.getElementById('shooters-list-1')) {
+    document.getElementById('shooters-list-1').innerHTML = '<h4>Tiri:</h4>'; // Pulisci HTML
+}
+
             // Reset notes field
             const notesElement = document.getElementById('match-notes');
             if (notesElement) {
@@ -5596,7 +5625,6 @@ function addShotTeam1(player, quarter) {
     }
     // --- FINE MODIFICA ---
 
-} else if (type === 'foul') {
                         } else if (type === 'foul') {
                             if (!currentPeriod) {
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
