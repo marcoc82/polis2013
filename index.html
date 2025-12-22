@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v3.2
+                        Versione: v3.3
                     </div>
                 </div>
             </div>
@@ -1248,7 +1248,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Torna alla Login</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v3.2
+                Versione: v3.3
             </div>
         </div>
     </div>
@@ -3679,6 +3679,49 @@ Per evitare che lo schermo si spenga:
             vibrate([50]); // Modal open feedback
         }
 
+	// --- NUOVA FUNZIONE DA AGGIUNGERE ---
+		function showShotPlayerModal(quarter) {
+    		const playerList = document.getElementById('player-list');
+    		playerList.innerHTML = '';
+    
+    // Cambiamo temporaneamente il titolo del modale
+    const modalHeader = document.querySelector('#player-modal .modal-header');
+    if(modalHeader) modalHeader.textContent = "Chi ha tirato?"; 
+
+    // Usa la formazione se disponibile, altrimenti tutti i giocatori
+    const availablePlayers = matchLineup.length > 0 ? matchLineup : players;
+    
+    availablePlayers.forEach(player => {
+        const playerButton = document.createElement('button');
+        playerButton.textContent = player;
+        playerButton.classList.add('player-btn');
+        playerButton.addEventListener('click', () => {
+            addShotTeam1(player, quarter);
+            hidePlayerModal();
+            // Ripristina il titolo originale per la prossima volta (opzionale)
+            if(modalHeader) modalHeader.textContent = "Chi ha segnato?";
+        });
+        playerList.appendChild(playerButton);
+    });
+    document.getElementById('player-modal').classList.add('is-active');
+    vibrate([50]); 
+}
+
+// --- NUOVA FUNZIONE DA AGGIUNGERE ---
+function addShotTeam1(player, quarter) {
+    // Incrementa il contatore dei tiri per il periodo corrente
+    eventsByPeriod.team1.shots[currentPeriod.toString()]++;
+    
+    // Qui potresti anche salvare il nome del tiratore in un array se volessi farne uno storico dettagliato
+    // Per ora aggiorniamo solo le statistiche numeriche come richiesto
+    
+    updateStats();
+    // Mostra conferma visiva
+    showActionConfirmation('+');
+    // Salva lo stato
+    saveCurrentGameState();
+}
+
         function hidePlayerModal() {
             document.getElementById('player-modal').classList.remove('is-active');
             vibrate([30]); // Modal close feedback
@@ -5533,21 +5576,27 @@ Per evitare che lo schermo si spenga:
                             showActionConfirmation('+');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
-                        } else if (type === 'shot') {
-                            if (!currentPeriod) {
-                                alert('Seleziona prima il tempo per registrare gli eventi!');
-                                return;
-                            }
-                            if (team === '1') {
-                                eventsByPeriod.team1.shots[currentPeriod.toString()]++;
-                            } else if (team === '2') {
-                                eventsByPeriod.team2.shots[currentPeriod.toString()]++;
-                            }
-                            updateStats();
-                            // Show visual confirmation
-                            showActionConfirmation('+');
-                            // Salva automaticamente lo stato dopo ogni statistica
-                            saveCurrentGameState();
+                      } else if (type === 'shot') {
+   			 if (!currentPeriod) {
+        			alert('Seleziona prima il tempo per registrare gli eventi!');
+        			return;
+    }
+    
+    // --- MODIFICA QUI ---
+    			if (team === '1') {
+        // Invece di incrementare direttamente, apriamo il modale
+        const quarter = `${currentPeriod}°T`;
+        showShotPlayerModal(quarter);
+    } else if (team === '2') {
+        // Per la squadra 2 (avversaria) incrementiamo direttamente come prima
+        eventsByPeriod.team2.shots[currentPeriod.toString()]++;
+        updateStats();
+        showActionConfirmation('+');
+        saveCurrentGameState();
+    }
+    // --- FINE MODIFICA ---
+
+} else if (type === 'foul') {
                         } else if (type === 'foul') {
                             if (!currentPeriod) {
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
