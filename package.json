@@ -1,6 +1,6 @@
 {
   "name": "polis2013",
-  "version": "3.0.0",
+  "version": "3.4",
   "main": "firebase-app-modular.js",
   "scripts": {
     "build:css": "tailwindcss -i ./src/styles.css -o ./dist/tailwind.css --minify",
