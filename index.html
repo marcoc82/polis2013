@@ -3900,7 +3900,7 @@ function addShotTeam1(player, quarter) {
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `${player} - ${minute}' (${quarter})`;
+            newScorer.textContent = `Goal - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-2').appendChild(newScorer);
             team2Scorers.push(scorerData);
             updateScores();
@@ -4170,7 +4170,7 @@ function addShotTeam1(player, quarter) {
                 team2Scorers.forEach(s => {
                     const newScorer = document.createElement('div');
                     newScorer.classList.add('scorer-list-item');
-                    newScorer.textContent = `${s.player} - ${s.minute || 0}' (${s.quarter})`;
+                    newScorer.textContent = `Goal - ${s.minute || 0}' (${s.quarter})`;
                     list.appendChild(newScorer);
                 });
             }
