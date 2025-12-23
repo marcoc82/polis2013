@@ -1805,6 +1805,28 @@
         </div>
     </div>
 
+<div id="edit-match-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">Modifica Partita</div>
+        
+        <div class="mb-4 text-left">
+            <label class="block text-gray-400 mb-2 font-bold">Formazione:</label>
+            <div id="edit-lineup-list" class="player-list" style="max-height: 200px; overflow-y: auto; background: #2D3748; padding: 10px; border-radius: 8px;">
+                </div>
+        </div>
+
+        <div class="mb-6 text-left">
+            <label class="block text-gray-400 mb-2 font-bold">Note:</label>
+            <textarea id="edit-match-notes-input" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:border-blue-400" rows="3"></textarea>
+        </div>
+
+        <div class="flex justify-center gap-4">
+            <button id="save-edit-match-button" class="btn btn-green px-8">Salva</button>
+            <button id="cancel-edit-match-button" class="btn bg-gray-500 hover:bg-gray-600 px-8">Annulla</button>
+        </div>
+    </div>
+</div>
+
     <!-- Lineup selection modal -->
     <div id="lineup-modal" class="modal-overlay">
         <div class="modal-content">
@@ -4940,13 +4962,16 @@ if (shootersData && Object.keys(shootersData).length > 0) {
                         </div>
                         <div class="history-item-details">
                             <div class="flex gap-2 mb-3">
-                                <button class="btn btn-share px-3 py-2 text-sm share-match-btn" data-match-index="${originalIndex}">
-                                    Condividi
-                                </button>
-                                <button class="btn btn-reset px-3 py-2 text-sm delete-match-btn" data-match-id="${match.id || originalIndex}">
-                                    🗑️
-                                </button>
-                            </div>
+    <button class="btn btn-share px-3 py-2 text-sm share-match-btn" data-match-index="${originalIndex}">
+        Condividi
+    </button>
+    <button class="btn btn-reset px-3 py-2 text-sm delete-match-btn" data-match-id="${match.id || originalIndex}">
+        🗑️
+    </button>
+    <button class="btn btn-blue px-3 py-2 text-sm edit-match-btn" data-match-index="${originalIndex}">
+        ✏️ Modifica
+    </button>
+</div>
                             <div class="mt-2 text-sm text-gray-300">
                                 <div>Tiri: ${match.shots1 || 0} - ${match.shots2 || 0}</div>
                                 <div>Corner: ${match.corners1 || 0} - ${match.corners2 || 0}</div>
@@ -4999,6 +5024,14 @@ if (shootersData && Object.keys(shootersData).length > 0) {
                         await shareSingleMatch(matchData);
                     });
                 });
+		// Add event listeners to edit buttons (NUOVO)
+		document.querySelectorAll('.edit-match-btn').forEach(btn => {
+    			btn.addEventListener('click', (e) => {
+        		e.stopPropagation();
+        		const matchIndex = parseInt(e.target.dataset.matchIndex);
+        		showEditMatchModal(matchIndex);
+    });
+});
             }
         }
 
@@ -5313,6 +5346,101 @@ async function shareSingleMatch(matchData = null) {
     } catch (error) {
         console.error('Error creating image:', error);
         alert('Errore immagine.');
+    }
+}
+// Variabile globale per tenere traccia della partita che stiamo modificando
+let currentEditingMatchIndex = null;
+
+// Funzione per aprire il modale di modifica
+function showEditMatchModal(matchIndex) {
+    // Carica la partita dallo storico locale o globale
+    const match = matchHistory[matchIndex];
+    if (!match) return;
+
+    currentEditingMatchIndex = matchIndex;
+    
+    // 1. Popola le Note
+    document.getElementById('edit-match-notes-input').value = match.notes || '';
+
+    // 2. Popola la lista Formazione
+    const listContainer = document.getElementById('edit-lineup-list');
+    listContainer.innerHTML = '';
+    
+    // Combina i giocatori attuali con quelli della formazione salvata (per non perdere ex-giocatori)
+    const savedLineup = match.lineup || [];
+    // Usa un Set per avere giocatori unici
+    const allPlayersSet = new Set([...currentPlayers, ...savedLineup]);
+    const allPlayers = Array.from(allPlayersSet).sort();
+
+    allPlayers.forEach((player, index) => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center p-2 rounded hover:bg-gray-600';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `edit-player-${index}`;
+        checkbox.value = player;
+        checkbox.className = 'mr-3 w-4 h-4';
+        
+        // Se il giocatore era nella formazione salvata, spuntalo
+        if (savedLineup.includes(player)) {
+            checkbox.checked = true;
+        }
+        
+        const label = document.createElement('label');
+        label.htmlFor = `edit-player-${index}`;
+        label.textContent = player;
+        label.className = 'text-white cursor-pointer flex-1';
+        
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        listContainer.appendChild(div);
+    });
+
+    document.getElementById('edit-match-modal').classList.add('is-active');
+    vibrate([50]);
+}
+
+// Funzione per chiudere il modale
+function hideEditMatchModal() {
+    document.getElementById('edit-match-modal').classList.remove('is-active');
+    currentEditingMatchIndex = null;
+    vibrate([30]);
+}
+
+// Funzione per salvare le modifiche
+async function saveMatchEdits() {
+    if (currentEditingMatchIndex === null) return;
+
+    // Recupera i nuovi dati dal modale
+    const newNotes = document.getElementById('edit-match-notes-input').value;
+    
+    const newLineup = [];
+    document.querySelectorAll('#edit-lineup-list input[type="checkbox"]:checked').forEach(box => {
+        newLineup.push(box.value);
+    });
+
+    // Aggiorna l'oggetto nella memoria locale
+    const match = matchHistory[currentEditingMatchIndex];
+    match.notes = newNotes;
+    match.lineup = newLineup;
+
+    try {
+        // Se c'è una funzione per aggiornare Firebase, usala qui
+        if (typeof window.updateGameInFirebase === 'function' && match.id) {
+            await window.updateGameInFirebase(match.id, { notes: newNotes, lineup: newLineup });
+        } else {
+            // Fallback: Aggiorna solo localStorage
+            localStorage.setItem('polis_match_history', JSON.stringify(matchHistory));
+        }
+        
+        alert('Modifiche salvate!');
+        hideEditMatchModal();
+        renderHistory(); // Ricarica la lista per vedere le modifiche
+        vibrate([50, 50]);
+    } catch (error) {
+        console.error("Errore salvataggio modifiche:", error);
+        alert("Errore durante il salvataggio.");
     }
 }
         document.addEventListener('DOMContentLoaded', () => {
@@ -5692,6 +5820,10 @@ async function shareSingleMatch(matchData = null) {
                     confirmPasswordDelete();
                 }
             });
+
+	    // Edit Match Modal listeners (NUOVO)
+ 	    document.getElementById('save-edit-match-button').addEventListener('click', saveMatchEdits);
+	    document.getElementById('cancel-edit-match-button').addEventListener('click', hideEditMatchModal);
 
             // Save and share functionality - separate buttons
             document.getElementById('save-button').addEventListener('click', async () => {
