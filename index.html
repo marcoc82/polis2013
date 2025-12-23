@@ -4921,22 +4921,27 @@ if(document.getElementById('shooters-list-1')) {
                     const theirScorers = isTeam1 ? match.scorers2 : match.scorers1;
                     const opponentName = isTeam1 ? match.team2 : match.team1;
                     
-                    const team1ScorersText = ourScorers && ourScorers.length > 0 ? 
-                        `<br><span>Marcatori ${currentTeamName}: ${ourScorers.map(s => `${s.player} - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
-                    const team2ScorersText = theirScorers && theirScorers.length > 0 ? 
-                        `<br><span>Marcatori ${opponentName}: ${theirScorers.map(s => `Goal - ${s.minute || 0}' (${s.quarter})`).join(', ')}</span>` : '';
-// --- NUOVO CODICE DA INSERIRE ---
-// Formatta l'oggetto shooters1 (es: "Rossi: 2, Bianchi: 1")
+                    // --- CODICE MARCATORI MODIFICATO ---
+const team1ScorersText = ourScorers && ourScorers.length > 0 ? 
+    `<br><span class="font-semibold text-green-400">Marcatori ${currentTeamName}:</span><br>
+    <span class="pl-2">${ourScorers.map(s => `• ${s.player} - ${s.minute || 0}' (${s.quarter})`).join('<br>')}</span>` : '';
+
+const team2ScorersText = theirScorers && theirScorers.length > 0 ? 
+    `<br><span class="font-semibold text-red-400">Marcatori ${opponentName}:</span><br>
+    <span class="pl-2">${theirScorers.map(s => `• Goal - ${s.minute || 0}' (${s.quarter})`).join('<br>')}</span>` : '';
+
+// --- CODICE TIRI (SHOOTERS) MODIFICATO ---
 let team1ShootersText = '';
-const shootersData = isTeam1 ? match.shooters1 : match.shooters2; // Prende i dati giusti
+const shootersData = isTeam1 ? match.shooters1 : match.shooters2;
 
 if (shootersData && Object.keys(shootersData).length > 0) {
-    // Converte l'oggetto in una stringa leggibile
+    // Trasformiamo l'oggetto in una lista con i "pallini" (bullet points) e andiamo a capo
     const shootersList = Object.entries(shootersData)
-        .map(([name, count]) => `${name} (${count})`)
-        .join(', ');
+        .map(([name, count]) => `• ${name}: ${count}`)
+        .join('<br>'); // <--- Questo manda a capo ogni tiratore
     
-    team1ShootersText = `<br><span class="text-gray-400" style="font-size: 0.9em;">👟 Tiri ${currentTeamName}: ${shootersList}</span>`;
+    team1ShootersText = `<br><span class="text-gray-400 font-semibold" style="font-size: 0.9em;">Tiri ${currentTeamName}:</span><br>
+                         <span class="pl-2 text-gray-400" style="font-size: 0.9em;">${shootersList}</span>`;
 }
 // --------------------------------
                     const lineupText = match.lineup && match.lineup.length > 0 ?
