@@ -4918,7 +4918,12 @@ if (shootersData && Object.keys(shootersData).length > 0) {
 }
 // --------------------------------
                     const lineupText = match.lineup && match.lineup.length > 0 ?
-                        `<br><span class="font-semibold text-blue-300">Formazione: ${match.lineup.join(', ')}</span>` : '';
+    `<div class="mt-3">
+        <span class="font-semibold text-blue-300">Formazione:</span><br>
+        <div class="pl-2 mt-1">
+            ${match.lineup.map(player => `• ${player}`).join('<br>')}
+        </div>
+    </div>` : '';
                     const notesText = match.notes && match.notes.trim() ? 
                         `<br><span class="font-semibold text-yellow-300">Note: ${match.notes}</span>` : '';
 
@@ -4998,353 +5003,318 @@ if (shootersData && Object.keys(shootersData).length > 0) {
         }
 
         // Reusable function to generate and share match image
-        async function shareSingleMatch(matchData = null) {
-            vibrate([50]); // Button feedback
-            
-            let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, yellowCards1, yellowCards2, redCards1, redCards2, scorers1, scorers2, cards1, cards2, notes, lineup;
-            
-            if (matchData) {
-                // Use provided match data (for history sharing)
-                team1Name = matchData.team1;
-                team2Name = matchData.team2;
-                score1 = matchData.score1;
-                score2 = matchData.score2;
-                shots1 = matchData.shots1 || 0;
-                shots2 = matchData.shots2 || 0;
-                corners1 = matchData.corners1 || 0;
-                corners2 = matchData.corners2 || 0;
-                fouls1 = matchData.fouls1 || 0;
-                fouls2 = matchData.fouls2 || 0;
-                yellowCards1 = matchData.yellowCards1 || 0;
-                yellowCards2 = matchData.yellowCards2 || 0;
-                redCards1 = matchData.redCards1 || 0;
-                redCards2 = matchData.redCards2 || 0;
-                scorers1 = matchData.scorers1 || [];
-                scorers2 = matchData.scorers2 || [];
-                cards1 = matchData.cards1 || [];
-                cards2 = matchData.cards2 || [];
-                notes = matchData.notes || '';
-                lineup = matchData.lineup || [];
-            } else {
-                // Use current game data (for main share button)
-                team1Name = currentClub ? currentClub.nome : 'POLIS';
-                team2Name = document.getElementById('team2-name').textContent;
-                score1 = scoreTeam1;
-                score2 = scoreTeam2;
-                shots1 = shotsTeam1;
-                shots2 = shotsTeam2;
-                corners1 = cornersTeam1;
-                corners2 = cornersTeam2;
-                fouls1 = foulsTeam1;
-                fouls2 = foulsTeam2;
-                yellowCards1 = yellowCardsTeam1;
-                yellowCards2 = yellowCardsTeam2;
-                redCards1 = redCardsTeam1;
-                redCards2 = redCardsTeam2;
-                scorers1 = team1Scorers;
-                scorers2 = team2Scorers;
-                cards1 = team1Cards;
-                cards2 = team2Cards;
-                const notesElement = document.getElementById('match-notes');
-                notes = notesElement ? notesElement.value.trim() : '';
-                lineup = matchLineup || [];
-            }
-            
-            try {
-                // Create a canvas element to generate a summary image
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Calculate dynamic height based on number of scorers, cards and notes
-                const baseHeight = 460; // Base height up to "Falli" line
-                const scorersMargin = 40; // Space between sections
-                const lineHeight = 25; // Height per scorer line
-                const headerHeight = 30; // Height for scorer headers
-                const notesMargin = 30; // Space for notes section
-                const notesLineHeight = 25; // Height per notes line
-                
-                let totalScorers = 0;
-                let scorerSections = 0;
-                let totalCards = 0;
-                let cardSections = 0;
-                
-                if (scorers1.length > 0) {
-                    totalScorers += scorers1.length;
-                    scorerSections++;
-                }
-                if (scorers2.length > 0) {
-                    totalScorers += scorers2.length;
-                    scorerSections++;
-                }
-                
-                if (cards1.length > 0) {
-                    totalCards += cards1.length;
-                    cardSections++;
-                }
-                if (cards2.length > 0) {
-                    totalCards += cards2.length;
-                    cardSections++;
-                }
-                
-                // Calculate height for lineup (assuming max 50 characters per line)
-                let lineupLines = 0;
-                if (lineup && lineup.length > 0) {
-                    const lineupText = lineup.join(', ');
-                    // Count actual data lines (not including header)
-                    lineupLines = Math.ceil(lineupText.length / 45); // Conservative estimate (45 chars/line due to word wrapping)
-                }
-                
-                // Calculate height for notes (assuming max 50 characters per line)
-                let notesLines = 0;
-                if (notes && notes.trim()) {
-                    notesLines = Math.ceil(notes.length / 50) + 1; // +1 for "Note:" header
-                }
-                
-                const dynamicHeight = baseHeight + 
-                    (scorerSections * headerHeight) + 
-                    (totalScorers * lineHeight) + 
-                    (scorerSections * scorersMargin) + 
-                    (cardSections * headerHeight) + 
-                    (totalCards * lineHeight) + 
-                    (cardSections * scorersMargin) + 
-                    (lineupLines > 0 ? headerHeight : 0) + // Header "Formazione:"
-                    (lineupLines * lineHeight) + // Data lines
-                    (lineupLines > 0 ? scorersMargin : 0) +
-                    (notesLines * notesLineHeight) +
-                    (notesLines > 0 ? notesMargin : 0) +
-                    60; // Bottom padding
-                
-                // Set canvas size with dynamic height
-                canvas.width = 800;
-                canvas.height = Math.max(600, dynamicHeight); // Minimum 600px
-                
-                // Set background
-                ctx.fillStyle = '#1A202C';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Set text styles
-                ctx.fillStyle = '#f1f5f9';
-                ctx.font = 'bold 48px Arial';
-                ctx.textAlign = 'center';
-                
-                // Title
-                ctx.fillText('StaKick', canvas.width / 2, 80);
-                
-                // Date
-                ctx.font = '20px Arial';
-                let currentDate;
-                if (matchData && matchData.date) {
-                    currentDate = new Date(matchData.date).toLocaleDateString('it-IT', { 
-                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-                    });
-                } else {
-                    currentDate = new Date().toLocaleDateString('it-IT', { 
-                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-                    });
-                }
-                ctx.fillText(currentDate, canvas.width / 2, 120);
-                
-                // Team names
-                ctx.font = 'bold 36px Arial';
-                ctx.fillText(team1Name, 200, 200);
-                ctx.fillText(team2Name, 600, 200);
-                
-                // Score
-                ctx.font = 'bold 80px Arial';
-                ctx.fillText(`${score1} - ${score2}`, canvas.width / 2, 280);
-                
-                // Statistics
-                ctx.font = '24px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText('Statistiche:', 50, 350);
-                ctx.fillText(`Tiri: ${shots1} - ${shots2}`, 50, 380);
-                ctx.fillText(`Corner: ${corners1} - ${corners2}`, 50, 410);
-                ctx.fillText(`Falli: ${fouls1} - ${fouls2}`, 50, 440);
-                ctx.fillText(`Cartellini gialli: ${yellowCards1} - ${yellowCards2}`, 50, 470);
-                ctx.fillText(`Cartellini rossi: ${redCards1} - ${redCards2}`, 50, 500);
-                
-                // Markers
-                if (scorers1.length > 0) {
-                    ctx.fillText(`Marcatori ${team1Name}:`, 50, 540);
-                    scorers1.forEach((scorer, index) => {
-                        const text = typeof scorer === 'string' ? scorer : `${scorer.player} - ${scorer.minute || 0}' (${scorer.quarter})`;
-                        ctx.fillText(text, 70, 570 + (index * 25));
-                    });
-                }
-                
-                if (scorers2.length > 0) {
-                    const startY = scorers1.length > 0 ? 570 + (scorers1.length * 25) + 30 : 540;
-                    ctx.fillText(`Marcatori ${team2Name}:`, 50, startY);
-                    scorers2.forEach((scorer, index) => {
-                        const text = typeof scorer === 'string' ? scorer : `Goal - ${scorer.minute || 0}' (${scorer.quarter})`;
-                        ctx.fillText(text, 70, startY + 30 + (index * 25));
-                    });
-                }
-                
-                // Cards section
-                let cardsStartY;
-                if (scorers2.length > 0) {
-                    cardsStartY = 570 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
-                } else if (scorers1.length > 0) {
-                    cardsStartY = 570 + (scorers1.length * 25) + 30;
-                } else {
-                    cardsStartY = 540;
-                }
-                
-                if (cards1.length > 0) {
-                    ctx.fillText(`Cartellini ${team1Name}:`, 50, cardsStartY);
-                    cards1.forEach((card, index) => {
-                        const cardIcon = card.cardType === 'yellow' ? '🟨' : '🟥';
-                        const text = `${cardIcon} ${card.player} - ${card.minute}' (${card.quarter})`;
-                        ctx.fillText(text, 70, cardsStartY + 30 + (index * 25));
-                    });
-                }
-                
-                if (cards2.length > 0) {
-                    const cards2StartY = cards1.length > 0 ? cardsStartY + 30 + (cards1.length * 25) + 30 : cardsStartY;
-                    ctx.fillText(`Cartellini ${team2Name}:`, 50, cards2StartY);
-                    cards2.forEach((card, index) => {
-                        const cardIcon = card.cardType === 'yellow' ? '🟨' : '🟥';
-                        const text = `${cardIcon} ${card.player} - ${card.minute}' (${card.quarter})`;
-                        ctx.fillText(text, 70, cards2StartY + 30 + (index * 25));
-                    });
-                }
-                
-                // Lineup
-                let lineupStartY;
-                if (lineup && lineup.length > 0) {
-                    if (cards2.length > 0) {
-                        lineupStartY = cardsStartY + 30 + (cards1.length * 25) + 30 + 30 + (cards2.length * 25) + 30;
-                    } else if (cards1.length > 0) {
-                        lineupStartY = cardsStartY + 30 + (cards1.length * 25) + 30;
-                    } else if (scorers2.length > 0) {
-                        lineupStartY = 570 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
-                    } else if (scorers1.length > 0) {
-                        lineupStartY = 570 + (scorers1.length * 25) + 30;
-                    } else {
-                        lineupStartY = 540;
-                    }
-                    
-                    ctx.fillText('Formazione:', 50, lineupStartY);
-                    
-                    // Break lineup into lines (max 50 characters per line)
-                    const lineupText = lineup.join(', ');
-                    const words = lineupText.split(' ');
-                    let currentLine = '';
-                    let lineIndex = 0;
-                    
-                    for (const word of words) {
-                        const testLine = currentLine + word + ' ';
-                        if (testLine.length <= 50) {
-                            currentLine = testLine;
-                        } else {
-                            if (currentLine) {
-                                ctx.fillText(currentLine.trim(), 70, lineupStartY + 30 + (lineIndex * 25));
-                                lineIndex++;
-                            }
-                            currentLine = word + ' ';
-                        }
-                    }
-                    
-                    // Draw the last line
-                    if (currentLine) {
-                        ctx.fillText(currentLine.trim(), 70, lineupStartY + 30 + (lineIndex * 25));
-                    }
-                }
-                
-                // Notes
-                if (notes && notes.trim()) {
-                    let notesStartY;
-                    if (lineup && lineup.length > 0) {
-                        // Calculate based on lineup position
-                        const lineupLines = Math.ceil(lineup.join(', ').length / 50);
-                        notesStartY = lineupStartY + 30 + (lineupLines * 25) + 30;
-                    } else if (cards2.length > 0) {
-                        notesStartY = cardsStartY + 30 + (cards1.length * 25) + 30 + 30 + (cards2.length * 25) + 30;
-                    } else if (cards1.length > 0) {
-                        notesStartY = cardsStartY + 30 + (cards1.length * 25) + 30;
-                    } else if (scorers2.length > 0) {
-                        notesStartY = 570 + (scorers1.length * 25) + 30 + 30 + (scorers2.length * 25) + 30;
-                    } else if (scorers1.length > 0) {
-                        notesStartY = 570 + (scorers1.length * 25) + 30;
-                    } else {
-                        notesStartY = 540;
-                    }
-                    
-                    ctx.fillText('Note:', 50, notesStartY);
-                    
-                    // Break notes into lines (max 50 characters per line)
-                    const words = notes.split(' ');
-                    let currentLine = '';
-                    let lineIndex = 0;
-                    
-                    for (const word of words) {
-                        const testLine = currentLine + word + ' ';
-                        if (testLine.length <= 50) {
-                            currentLine = testLine;
-                        } else {
-                            if (currentLine) {
-                                ctx.fillText(currentLine.trim(), 70, notesStartY + 30 + (lineIndex * 25));
-                                lineIndex++;
-                            }
-                            currentLine = word + ' ';
-                        }
-                    }
-                    
-                    // Draw the last line
-                    if (currentLine) {
-                        ctx.fillText(currentLine.trim(), 70, notesStartY + 30 + (lineIndex * 25));
-                    }
-                }
-                
-                // Convert canvas to blob
-                canvas.toBlob(async (blob) => {
-                    try {
-                        // Try to use native share API if available
-                        if (navigator.share && navigator.canShare) {
-                            const file = new File([blob], 'polis-partita.png', { type: 'image/png' });
-                            const shareData = {
-                                title: 'Risultato Partita - StaKick',
-                                files: [file]
-                            };
-                            
-                            if (navigator.canShare(shareData)) {
-                                await navigator.share(shareData);
-                                return;
-                            }
-                        }
-                        
-                        // Fallback: download the image
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'polis-partita.png';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        
-                        alert('Immagine della partita scaricata!');
-                    } catch (error) {
-                        console.log('Share failed:', error);
-                        // Fallback: download the image
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'polis-partita.png';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        
-                        alert('Immagine della partita scaricata!');
-                    }
-                }, 'image/png');
-            } catch (error) {
-                console.error('Error creating image:', error);
-                alert('Errore nella creazione dell\'immagine.');
-            }
+        // Funzione aggiornata per la condivisione immagine
+async function shareSingleMatch(matchData = null) {
+    vibrate([50]); 
+    
+    let team1Name, team2Name, score1, score2, shots1, shots2, corners1, corners2, fouls1, fouls2, yellowCards1, yellowCards2, redCards1, redCards2, scorers1, scorers2, cards1, cards2, notes, lineup;
+    let shooters1 = {}, shooters2 = {}; // Nuove variabili per i tiri
+    
+    if (matchData) {
+        // Dati dallo storico
+        team1Name = matchData.team1;
+        team2Name = matchData.team2;
+        score1 = matchData.score1;
+        score2 = matchData.score2;
+        shots1 = matchData.shots1 || 0;
+        shots2 = matchData.shots2 || 0;
+        corners1 = matchData.corners1 || 0;
+        corners2 = matchData.corners2 || 0;
+        fouls1 = matchData.fouls1 || 0;
+        fouls2 = matchData.fouls2 || 0;
+        yellowCards1 = matchData.yellowCards1 || 0;
+        yellowCards2 = matchData.yellowCards2 || 0;
+        redCards1 = matchData.redCards1 || 0;
+        redCards2 = matchData.redCards2 || 0;
+        scorers1 = matchData.scorers1 || [];
+        scorers2 = matchData.scorers2 || [];
+        cards1 = matchData.cards1 || [];
+        cards2 = matchData.cards2 || [];
+        notes = matchData.notes || '';
+        lineup = matchData.lineup || [];
+        shooters1 = matchData.shooters1 || {}; // Carica tiratori sq1
+        shooters2 = matchData.shooters2 || {}; // Carica tiratori sq2
+    } else {
+        // Dati partita corrente
+        team1Name = currentClub ? currentClub.nome : 'POLIS';
+        team2Name = document.getElementById('team2-name').textContent;
+        score1 = scoreTeam1;
+        score2 = scoreTeam2;
+        shots1 = shotsTeam1;
+        shots2 = shotsTeam2;
+        corners1 = cornersTeam1;
+        corners2 = cornersTeam2;
+        fouls1 = foulsTeam1;
+        fouls2 = foulsTeam2;
+        yellowCards1 = yellowCardsTeam1;
+        yellowCards2 = yellowCardsTeam2;
+        redCards1 = redCardsTeam1;
+        redCards2 = redCardsTeam2;
+        scorers1 = team1Scorers;
+        scorers2 = team2Scorers;
+        cards1 = team1Cards;
+        cards2 = team2Cards;
+        const notesElement = document.getElementById('match-notes');
+        notes = notesElement ? notesElement.value.trim() : '';
+        lineup = matchLineup || [];
+        shooters1 = team1Shooters || {}; // Carica tiratori correnti (di solito solo noi)
+        // shooters2 è vuoto per la partita corrente in genere, a meno che non gestiamo entrambi
+    }
+    
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Calcolo altezza dinamica
+        const baseHeight = 460; 
+        const scorersMargin = 40; 
+        const lineHeight = 25; 
+        const headerHeight = 30; 
+        const notesMargin = 30; 
+        const notesLineHeight = 25; 
+        
+        // Calcolo spazio Marcatori
+        let totalScorers = scorers1.length + scorers2.length;
+        let scorerSections = (scorers1.length > 0 ? 1 : 0) + (scorers2.length > 0 ? 1 : 0);
+        
+        // Calcolo spazio Tiri (Shooters)
+        let totalShooterLines = 0;
+        let shooterSections = 0;
+        const shooters1List = Object.entries(shooters1);
+        const shooters2List = Object.entries(shooters2);
+        
+        if (shooters1List.length > 0) {
+            totalShooterLines += Math.ceil(shooters1List.length / 2); // 2 per riga
+            shooterSections++;
         }
+        if (shooters2List.length > 0) {
+            totalShooterLines += Math.ceil(shooters2List.length / 2); // 2 per riga
+            shooterSections++;
+        }
+
+        // Calcolo spazio Cartellini
+        let totalCards = cards1.length + cards2.length;
+        let cardSections = (cards1.length > 0 ? 1 : 0) + (cards2.length > 0 ? 1 : 0);
+        
+        // Calcolo spazio Formazione
+        let lineupLines = 0;
+        if (lineup && lineup.length > 0) {
+            const lineupText = lineup.join(', ');
+            lineupLines = Math.ceil(lineupText.length / 45); 
+        }
+        
+        // Calcolo spazio Note
+        let notesLines = 0;
+        if (notes && notes.trim()) {
+            notesLines = Math.ceil(notes.length / 50) + 1; 
+        }
+        
+        const dynamicHeight = baseHeight + 
+            (scorerSections * headerHeight) + (totalScorers * lineHeight) + (scorerSections * scorersMargin) + 
+            (shooterSections * headerHeight) + (totalShooterLines * lineHeight) + (shooterSections * scorersMargin) + // Spazio Tiri
+            (cardSections * headerHeight) + (totalCards * lineHeight) + (cardSections * scorersMargin) + 
+            (lineupLines > 0 ? headerHeight : 0) + (lineupLines * lineHeight) + (lineupLines > 0 ? scorersMargin : 0) +
+            (notesLines * notesLineHeight) + (notesLines > 0 ? notesMargin : 0) + 60;
+        
+        canvas.width = 800;
+        canvas.height = Math.max(600, dynamicHeight);
+        
+        // Sfondo
+        ctx.fillStyle = '#1A202C';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Testi Base
+        ctx.fillStyle = '#f1f5f9';
+        ctx.font = 'bold 48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('StaKick', canvas.width / 2, 80);
+        
+        // Data
+        ctx.font = '20px Arial';
+        let currentDate;
+        if (matchData && matchData.date) {
+            currentDate = new Date(matchData.date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        } else {
+            currentDate = new Date().toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        ctx.fillText(currentDate, canvas.width / 2, 120);
+        
+        // Squadre e Punteggio
+        ctx.font = 'bold 36px Arial';
+        ctx.fillText(team1Name, 200, 200);
+        ctx.fillText(team2Name, 600, 200);
+        ctx.font = 'bold 80px Arial';
+        ctx.fillText(`${score1} - ${score2}`, canvas.width / 2, 280);
+        
+        // Statistiche Generali
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('Statistiche:', 50, 350);
+        ctx.fillText(`Tiri: ${shots1} - ${shots2}`, 50, 380);
+        ctx.fillText(`Corner: ${corners1} - ${corners2}`, 50, 410);
+        ctx.fillText(`Falli: ${fouls1} - ${fouls2}`, 50, 440);
+        ctx.fillText(`Gialli: ${yellowCards1} - ${yellowCards2}`, 50, 470);
+        ctx.fillText(`Rossi: ${redCards1} - ${redCards2}`, 50, 500);
+        
+        let currentY = 540;
+
+        // Sezione MARCATORI (Fix Nome Trasferta)
+        if (scorers1.length > 0) {
+            ctx.fillText(`Marcatori ${team1Name}:`, 50, currentY);
+            scorers1.forEach((scorer, index) => {
+                // Logica corretta: se c'è il nome e non è "Sconosciuto", usalo, altrimenti "Goal"
+                const playerName = (typeof scorer === 'object' && scorer.player && scorer.player !== 'Sconosciuto') ? scorer.player : 'Goal';
+                const text = `${playerName} - ${scorer.minute || 0}' (${scorer.quarter})`;
+                ctx.fillText(text, 70, currentY + 30 + (index * 25));
+            });
+            currentY += 30 + (scorers1.length * 25) + 30;
+        }
+        
+        if (scorers2.length > 0) {
+            ctx.fillText(`Marcatori ${team2Name}:`, 50, currentY);
+            scorers2.forEach((scorer, index) => {
+                // STESSA LOGICA QUI: Controlla se c'è il nome
+                const playerName = (typeof scorer === 'object' && scorer.player && scorer.player !== 'Sconosciuto') ? scorer.player : 'Goal';
+                const text = `${playerName} - ${scorer.minute || 0}' (${scorer.quarter})`;
+                ctx.fillText(text, 70, currentY + 30 + (index * 25));
+            });
+            currentY += 30 + (scorers2.length * 25) + 30;
+        }
+
+        // Sezione TIRI (Nuova)
+        if (shooters1List.length > 0) {
+            ctx.fillText(`Tiri ${team1Name}:`, 50, currentY);
+            let lineCount = 0;
+            // Uniamo i tiratori in una stringa o li mettiamo su più righe
+            const text = shooters1List.map(([name, count]) => `${name}: ${count}`).join(', ');
+            
+            // Gestione a capo rudimentale per canvas
+            const words = text.split(', ');
+            let line = '';
+            words.forEach((word) => {
+                if ((line + word).length > 55) {
+                    ctx.fillText(line, 70, currentY + 30 + (lineCount * 25));
+                    line = word + ', ';
+                    lineCount++;
+                } else {
+                    line += word + ', ';
+                }
+            });
+            ctx.fillText(line.replace(/, $/, ''), 70, currentY + 30 + (lineCount * 25));
+            
+            currentY += 30 + ((lineCount + 1) * 25) + 30;
+        }
+
+        if (shooters2List.length > 0) {
+            ctx.fillText(`Tiri ${team2Name}:`, 50, currentY);
+             let lineCount = 0;
+            const text = shooters2List.map(([name, count]) => `${name}: ${count}`).join(', ');
+            const words = text.split(', ');
+            let line = '';
+            words.forEach((word) => {
+                if ((line + word).length > 55) {
+                    ctx.fillText(line, 70, currentY + 30 + (lineCount * 25));
+                    line = word + ', ';
+                    lineCount++;
+                } else {
+                    line += word + ', ';
+                }
+            });
+            ctx.fillText(line.replace(/, $/, ''), 70, currentY + 30 + (lineCount * 25));
+            currentY += 30 + ((lineCount + 1) * 25) + 30;
+        }
+        
+        // Sezione CARTELLINI
+        if (cards1.length > 0) {
+            ctx.fillText(`Cartellini ${team1Name}:`, 50, currentY);
+            cards1.forEach((card, index) => {
+                const cardIcon = card.cardType === 'yellow' ? '🟨' : '🟥';
+                const text = `${cardIcon} ${card.player} - ${card.minute}' (${card.quarter})`;
+                ctx.fillText(text, 70, currentY + 30 + (index * 25));
+            });
+            currentY += 30 + (cards1.length * 25) + 30;
+        }
+        
+        if (cards2.length > 0) {
+            ctx.fillText(`Cartellini ${team2Name}:`, 50, currentY);
+            cards2.forEach((card, index) => {
+                const cardIcon = card.cardType === 'yellow' ? '🟨' : '🟥';
+                const text = `${cardIcon} ${card.player} - ${card.minute}' (${card.quarter})`;
+                ctx.fillText(text, 70, currentY + 30 + (index * 25));
+            });
+            currentY += 30 + (cards2.length * 25) + 30;
+        }
+        
+        // Sezione FORMAZIONE
+        if (lineup && lineup.length > 0) {
+            ctx.fillText('Formazione:', 50, currentY);
+            const lineupText = lineup.join(', ');
+            const words = lineupText.split(' ');
+            let currentLine = '';
+            let lineIndex = 0;
+            for (const word of words) {
+                if ((currentLine + word).length > 50) {
+                    ctx.fillText(currentLine.trim(), 70, currentY + 30 + (lineIndex * 25));
+                    currentLine = word + ' ';
+                    lineIndex++;
+                } else {
+                    currentLine += word + ' ';
+                }
+            }
+            if (currentLine) ctx.fillText(currentLine.trim(), 70, currentY + 30 + (lineIndex * 25));
+            currentY += 30 + ((lineIndex + 1) * 25) + 30;
+        }
+        
+        // Sezione NOTE
+        if (notes && notes.trim()) {
+            ctx.fillText('Note:', 50, currentY);
+            const words = notes.split(' ');
+            let currentLine = '';
+            let lineIndex = 0;
+            for (const word of words) {
+                if ((currentLine + word).length > 50) {
+                    ctx.fillText(currentLine.trim(), 70, currentY + 30 + (lineIndex * 25));
+                    currentLine = word + ' ';
+                    lineIndex++;
+                } else {
+                    currentLine += word + ' ';
+                }
+            }
+            if (currentLine) ctx.fillText(currentLine.trim(), 70, currentY + 30 + (lineIndex * 25));
+        }
+        
+        // Genera Blob e Condividi
+        canvas.toBlob(async (blob) => {
+            try {
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([blob], 'polis-partita.png', { type: 'image/png' });
+                    const shareData = { title: 'Risultato Partita', files: [file] };
+                    if (navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                        return;
+                    }
+                }
+                // Fallback download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'polis-partita.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('Immagine scaricata!');
+            } catch (error) {
+                console.log('Share failed:', error);
+                alert('Errore condivisione.');
+            }
+        }, 'image/png');
+
+    } catch (error) {
+        console.error('Error creating image:', error);
+        alert('Errore immagine.');
+    }
+}
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize navigation history management
             initializeNavigationHistory();
