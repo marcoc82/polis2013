@@ -3900,7 +3900,7 @@ function addShotTeam1(player, quarter) {
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `Goal - ${minute}' (${quarter})`;
+            newScorer.textContent = `${player} - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-2').appendChild(newScorer);
             team2Scorers.push(scorerData);
             updateScores();
