@@ -257,3 +257,23 @@ window.creaSocietaEsempio = async function() {
     console.error("Errore creazione società esempio:", e);
   }
 };
+
+// Funzione per aggiornare una partita esistente nello storico
+window.updateGameInFirebase = async function(gameId, updatedData) {
+  try {
+    // Riferimento al documento specifico della partita nella collezione "partite"
+    const gameRef = doc(db, "partite", gameId);
+    
+    // Puliamo i dati per evitare errori con campi undefined
+    const cleanUpdatedData = cleanDataForFirebase(updatedData);
+    
+    // Aggiorniamo il documento su Firestore
+    await updateDoc(gameRef, cleanUpdatedData);
+    
+    console.log("✅ Partita aggiornata su Firebase con ID:", gameId);
+    return { success: true };
+  } catch (e) {
+    console.error("❌ Errore aggiornamento partita su Firebase:", e);
+    throw e;
+  }
+};

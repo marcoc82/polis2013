@@ -5417,35 +5417,46 @@ function hideEditMatchModal() {
 async function saveMatchEdits() {
     if (currentEditingMatchIndex === null) return;
 
-    // Recupera i nuovi dati dal modale
     const newNotes = document.getElementById('edit-match-notes-input').value;
-    
     const newLineup = [];
     document.querySelectorAll('#edit-lineup-list input[type="checkbox"]:checked').forEach(box => {
         newLineup.push(box.value);
     });
 
-    // Aggiorna l'oggetto nella memoria locale
     const match = matchHistory[currentEditingMatchIndex];
-    match.notes = newNotes;
-    match.lineup = newLineup;
+    
+    // Mostriamo un messaggio di caricamento
+    const saveBtn = document.getElementById('save-edit-button');
+    const originalText = saveBtn.innerText;
+    saveBtn.innerText = "Salvataggio...";
+    saveBtn.disabled = true;
 
     try {
-        // Se c'è una funzione per aggiornare Firebase, usala qui
-        if (typeof window.updateGameInFirebase === 'function' && match.id) {
-            await window.updateGameInFirebase(match.id, { notes: newNotes, lineup: newLineup });
+        // VERIFICA: Deve esserci l'ID del match e la funzione Firebase
+        if (match.id && typeof window.updateGameInFirebase === 'function') {
+            await window.updateGameInFirebase(match.id, { 
+                notes: newNotes, 
+                lineup: newLineup 
+            });
+            
+            // Aggiorniamo anche in locale per immediatezza
+            match.notes = newNotes;
+            match.lineup = newLineup;
+
+            alert('Modifiche salvate su Firebase!');
+            hideEditMatchModal();
+            renderHistory(); 
+            vibrate([50, 50]);
         } else {
-            // Fallback: Aggiorna solo localStorage
-            localStorage.setItem('polis_match_history', JSON.stringify(matchHistory));
+            console.error("ID Match mancante o funzione Firebase non caricata");
+            alert("Errore: Impossibile collegarsi a Firebase. Verifica la connessione.");
         }
-        
-        alert('Modifiche salvate!');
-        hideEditMatchModal();
-        renderHistory(); // Ricarica la lista per vedere le modifiche
-        vibrate([50, 50]);
     } catch (error) {
         console.error("Errore salvataggio modifiche:", error);
-        alert("Errore durante il salvataggio.");
+        alert("Errore durante il salvataggio remoto.");
+    } finally {
+        saveBtn.innerText = originalText;
+        saveBtn.disabled = false;
     }
 }
         document.addEventListener('DOMContentLoaded', () => {
