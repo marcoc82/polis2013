@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v3.6
+                        Versione: v3.7
                     </div>
                 </div>
             </div>
@@ -1248,7 +1248,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Torna alla Login</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v3.6
+                Versione: v3.7
             </div>
         </div>
     </div>
@@ -4346,6 +4346,10 @@ if(document.getElementById('shooters-list-1')) {
         }
 
         async function saveMatch() {
+            // 1. DISABILITA SUBITO IL BOTTONE (Prima di fare qualsiasi altra cosa)
+            // Assicurati che nel tuo HTML il bottone abbia id="save-button"
+            const saveBtn = document.getElementById('save-button'); 
+            if (saveBtn) saveBtn.disabled = true;
             const team1Name = currentClub ? currentClub.nome : 'POLIS';
             const team2Name = document.getElementById('team2-name').textContent;
             const notesElement = document.getElementById('match-notes');
