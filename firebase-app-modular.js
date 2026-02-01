@@ -36,9 +36,25 @@ signInAnonymously(auth)
 
 window.saveGameToFirebase = async function(gameData) {
   try {
-    // Pulisci l'oggetto rimuovendo i campi undefined, in particolare per i cartellini
+    // 1. Pulisci i dati come facevi prima
     const cleanGameData = cleanDataForFirebase(gameData);
-    await addDoc(collection(db, "partite"), cleanGameData);
+    
+    // 2. Determina il prefisso (usa l'ID della società o il nome, altrimenti "UNKNOWN")
+    // Se 'societaId' è presente nell'oggetto gameData, lo userà.
+    const prefix = cleanGameData.societaId || (cleanGameData.societaNome ? cleanGameData.societaNome.replace(/\s+/g, '') : "UNKNOWN");
+    
+    // 3. Genera un ID univoco di Firebase ma NON salvare ancora
+    const partiteRef = collection(db, "partite");
+    const autoId = doc(partiteRef).id;
+    
+    // 4. Crea l'ID combinato (es. "POLIS_7hfh238hf92h")
+    const customGameId = `${prefix}_${autoId}`;
+    
+    // 5. Salva il documento usando setDoc e l'ID specifico (invece di addDoc)
+    await setDoc(doc(db, "partite", customGameId), cleanGameData);
+    
+    console.log("✅ Partita salvata con ID personalizzato:", customGameId);
+    
   } catch (e) {
     alert("Errore salvataggio partita!");
     console.error(e);
