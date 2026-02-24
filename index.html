@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.1
+                        Versione: v4.2
                     </div>
                 </div>
             </div>
@@ -1248,7 +1248,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.1
+                Versione: v4.2
             </div>
         </div>
     </div>
@@ -3829,14 +3829,18 @@ function addShotTeam2(type, quarter) {
 }
 
 function selectShotType(isOffTarget) {
+    // Chiudiamo il modale della scelta
     document.getElementById('shot-type-modal').classList.remove('is-active');
+    
+    // Impostiamo se è fuori o in porta
     pendingShotType = isOffTarget ? 'off' : 'on';
 
     if (pendingShotTeam === '1') {
-        // Se è la squadra 1, apriamo il modale per chiedere il giocatore
+        // Se è la squadra 1, chiediamo CHI ha tirato. 
+        // Sarà la funzione addShotTeam1 a incrementare i dati dopo la scelta del giocatore.
         showShotPlayerModal(pendingShotQuarter);
     } else if (pendingShotTeam === '2') {
-        // Se è la squadra 2, salviamo direttamente
+        // Se è la squadra 2, incrementiamo subito (visto che non tracciamo i nomi)
         addShotTeam2(pendingShotType, pendingShotQuarter);
     }
 }
@@ -5757,30 +5761,18 @@ async function saveMatchEdits() {
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
                         } else if (type === 'shot') {
-                            if (!currentPeriod) {
-                                alert('Seleziona prima il tempo per registrare gli eventi!');
-                                return;
-                            }
-                            // Salviamo i dati temporanei e apriamo il modale In Porta/Fuori
-                            pendingShotTeam = team;
-                            pendingShotQuarter = `${currentPeriod}°T`;
-                            document.getElementById('shot-type-modal').classList.add('is-active');
-                            vibrate([50]);
-    
-                            // --- MODIFICA QUI ---
-                                        if (team === '1') {
-                                // Invece di incrementare direttamente, apriamo il modale
-                                const quarter = `${currentPeriod}°T`;
-                                showShotPlayerModal(quarter);
-                            } else if (team === '2') {
-                                // Per la squadra 2 (avversaria) incrementiamo direttamente come prima
-                                eventsByPeriod.team2.shots[currentPeriod.toString()]++;
-                                updateStats();
-                                showActionConfirmation('+');
-                                saveCurrentGameState();
-                            }
-                            // --- FINE MODIFICA ---
-
+                        if (!currentPeriod) {
+                            alert('Seleziona prima il tempo per registrare gli eventi!');
+                            return;
+                        }
+                        // Salviamo i dati temporanei e apriamo il modale In Porta/Fuori
+                        pendingShotTeam = team;
+                        pendingShotQuarter = `${currentPeriod}°T`;
+                        
+                        // Apriamo SOLO il modale della scelta tipo tiro
+                        document.getElementById('shot-type-modal').classList.add('is-active');
+                        
+                        vibrate([50]);
                         } else if (type === 'foul') {
                             if (!currentPeriod) {
                                 alert('Seleziona prima il tempo per registrare gli eventi!');
