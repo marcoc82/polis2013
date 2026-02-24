@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v3.8
+                        Versione: v3.9
                     </div>
                 </div>
             </div>
@@ -1705,60 +1705,7 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Sezione Classifica Marcatori -->
-                <div class="history-section">
-                    <h3 class="history-section-title">🏆Classifica Marcatori🏆</h3>
-                    <table class="scorers-table">
-                        <thead>
-                            <tr>
-                                <th>Pos.</th>
-                                <th>Giocatore</th>
-                                <th>Gol</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scorers-table-body">
-                            <!-- La tabella verrà popolata da JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Sezione Riepilogo Statistiche -->
-                <div class="history-section">
-                    <h3 class="history-section-title">Riepilogo Statistiche Totali</h3>
-                    <table class="scorers-table">
-                        <thead>
-                            <tr>
-                                <th>Statistica</th>
-                                <th>Fatti</th>
-                                <th>Subiti</th>
-                            </tr>
-                        </thead>
-                        <tbody id="summary-stats-table-body">
-                            <tr>
-                                <td>Gol</td>
-                                <td id="total-goals-made">0</td>
-                                <td id="total-goals-conceded">0</td>
-                            </tr>
-                            <tr>
-                                <td>Tiri</td>
-                                <td id="total-shots-made">0</td>
-                                <td id="total-shots-conceded">0</td>
-                            </tr>
-                            <tr>
-                                <td>Corner</td>
-                                <td id="total-corners-made">0</td>
-                                <td id="total-corners-conceded">0</td>
-                            </tr>
-                            <tr>
-                                <td>Falli</td>
-                                <td id="total-fouls-made">0</td>
-                                <td id="total-fouls-conceded">0</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
+                
                 <!-- Sezione Storico Partite -->
                 <div class="history-section">
                     <h3 class="history-section-title">Partite Giocate</h3>
@@ -4814,92 +4761,6 @@ if(document.getElementById('shooters-list-1')) {
             document.getElementById('total-matches-won').textContent = matchesWon;
             document.getElementById('total-matches-lost').textContent = matchesLost;
             document.getElementById('total-matches-drawn').textContent = matchesDrawn;
-            
-            // Calcola le statistiche generali e la classifica marcatori
-            const allScorers = {};
-            history.forEach(match => {
-                // Determina quale team rappresenta la squadra corrente
-                const currentTeamName = currentClub ? currentClub.nome : 'POLIS';
-                const isTeam1 = match.team1 === currentTeamName;
-                
-                // Usa i marcatori del team corretto
-                const ourScorers = isTeam1 ? match.scorers1 : match.scorers2;
-                
-                if (ourScorers && Array.isArray(ourScorers)) {
-                    ourScorers.forEach(scorer => {
-                        if (scorer.player) {
-                            if (!allScorers[scorer.player]) {
-                                allScorers[scorer.player] = 0;
-                            }
-                            allScorers[scorer.player]++;
-                        }
-                    });
-                }
-            });
-            
-            // Ordina i marcatori per numero di gol
-            const sortedScorers = Object.entries(allScorers).sort(([, a], [, b]) => b - a);
-
-            // Calcola le statistiche totali per il riepilogo
-            let totalGoalsMade = 0, totalGoalsConceded = 0;
-            let totalShotsMade = 0, totalShotsConceded = 0;
-            let totalCornersMade = 0, totalCornersConceded = 0;
-            let totalFoulsMade = 0, totalFoulsConceded = 0;
-
-            history.forEach(match => {
-                // Determina quale team rappresenta la squadra corrente
-                const currentTeamName = currentClub ? currentClub.nome : 'POLIS';
-                const isTeam1 = match.team1 === currentTeamName;
-                
-                if (isTeam1) {
-                    // La squadra corrente è team1
-                    totalGoalsMade += match.score1 || 0;
-                    totalGoalsConceded += match.score2 || 0;
-                    totalShotsMade += match.shots1 || 0;
-                    totalShotsConceded += match.shots2 || 0;
-                    totalCornersMade += match.corners1 || 0;
-                    totalCornersConceded += match.corners2 || 0;
-                    totalFoulsMade += match.fouls1 || 0;
-                    totalFoulsConceded += match.fouls2 || 0;
-                } else {
-                    // La squadra corrente è team2
-                    totalGoalsMade += match.score2 || 0;
-                    totalGoalsConceded += match.score1 || 0;
-                    totalShotsMade += match.shots2 || 0;
-                    totalShotsConceded += match.shots1 || 0;
-                    totalCornersMade += match.corners2 || 0;
-                    totalCornersConceded += match.corners1 || 0;
-                    totalFoulsMade += match.fouls2 || 0;
-                    totalFoulsConceded += match.fouls1 || 0;
-                }
-            });
-
-            // Aggiorna le statistiche del riepilogo
-            document.getElementById('total-goals-made').textContent = totalGoalsMade;
-            document.getElementById('total-goals-conceded').textContent = totalGoalsConceded;
-            document.getElementById('total-shots-made').textContent = totalShotsMade;
-            document.getElementById('total-shots-conceded').textContent = totalShotsConceded;
-            document.getElementById('total-corners-made').textContent = totalCornersMade;
-            document.getElementById('total-corners-conceded').textContent = totalCornersConceded;
-            document.getElementById('total-fouls-made').textContent = totalFoulsMade;
-            document.getElementById('total-fouls-conceded').textContent = totalFoulsConceded;
-
-            // Renderizza la classifica marcatori
-            const scorersTableBody = document.getElementById('scorers-table-body');
-            scorersTableBody.innerHTML = '';
-            if (sortedScorers.length > 0) {
-                sortedScorers.forEach(([player, goals], index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${player}</td>
-                        <td>${goals}</td>
-                    `;
-                    scorersTableBody.appendChild(row);
-                });
-            } else {
-                scorersTableBody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">Nessun marcatore.</td></tr>';
-            }
 
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
