@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.0
+                        Versione: v4.1
                     </div>
                 </div>
             </div>
@@ -1248,7 +1248,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.0
+                Versione: v4.1
             </div>
         </div>
     </div>
@@ -1818,6 +1818,7 @@
 
     <script>
         // Global variables
+        let actionStack = [];
         let scoreTeam1 = 0;
         let scoreTeam2 = 0;
         let shotsTeam1 = 0;
@@ -2089,7 +2090,7 @@
          * Salva tutti i dati correnti della partita per permettere il ripristino in caso di reload accidentale
          * Include stato completo del timer e timestamp dei marcatori per ripristino accurato
          */
-        function saveCurrentGameState() {
+         function saveCurrentGameState(actionData = null) {
             // Calcola il tempo di gioco corrente per i marcatori
             const currentGameTime = getCurrentGameTimeForScoring();
             
@@ -2097,7 +2098,7 @@
                 // Punteggi e statistiche base
                 scoreTeam1,
                 scoreTeam2,
-		team1Shooters,
+		        team1Shooters,
                 shotsTeam1,
                 cornersTeam1,
                 foulsTeam1,
@@ -2166,6 +2167,19 @@
                 // Versione per compatibilità futura
                 version: '1.7'
             };
+
+            // --- NUOVA PARTE PER GESTIRE IL TASTO MENO ---
+            if (actionData) {
+            // Se passiamo dei dati (es: quando aggiungiamo un tiro), li salviamo nello stack
+            actionStack.push({
+            timestamp: Date.now(),
+            data: actionData
+            });
+        
+             // Teniamo solo le ultime 20 azioni per non appesantire la memoria
+            if (actionStack.length > 20) actionStack.shift();
+            }
+    // --------------------------------------------
             
             try {
                 localStorage.setItem('polis_current_game_state', JSON.stringify(gameState));
@@ -3791,7 +3805,7 @@ function addShotTeam1(player, quarter) {
     updateShootersList();
     updateStats();
     showActionConfirmation('+');
-    saveCurrentGameState();
+    saveCurrentGameState({ type: 'shot', team: '1', shotType: pendingShotType, player: player });
     
     // Resetta le variabili temporanee
     pendingShotTeam = null;
@@ -3807,7 +3821,7 @@ function addShotTeam2(type, quarter) {
     }
     updateStats();
     showActionConfirmation('+');
-    saveCurrentGameState();
+    saveCurrentGameState({ type: 'shot', team: '2', shotType: pendingShotType });
     
     pendingShotTeam = null;
     pendingShotQuarter = null;
@@ -4153,7 +4167,29 @@ function selectShotType(isOffTarget) {
                 } else if (type === 'corner') {
                     removeLatestEvent('team1', 'corners');
                 } else if (type === 'shot') {
-                    removeLatestEvent('team1', 'shots');
+                    const lastAction = actionStack.length > 0 ? actionStack[actionStack.length - 1] : null;
+                    let isOffTarget = false;
+                    
+                    if (lastAction && lastAction.data && lastAction.data.type === 'shot' && lastAction.data.team === '1') {
+                        isOffTarget = (lastAction.data.shotType === 'off');
+                    }
+
+                    if (isOffTarget) {
+                        if (eventsByPeriod.team1.shotsOff[currentPeriod.toString()] > 0) {
+                            eventsByPeriod.team1.shotsOff[currentPeriod.toString()]--;
+                        }
+                    } else {
+                        if (eventsByPeriod.team1.shots[currentPeriod.toString()] > 0) {
+                            eventsByPeriod.team1.shots[currentPeriod.toString()]--;
+                            // Sottrae il tiro al giocatore specifico se salvato nello stack
+                            if (lastAction && lastAction.data && lastAction.data.player) {
+                                const pName = lastAction.data.player;
+                                if (team1Shooters[pName] > 0) team1Shooters[pName]--;
+                                updateShootersList();
+                            }
+                        }
+                    }
+                    showActionConfirmation('-');
                 } else if (type === 'foul') {
                     removeLatestEvent('team1', 'fouls');
                 } else if (type === 'yellow-card') {
@@ -4185,7 +4221,23 @@ function selectShotType(isOffTarget) {
                 } else if (type === 'corner') {
                     removeLatestEvent('team2', 'corners');
                 } else if (type === 'shot') {
-                    removeLatestEvent('team2', 'shots');
+                    const lastAction = actionStack.length > 0 ? actionStack[actionStack.length - 1] : null;
+                    let isOffTarget = false;
+                    
+                    if (lastAction && lastAction.data && lastAction.data.type === 'shot' && lastAction.data.team === '2') {
+                        isOffTarget = (lastAction.data.shotType === 'off');
+                    }
+
+                    if (isOffTarget) {
+                        if (eventsByPeriod.team2.shotsOff[currentPeriod.toString()] > 0) {
+                            eventsByPeriod.team2.shotsOff[currentPeriod.toString()]--;
+                        }
+                    } else {
+                        if (eventsByPeriod.team2.shots[currentPeriod.toString()] > 0) {
+                            eventsByPeriod.team2.shots[currentPeriod.toString()]--;
+                        }
+                    }
+                    showActionConfirmation('-');
                 } else if (type === 'foul') {
                     removeLatestEvent('team2', 'fouls');
                 } else if (type === 'yellow-card') {
