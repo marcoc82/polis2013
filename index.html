@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v3.9
+                        Versione: v4.0
                     </div>
                 </div>
             </div>
@@ -1245,10 +1245,10 @@
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Squadra</button>
                 <button id="view-history-btn" class="btn-history-view btn-large w-full">Vedi Storico</button>
-                <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Torna alla Login</button>
+                <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v3.8
+                Versione: v4.0
             </div>
         </div>
     </div>
@@ -1488,8 +1488,16 @@
                         <span id="shots-team1">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Tiri subiti</span>
+                        <span>Tiri in porta subiti</span>
                         <span id="shots-team2-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="text-gray-400">Tiri fuori</span>
+                        <span id="shots-off-team1" class="text-gray-400">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="text-gray-400">Tiri fuori subiti</span>
+                        <span id="shots-off-team2-taken" class="text-gray-400">0</span>
                     </div>
                     <div class="stat-item">
                         <span>Corner</span>
@@ -1546,8 +1554,16 @@
                         <span id="shots-team2">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Tiri subiti</span>
+                        <span>Tiri in porta subiti</span>
                         <span id="shots-team1-taken">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="text-gray-400">Tiri fuori</span>
+                        <span id="shots-off-team2" class="text-gray-400">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="text-gray-400">Tiri fuori subiti</span>
+                        <span id="shots-off-team1-taken" class="text-gray-400">0</span>
                     </div>
                     <div class="stat-item">
                         <span>Corner</span>
@@ -1612,6 +1628,17 @@
     </div>
 
     <!-- All modals here -->
+    <div id="shot-type-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Com'era il tiro?</div>
+            <div class="flex flex-col gap-3 mb-6">
+                <button id="shot-on-target-btn" class="btn btn-goal w-full">In Porta</button>
+                <button id="shot-off-target-btn" class="btn btn-pause w-full" style="background-color: #f59e0b;">Fuori</button>
+            </div>
+            <button id="cancel-shot-type-btn" class="btn bg-gray-500 hover:bg-gray-600 w-full">Annulla</button>
+        </div>
+    </div>
+
     <!-- Player selection modal -->
     <div id="player-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1805,11 +1832,19 @@
         let redCardsTeam2 = 0;
         let matchNotes = '';
         let team1Shooters = {}; // Oggetto per contare i tiri per giocatore
+        let shotsOffTeam1 = 0;
+        let shotsOffTeam2 = 0;
+        
+        // Variabili temporanee per memorizzare il tiro in corso
+        let pendingShotTeam = null;
+        let pendingShotQuarter = null;
+        let pendingShotType = null;
 
         // Period-based statistics storage
         let eventsByPeriod = {
             team1: {
                 shots: { '1': 0, '2': 0, '3': 0 },
+                shotsOff: { '1': 0, '2': 0, '3': 0 },
                 corners: { '1': 0, '2': 0, '3': 0 },
                 fouls: { '1': 0, '2': 0, '3': 0 },
                 yellowCards: { '1': 0, '2': 0, '3': 0 },
@@ -1817,6 +1852,7 @@
             },
             team2: {
                 shots: { '1': 0, '2': 0, '3': 0 },
+                shotsOff: { '1': 0, '2': 0, '3': 0 },
                 corners: { '1': 0, '2': 0, '3': 0 },
                 fouls: { '1': 0, '2': 0, '3': 0 },
                 yellowCards: { '1': 0, '2': 0, '3': 0 },
@@ -3187,11 +3223,13 @@ Per evitare che lo schermo si spenga:
         // Calculate total stats from period data
         function calculateTotals() {
             shotsTeam1 = eventsByPeriod.team1.shots['1'] + eventsByPeriod.team1.shots['2'] + eventsByPeriod.team1.shots['3'];
+            shotsOffTeam1 = eventsByPeriod.team1.shotsOff['1'] + eventsByPeriod.team1.shotsOff['2'] + eventsByPeriod.team1.shotsOff['3'];
             cornersTeam1 = eventsByPeriod.team1.corners['1'] + eventsByPeriod.team1.corners['2'] + eventsByPeriod.team1.corners['3'];
             foulsTeam1 = eventsByPeriod.team1.fouls['1'] + eventsByPeriod.team1.fouls['2'] + eventsByPeriod.team1.fouls['3'];
             yellowCardsTeam1 = eventsByPeriod.team1.yellowCards['1'] + eventsByPeriod.team1.yellowCards['2'] + eventsByPeriod.team1.yellowCards['3'];
             redCardsTeam1 = eventsByPeriod.team1.redCards['1'] + eventsByPeriod.team1.redCards['2'] + eventsByPeriod.team1.redCards['3'];
             shotsTeam2 = eventsByPeriod.team2.shots['1'] + eventsByPeriod.team2.shots['2'] + eventsByPeriod.team2.shots['3'];
+            shotsOffTeam2 = eventsByPeriod.team2.shotsOff['1'] + eventsByPeriod.team2.shotsOff['2'] + eventsByPeriod.team2.shotsOff['3'];
             cornersTeam2 = eventsByPeriod.team2.corners['1'] + eventsByPeriod.team2.corners['2'] + eventsByPeriod.team2.corners['3'];
             foulsTeam2 = eventsByPeriod.team2.fouls['1'] + eventsByPeriod.team2.fouls['2'] + eventsByPeriod.team2.fouls['3'];
             yellowCardsTeam2 = eventsByPeriod.team2.yellowCards['1'] + eventsByPeriod.team2.yellowCards['2'] + eventsByPeriod.team2.yellowCards['3'];
@@ -3214,6 +3252,12 @@ Per evitare che lo schermo si spenga:
             
             const shotsTeam2TakenElement = document.getElementById('shots-team2-taken');
             if (shotsTeam2TakenElement) shotsTeam2TakenElement.textContent = shotsTeam2;
+
+            const shotsOffTeam1Element = document.getElementById('shots-off-team1');
+            if (shotsOffTeam1Element) shotsOffTeam1Element.textContent = shotsOffTeam1;
+            
+            const shotsOffTeam2TakenElement = document.getElementById('shots-off-team2-taken');
+            if (shotsOffTeam2TakenElement) shotsOffTeam2TakenElement.textContent = shotsOffTeam2;
             
             const cornersTeam1Element = document.getElementById('corners-team1');
             if (cornersTeam1Element) cornersTeam1Element.textContent = cornersTeam1;
@@ -3244,6 +3288,12 @@ Per evitare che lo schermo si spenga:
             
             const shotsTeam1TakenElement = document.getElementById('shots-team1-taken');
             if (shotsTeam1TakenElement) shotsTeam1TakenElement.textContent = shotsTeam1;
+
+            const shotsOffTeam2Element = document.getElementById('shots-off-team2');
+            if (shotsOffTeam2Element) shotsOffTeam2Element.textContent = shotsOffTeam2;
+            
+            const shotsOffTeam1TakenElement = document.getElementById('shots-off-team1-taken');
+            if (shotsOffTeam1TakenElement) shotsOffTeam1TakenElement.textContent = shotsOffTeam1;
             
             const cornersTeam2Element = document.getElementById('corners-team2');
             if (cornersTeam2Element) cornersTeam2Element.textContent = cornersTeam2;
@@ -3723,12 +3773,15 @@ function updateShootersList() {
     vibrate([50]); 
 }
 
-// --- NUOVA FUNZIONE DA AGGIUNGERE ---
 function addShotTeam1(player, quarter) {
-    // Incrementa contatore totale (codice vecchio)
-    eventsByPeriod.team1.shots[currentPeriod.toString()]++;
+    // Incrementa il contatore giusto (in porta o fuori)
+    if (pendingShotType === 'off') {
+        eventsByPeriod.team1.shotsOff[currentPeriod.toString()]++;
+    } else {
+        eventsByPeriod.team1.shots[currentPeriod.toString()]++;
+    }
     
-    // NUOVO: Aggiorna il conteggio specifico del giocatore
+    // Aggiorna il conteggio totale dei tiri del giocatore
     if (!team1Shooters[player]) {
         team1Shooters[player] = 0;
     }
@@ -3739,6 +3792,39 @@ function addShotTeam1(player, quarter) {
     updateStats();
     showActionConfirmation('+');
     saveCurrentGameState();
+    
+    // Resetta le variabili temporanee
+    pendingShotTeam = null;
+    pendingShotQuarter = null;
+    pendingShotType = null;
+}
+
+function addShotTeam2(type, quarter) {
+    if (type === 'off') {
+        eventsByPeriod.team2.shotsOff[currentPeriod.toString()]++;
+    } else {
+        eventsByPeriod.team2.shots[currentPeriod.toString()]++;
+    }
+    updateStats();
+    showActionConfirmation('+');
+    saveCurrentGameState();
+    
+    pendingShotTeam = null;
+    pendingShotQuarter = null;
+    pendingShotType = null;
+}
+
+function selectShotType(isOffTarget) {
+    document.getElementById('shot-type-modal').classList.remove('is-active');
+    pendingShotType = isOffTarget ? 'off' : 'on';
+
+    if (pendingShotTeam === '1') {
+        // Se è la squadra 1, apriamo il modale per chiedere il giocatore
+        showShotPlayerModal(pendingShotQuarter);
+    } else if (pendingShotTeam === '2') {
+        // Se è la squadra 2, salviamo direttamente
+        addShotTeam2(pendingShotType, pendingShotQuarter);
+    }
 }
 
         function hidePlayerModal() {
@@ -5618,25 +5704,30 @@ async function saveMatchEdits() {
                             showActionConfirmation('+');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
-                      } else if (type === 'shot') {
-   			 if (!currentPeriod) {
-        			alert('Seleziona prima il tempo per registrare gli eventi!');
-        			return;
-    }
+                        } else if (type === 'shot') {
+                            if (!currentPeriod) {
+                                alert('Seleziona prima il tempo per registrare gli eventi!');
+                                return;
+                            }
+                            // Salviamo i dati temporanei e apriamo il modale In Porta/Fuori
+                            pendingShotTeam = team;
+                            pendingShotQuarter = `${currentPeriod}°T`;
+                            document.getElementById('shot-type-modal').classList.add('is-active');
+                            vibrate([50]);
     
-    // --- MODIFICA QUI ---
-    			if (team === '1') {
-        // Invece di incrementare direttamente, apriamo il modale
-        const quarter = `${currentPeriod}°T`;
-        showShotPlayerModal(quarter);
-    } else if (team === '2') {
-        // Per la squadra 2 (avversaria) incrementiamo direttamente come prima
-        eventsByPeriod.team2.shots[currentPeriod.toString()]++;
-        updateStats();
-        showActionConfirmation('+');
-        saveCurrentGameState();
-    }
-    // --- FINE MODIFICA ---
+                            // --- MODIFICA QUI ---
+                                        if (team === '1') {
+                                // Invece di incrementare direttamente, apriamo il modale
+                                const quarter = `${currentPeriod}°T`;
+                                showShotPlayerModal(quarter);
+                            } else if (team === '2') {
+                                // Per la squadra 2 (avversaria) incrementiamo direttamente come prima
+                                eventsByPeriod.team2.shots[currentPeriod.toString()]++;
+                                updateStats();
+                                showActionConfirmation('+');
+                                saveCurrentGameState();
+                            }
+                            // --- FINE MODIFICA ---
 
                         } else if (type === 'foul') {
                             if (!currentPeriod) {
@@ -5715,9 +5806,9 @@ async function saveMatchEdits() {
                 }
             });
 
-	    // Edit Match Modal listeners (NUOVO)
- 	    document.getElementById('save-edit-match-button').addEventListener('click', saveMatchEdits);
-	    document.getElementById('cancel-edit-match-button').addEventListener('click', hideEditMatchModal);
+	        // Edit Match Modal listeners (NUOVO)
+ 	        document.getElementById('save-edit-match-button').addEventListener('click', saveMatchEdits);
+	        document.getElementById('cancel-edit-match-button').addEventListener('click', hideEditMatchModal);
 
             // Save and share functionality - separate buttons
             document.getElementById('save-button').addEventListener('click', async () => {
@@ -5736,6 +5827,16 @@ async function saveMatchEdits() {
             document.getElementById('share-button').addEventListener('click', async () => {
                 await saveMatch();
                 await shareSingleMatch(); // Use the new reusable function
+            });
+
+            // Modale Tipo di Tiro
+            document.getElementById('shot-on-target-btn').addEventListener('click', () => selectShotType(false));
+            document.getElementById('shot-off-target-btn').addEventListener('click', () => selectShotType(true));
+            document.getElementById('cancel-shot-type-btn').addEventListener('click', () => {
+                document.getElementById('shot-type-modal').classList.remove('is-active');
+                pendingShotTeam = null;
+                pendingShotQuarter = null;
+                vibrate([30]);
             });
         });
 
