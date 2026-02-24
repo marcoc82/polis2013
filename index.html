@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.6
+                        Versione: v4.7
                     </div>
                 </div>
             </div>
@@ -1240,7 +1240,6 @@
             <h1 class="polis-text" style="font-size: 4em;">StaKick</h1>
             <hr class="my-6">
             <h2 id="menu-team-name" class="text-2xl font-bold mb-4">Benvenuto, POLIS!</h2>
-            <p class="mb-6">Cosa vuoi fare?</p>
             <div class="button-grid-1 gap-4">
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Squadra</button>
@@ -1248,7 +1247,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.6
+                Versione: v4.7
             </div>
         </div>
     </div>
@@ -1302,8 +1301,8 @@
             </div>
             
             <div class="button-grid-1 gap-2">
-                <button id="save-players-btn" class="btn-green btn-large rounded-2xl w-full mb-2">Salva Modifiche</button>
-                <button id="back-to-menu-from-players-btn" class="btn-gray btn-large rounded-2xl w-full">Torna Indietro</button>
+                <button id="save-players-btn" class="btn-green btn-large rounded-2xl w-full mb-2">Salva</button>
+                <button id="back-to-menu-from-players-btn" class="btn-gray btn-large rounded-2xl w-full">Indietro</button>
             </div>
         </div>
     </div>
@@ -1354,11 +1353,12 @@
             
             <!-- Sezione Timer -->
             <div class="timer-container">
-                <div class="timer-display-container">
+                <div class="timer-display-container" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                     <span id="timer-display">18:00</span>
                     <span id="current-period-display" class="current-period-indicator" style="display: none;"></span>
-                    <button id="edit-timer-button" class="btn btn-start" style="padding: 0.5rem; font-size: 0.875rem;">Modifica</button>
+                    <button id="edit-timer-button" class="btn btn-start" style="padding: 0.5rem; font-size: 0.875rem; width: fit-content;">Modifica</button>
                 </div>
+            </div>
                 <div id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; text-align: center; margin-top: 0.5rem; display: none;">+ 0:00</div>
                 <div class="timer-controls">
                     <button id="start-timer-button" class="btn btn-start">
@@ -1480,23 +1480,23 @@
                         <span id="goals-team1">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Gol (S)</span>
+                        <span>Gol(S)</span>
                         <span id="goals-team2-taken">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Tiri (P)</span>
+                        <span>Tiri(P)</span>
                         <span id="shots-team1">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Tiri (P)(S)</span>
+                        <span>Tiri(P)(S)</span>
                         <span id="shots-team2-taken">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="text-gray-400">Tiri (F)</span>
+                        <span class="text-gray-400">Tiri(F)</span>
                         <span id="shots-off-team1" class="text-gray-400">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="text-gray-400">Tiri (F)(S)</span>
+                        <span class="text-gray-400">Tiri(F)(S)</span>
                         <span id="shots-off-team2-taken" class="text-gray-400">0</span>
                     </div>
                     <div class="stat-item">
@@ -1504,7 +1504,7 @@
                         <span id="corners-team1">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Corner (S)</span>
+                        <span>Corner(S)</span>
                         <span id="corners-team2-taken">0</span>
                     </div>
                     <div class="stat-item">
@@ -1512,7 +1512,7 @@
                         <span id="fouls-team1">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Falli (S)</span>
+                        <span>Falli(S)</span>
                         <span id="fouls-team2-taken">0</span>
                     </div>
                     <div class="stat-item">
@@ -1546,23 +1546,23 @@
                         <span id="goals-team2">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Gol (S)</span>
+                        <span>Gol(S)</span>
                         <span id="goals-team1-taken">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Tiri (P)</span>
+                        <span>Tiri(P)</span>
                         <span id="shots-team2">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Tiri (P)(S)</span>
+                        <span>Tiri(P)(S)</span>
                         <span id="shots-team1-taken">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="text-gray-400">Tiri (F)</span>
+                        <span class="text-gray-400">Tiri(F)</span>
                         <span id="shots-off-team2" class="text-gray-400">0</span>
                     </div>
                     <div class="stat-item">
-                        <span class="text-gray-400">Tiri (F)(S)</span>
+                        <span class="text-gray-400">Tiri(F)(S)</span>
                         <span id="shots-off-team1-taken" class="text-gray-400">0</span>
                     </div>
                     <div class="stat-item">
@@ -1570,7 +1570,7 @@
                         <span id="corners-team2">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Corner (S)</span>
+                        <span>Corner(S)</span>
                         <span id="corners-team1-taken">0</span>
                     </div>
                     <div class="stat-item">
@@ -1578,7 +1578,7 @@
                         <span id="fouls-team2">0</span>
                     </div>
                     <div class="stat-item">
-                        <span>Falli (S)</span>
+                        <span>Falli(S)</span>
                         <span id="fouls-team1-taken">0</span>
                     </div>
                     <div class="stat-item">
@@ -3354,20 +3354,20 @@ Per evitare che lo schermo si spenga:
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>1° t</td>
+                                    <td>1°</td>
                                     <td>${teamData.shots['1']}</td>
                                     <td>${teamData.corners['1']}</td>
                                     <td>${teamData.fouls['1']}</td>
                                 </tr>
                                 <tr>
-                                    <td>2° t</td>
+                                    <td>2°</td>
                                     <td>${teamData.shots['2']}</td>
                                     <td>${teamData.corners['2']}</td>
                                     <td>${teamData.fouls['2']}</td>
                                 </tr>
                                 ${showThirdPeriod ? `
                                 <tr>
-                                    <td>3° t</td>
+                                    <td>3°</td>
                                     <td>${teamData.shots['3']}</td>
                                     <td>${teamData.corners['3']}</td>
                                     <td>${teamData.fouls['3']}</td>
@@ -4745,7 +4745,7 @@ function selectShotType(isOffTarget) {
                             <table class="period-stats-table-history">
                                 <thead>
                                     <tr>
-                                        <th>Tempo</th>
+                                        <th>T.</th>
                                         <th>Tiri</th>
                                         <th>Corner</th>
                                         <th>Falli</th>
@@ -4753,27 +4753,27 @@ function selectShotType(isOffTarget) {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1° tempo</td>
+                                        <td>1°</td>
                                         <td>${team1Events.shots['1'] || 0}</td>
                                         <td>${team1Events.corners['1'] || 0}</td>
                                         <td>${team1Events.fouls['1'] || 0}</td>
                                     </tr>
                                     <tr>
-                                        <td>2° tempo</td>
+                                        <td>2°</td>
                                         <td>${team1Events.shots['2'] || 0}</td>
                                         <td>${team1Events.corners['2'] || 0}</td>
                                         <td>${team1Events.fouls['2'] || 0}</td>
                                     </tr>
                                     ${hasThirdPeriod ? `
                                     <tr>
-                                        <td>3° tempo</td>
+                                        <td>3°</td>
                                         <td>${team1Events.shots['3'] || 0}</td>
                                         <td>${team1Events.corners['3'] || 0}</td>
                                         <td>${team1Events.fouls['3'] || 0}</td>
                                     </tr>
                                     ` : ''}
                                     <tr class="totals-row">
-                                        <td><strong>Totale</strong></td>
+                                        <td><strong>Tot</strong></td>
                                         <td><strong>${match.shots1 || 0}</strong></td>
                                         <td><strong>${match.corners1 || 0}</strong></td>
                                         <td><strong>${match.fouls1 || 0}</strong></td>
@@ -4786,7 +4786,7 @@ function selectShotType(isOffTarget) {
                             <table class="period-stats-table-history">
                                 <thead>
                                     <tr>
-                                        <th>Tempo</th>
+                                        <th>T</th>
                                         <th>Tiri</th>
                                         <th>Corner</th>
                                         <th>Falli</th>
@@ -4794,27 +4794,27 @@ function selectShotType(isOffTarget) {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1° tempo</td>
+                                        <td>1°</td>
                                         <td>${team2Events.shots['1'] || 0}</td>
                                         <td>${team2Events.corners['1'] || 0}</td>
                                         <td>${team2Events.fouls['1'] || 0}</td>
                                     </tr>
                                     <tr>
-                                        <td>2° tempo</td>
+                                        <td>2°</td>
                                         <td>${team2Events.shots['2'] || 0}</td>
                                         <td>${team2Events.corners['2'] || 0}</td>
                                         <td>${team2Events.fouls['2'] || 0}</td>
                                     </tr>
                                     ${hasThirdPeriod ? `
                                     <tr>
-                                        <td>3° tempo</td>
+                                        <td>3°</td>
                                         <td>${team2Events.shots['3'] || 0}</td>
                                         <td>${team2Events.corners['3'] || 0}</td>
                                         <td>${team2Events.fouls['3'] || 0}</td>
                                     </tr>
                                     ` : ''}
                                     <tr class="totals-row">
-                                        <td><strong>Totale</strong></td>
+                                        <td><strong>Tot</strong></td>
                                         <td><strong>${match.shots2 || 0}</strong></td>
                                         <td><strong>${match.corners2 || 0}</strong></td>
                                         <td><strong>${match.fouls2 || 0}</strong></td>
