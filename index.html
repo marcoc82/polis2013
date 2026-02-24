@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.2
+                        Versione: v4.3
                     </div>
                 </div>
             </div>
@@ -1248,7 +1248,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.2
+                Versione: v4.3
             </div>
         </div>
     </div>
@@ -3940,6 +3940,16 @@ function selectShotType(isOffTarget) {
         // Goal functions
         function addGoalTeam1(player, quarter) {
             scoreTeam1++;
+
+            // --- NUOVO: AGGIUNTA AUTOMATICA TIRO IN PORTA ---
+            // Prepariamo i dati temporanei per il tiro
+            pendingShotTeam = '1';
+            pendingShotType = 'on'; // Un gol è sempre un tiro "in porta"
+            pendingShotQuarter = quarter;
+            
+            // Chiamiamo la funzione del tiro che aumenterà le statistiche e il contatore del giocatore
+            addShotTeam1(player, quarter);
+            // -----------------------------------------------
             
             // Calcola tempo di gioco accurato e timestamp per il marcatore
             const gameTime = getCurrentGameTimeForScoring();
@@ -3967,16 +3977,23 @@ function selectShotType(isOffTarget) {
             }, 1000);
             createConfetti();
             updateScores();
+            updateStats(); // Assicuriamoci che le statistiche si aggiornino
             
             // Special vibration pattern for goals
             vibrate([150, 100, 150, 100, 150]);
             
             // Salva automaticamente lo stato dopo ogni goal
-            saveCurrentGameState();
+            saveCurrentGameState({ type: 'goal', team: '1', player: player });
         }
 
         function addGoalTeam2(quarter) {
             scoreTeam2++;
+
+            // --- NUOVO: AGGIUNTA AUTOMATICA TIRO IN PORTA SQUADRA 2 ---
+            pendingShotTeam = '2';
+            pendingShotType = 'on';
+            addShotTeam2('on', quarter);
+            // --------------------------------------------------------
             
             // Calcola tempo di gioco accurato e timestamp per il marcatore
             const gameTime = getCurrentGameTimeForScoring();
@@ -3998,12 +4015,13 @@ function selectShotType(isOffTarget) {
             document.getElementById('scorers-list-2').appendChild(newScorer);
             team2Scorers.push(scorerData);
             updateScores();
+            updateStats();
             
             // Special vibration pattern for goals
             vibrate([150, 100, 150, 100, 150]);
             
             // Salva automaticamente lo stato dopo ogni goal
-            saveCurrentGameState();
+            saveCurrentGameState({ type: 'goal', team: '2' });
         }
 
         // Card functions
