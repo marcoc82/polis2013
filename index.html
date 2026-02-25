@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.8
+                        Versione: v4.9
                     </div>
                 </div>
             </div>
@@ -1247,7 +1247,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.8
+                Versione: v4.9
             </div>
         </div>
     </div>
@@ -3788,16 +3788,24 @@ function updateShootersList() {
 }
 
 function addShotTeam1(player, quarter) {
+    const period = quarter ? quarter.toString().charAt(0) : currentPeriod.toString();
     // Incrementa il contatore giusto (in porta o fuori)
     // --- TIRO FUORI ---
     if (pendingShotType === 'off') {
-        eventsByPeriod.team1.shotsOff[period]++;
-        // OPZIONALE: Se vuoi tracciare il nome anche per i tiri fuori in una lista diversa
-        if (!team1ShootersOff[player]) team1ShootersOff[player] = 0;
-        team1ShootersOff[player]++;
+        // --- TIRO FUORI ---
+        if (eventsByPeriod.team1.shotsOff) {
+            eventsByPeriod.team1.shotsOff[period]++;
+        }
+        //Se vuoi tracciare i tiri fuori per nome (opzionale)
+        if (!team1ShootersOff) team1ShootersOff = {};
+        team1ShootersOff[player] = (team1ShootersOff[player] || 0) + 1;
     } else {
         // --- TIRO IN PORTA ---
-        eventsByPeriod.team1.shots[period]++;
+        if (eventsByPeriod.team1.shots) {
+            eventsByPeriod.team1.shots[period]++;
+        }
+        
+        // Aggiungiamo ai tiratori (solo tiri in porta)
         if (!team1Shooters[player]) team1Shooters[player] = 0;
         team1Shooters[player]++;
     }
