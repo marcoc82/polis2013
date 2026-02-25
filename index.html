@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.7
+                        Versione: v4.8
                     </div>
                 </div>
             </div>
@@ -1247,7 +1247,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.7
+                Versione: v4.8
             </div>
         </div>
     </div>
@@ -1833,6 +1833,7 @@
         let redCardsTeam2 = 0;
         let matchNotes = '';
         let team1Shooters = {}; // Oggetto per contare i tiri per giocatore
+        let team1ShootersOff = {}; // Qui finiranno i tiri FUORI (se vuoi tracciarli per nome)
         let shotsOffTeam1 = 0;
         let shotsOffTeam2 = 0;
         
@@ -3564,20 +3565,19 @@ Per evitare che lo schermo si spenga:
         }
 
 function updateShootersList() {
-    const list = document.getElementById('shooters-list-1');
-    if (!list) return;
+    const container = document.getElementById('shooters-list-1');
+    if (!container) return;
 
-    list.innerHTML = '<h4>Tiri:</h4>';
+    container.innerHTML = '<h4>Tiri in Porta:</h4>';
     
     // Ordina i giocatori per numero di tiri (dal più alto al più basso)
     const sortedShooters = Object.entries(team1Shooters).sort((a, b) => b[1] - a[1]);
 
-    sortedShooters.forEach(([player, count]) => {
-        const div = document.createElement('div');
-        div.classList.add('scorer-list-item');
-        // Mostra: Nome Giocatore: 3
-        div.textContent = `${player}: ${count}`;
-        list.appendChild(div);
+    sortedShooters.forEach(([name, count]) => {
+        const item = document.createElement('div');
+        item.className = 'shooter-item';
+        item.innerHTML = `<span>${name}</span> <strong>${count}</strong>`;
+        container.appendChild(item);
     });
 }
 
@@ -3789,10 +3789,17 @@ function updateShootersList() {
 
 function addShotTeam1(player, quarter) {
     // Incrementa il contatore giusto (in porta o fuori)
+    // --- TIRO FUORI ---
     if (pendingShotType === 'off') {
-        eventsByPeriod.team1.shotsOff[currentPeriod.toString()]++;
+        eventsByPeriod.team1.shotsOff[period]++;
+        // OPZIONALE: Se vuoi tracciare il nome anche per i tiri fuori in una lista diversa
+        if (!team1ShootersOff[player]) team1ShootersOff[player] = 0;
+        team1ShootersOff[player]++;
     } else {
-        eventsByPeriod.team1.shots[currentPeriod.toString()]++;
+        // --- TIRO IN PORTA ---
+        eventsByPeriod.team1.shots[period]++;
+        if (!team1Shooters[player]) team1Shooters[player] = 0;
+        team1Shooters[player]++;
     }
     
     // Aggiorna il conteggio totale dei tiri del giocatore
@@ -3814,10 +3821,12 @@ function addShotTeam1(player, quarter) {
 }
 
 function addShotTeam2(type, quarter) {
+    const period = currentPeriod.toString();
+    
     if (type === 'off') {
-        eventsByPeriod.team2.shotsOff[currentPeriod.toString()]++;
+        eventsByPeriod.team2.shotsOff[period]++;
     } else {
-        eventsByPeriod.team2.shots[currentPeriod.toString()]++;
+        eventsByPeriod.team2.shots[period]++;
     }
     updateStats();
     showActionConfirmation('+');
