@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.91
+                        Versione: v4.92
                     </div>
                 </div>
             </div>
@@ -1247,7 +1247,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.91
+                Versione: v4.92
             </div>
         </div>
     </div>
@@ -3799,41 +3799,35 @@ Per evitare che lo schermo si spenga:
 
 function addShotTeam1(player, quarter) {
     const period = quarter ? quarter.toString().charAt(0) : currentPeriod.toString();
-    // Incrementa il contatore giusto (in porta o fuori)
-    // --- TIRO FUORI ---
+
     if (pendingShotType === 'off') {
         // --- TIRO FUORI ---
-        eventsByPeriod.team1.shotsOff[period]++;
+        eventsByPeriod.team1.shotsOff[period]++; // Incremento squadra
+        team1ShootersOff[player] = (team1ShootersOff[player] || 0) + 1; // Incremento nome fuori
         
-        // Salva il nome nel database dei tiri fuori
-        if (!team1ShootersOff[player]) team1ShootersOff[player] = 0;
-        team1ShootersOff[player]++;
     } else {
         // --- TIRO IN PORTA ---
-        eventsByPeriod.team1.shots[period]++;
-        if (!team1Shooters[player]) team1Shooters[player] = 0;
-        team1Shooters[player]++;
-        }
-        
-        // Aggiungiamo ai tiratori (solo tiri in porta)
-        if (!team1Shooters[player]) team1Shooters[player] = 0;
-        team1Shooters[player]++;
-    
-    // Aggiorna il conteggio totale dei tiri del giocatore
-    if (!team1Shooters[player]) {
-        team1Shooters[player] = 0;
-    }
-    team1Shooters[player]++;
+        eventsByPeriod.team1.shots[period]++; // Incremento squadra
+        team1Shooters[player] = (team1Shooters[player] || 0) + 1; // Incremento nome in porta
+    } // <--- MANCAVA QUESTA CHIUSURA!
+
+    // --- RIMOSSO IL VECCHIO INCREMENTO DOPPIO CHE ERA QUI ---
 
     // Aggiorna l'interfaccia
     updateShootersList();
     updateStats();
-    showActionConfirmation('+');
-    if (typeof showActionConfirmation === 'function') {
-        showActionConfirmation(pendingShotType === 'off' ? 'Fuori' : 'In Porta');
-    }
-    saveCurrentGameState({ type: 'shot', team: '1', shotType: pendingShotType, player: player });
     
+    if (typeof showActionConfirmation === 'function') {
+        showActionConfirmation(pendingShotType === 'off' ? 'Fuori 🥅' : 'In Porta ⚽');
+    }
+
+    // Salvataggio stato locale
+    saveCurrentGameState({ 
+        type: 'shot', 
+        team: '1', 
+        shotType: pendingShotType, 
+        player: player 
+    });
 
     // Resetta le variabili temporanee
     pendingShotTeam = null;
@@ -4526,13 +4520,17 @@ function selectShotType(isOffTarget) {
                 score1: isAwayMatch ? scoreTeam2 : scoreTeam1,
                 score2: isAwayMatch ? scoreTeam1 : scoreTeam2,
                 shots1: isAwayMatch ? shotsTeam2 : shotsTeam1,
-		shooters1: isAwayMatch ? {} : team1Shooters, // Salva l'oggetto dei tiratori
+		        shooters1: isAwayMatch ? {} : team1Shooters, // Salva l'oggetto dei tiratori
+                shotsOff1: isAwayMatch ? shotsOffTeam2 : shotsOffTeam1,
+                shootersOff1: isAwayMatch ? {} : team1ShootersOff,
                 corners1: isAwayMatch ? cornersTeam2 : cornersTeam1,
                 fouls1: isAwayMatch ? foulsTeam2 : foulsTeam1,
                 yellowCards1: isAwayMatch ? yellowCardsTeam2 : yellowCardsTeam1,
                 redCards1: isAwayMatch ? redCardsTeam2 : redCardsTeam1,
                 shots2: isAwayMatch ? shotsTeam1 : shotsTeam2,
-		shooters2: isAwayMatch ? team1Shooters : {} , // Salva l'oggetto dei tiratori
+		        shooters2: isAwayMatch ? team1Shooters : {} , // Salva l'oggetto dei tiratori
+                shotsOff2: isAwayMatch ? shotsOffTeam1 : shotsOffTeam2,
+                shootersOff2: isAwayMatch ? team1ShootersOff : {},
                 corners2: isAwayMatch ? cornersTeam1 : cornersTeam2,
                 fouls2: isAwayMatch ? foulsTeam1 : foulsTeam2,
                 yellowCards2: isAwayMatch ? yellowCardsTeam1 : yellowCardsTeam2,
