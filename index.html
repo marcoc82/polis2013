@@ -1227,7 +1227,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.9
+                        Versione: v4.91
                     </div>
                 </div>
             </div>
@@ -1247,7 +1247,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.9
+                Versione: v4.91
             </div>
         </div>
     </div>
@@ -3564,22 +3564,32 @@ Per evitare che lo schermo si spenga:
             }
         }
 
-function updateShootersList() {
-    const container = document.getElementById('shooters-list-1');
-    if (!container) return;
+        function updateShootersList() {
+            const container = document.getElementById('shooters-list-1');
+            if (!container) return;
 
-    container.innerHTML = '<h4>Tiri in Porta:</h4>';
-    
-    // Ordina i giocatori per numero di tiri (dal più alto al più basso)
-    const sortedShooters = Object.entries(team1Shooters).sort((a, b) => b[1] - a[1]);
+            let html = '<h4>Statistiche Tiri:</h4>';
 
-    sortedShooters.forEach(([name, count]) => {
-        const item = document.createElement('div');
-        item.className = 'shooter-item';
-        item.innerHTML = `<span>${name}</span> <strong>${count}</strong>`;
-        container.appendChild(item);
-    });
-}
+            // Sezione Tiri in Porta
+            html += '<div style="margin-bottom: 10px;"><small>In Porta:</small>';
+            const inPorta = Object.entries(team1Shooters).filter(s => s[1] > 0);
+            if (inPorta.length === 0) html += '<div>-</div>';
+            inPorta.forEach(([name, count]) => {
+                html += `<div class="shooter-item"><span>${name}</span> <strong>${count}</strong></div>`;
+            });
+            html += '</div>';
+
+            // Sezione Tiri Fuori
+            html += '<div><small>Fuori:</small>';
+            const fuori = Object.entries(team1ShootersOff).filter(s => s[1] > 0);
+            if (fuori.length === 0) html += '<div>-</div>';
+            fuori.forEach(([name, count]) => {
+                html += `<div class="shooter-item" style="opacity: 0.8;"><span>${name}</span> <strong>${count}</strong></div>`;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
 
         function startTimer() {
             if (isRunning) return;
@@ -3793,16 +3803,16 @@ function addShotTeam1(player, quarter) {
     // --- TIRO FUORI ---
     if (pendingShotType === 'off') {
         // --- TIRO FUORI ---
-        if (eventsByPeriod.team1.shotsOff) {
-            eventsByPeriod.team1.shotsOff[period]++;
-        }
-        //Se vuoi tracciare i tiri fuori per nome (opzionale)
-        if (!team1ShootersOff) team1ShootersOff = {};
-        team1ShootersOff[player] = (team1ShootersOff[player] || 0) + 1;
+        eventsByPeriod.team1.shotsOff[period]++;
+        
+        // Salva il nome nel database dei tiri fuori
+        if (!team1ShootersOff[player]) team1ShootersOff[player] = 0;
+        team1ShootersOff[player]++;
     } else {
         // --- TIRO IN PORTA ---
-        if (eventsByPeriod.team1.shots) {
-            eventsByPeriod.team1.shots[period]++;
+        eventsByPeriod.team1.shots[period]++;
+        if (!team1Shooters[player]) team1Shooters[player] = 0;
+        team1Shooters[player]++;
         }
         
         // Aggiungiamo ai tiratori (solo tiri in porta)
@@ -3820,8 +3830,12 @@ function addShotTeam1(player, quarter) {
     updateShootersList();
     updateStats();
     showActionConfirmation('+');
+    if (typeof showActionConfirmation === 'function') {
+        showActionConfirmation(pendingShotType === 'off' ? 'Fuori' : 'In Porta');
+    }
     saveCurrentGameState({ type: 'shot', team: '1', shotType: pendingShotType, player: player });
     
+
     // Resetta le variabili temporanee
     pendingShotTeam = null;
     pendingShotQuarter = null;
