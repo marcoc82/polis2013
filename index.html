@@ -1232,7 +1232,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 4.94 By Marco
+                        Versione: 4.95 By Marco
                     </div>
                 </div>
             </div>
@@ -1244,7 +1244,7 @@
         <div class="welcome-content">
             <h1 class="polis-text" style="font-size: 4em;">StaKick</h1>
             <hr class="my-6">
-            <h2 id="menu-team-name" class="text-2xl font-bold mb-4">Benvenuto, POLIS!</h2>
+            <h2 id="menu-team-name" class="text-2xl font-bold mb-4">Benvenuto</h2>
             <div class="button-grid-1 gap-4">
                 <button id="start-match-btn" class="btn-green btn-large w-full">Inizia Partita</button>
                 <button id="manage-players-btn" class="btn-blue btn-large w-full">Gestione Squadra</button>
@@ -1252,7 +1252,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 4.94 By Marco
+                Versione: 4.95 By Marco
             </div>
         </div>
     </div>
@@ -4015,7 +4015,7 @@ function selectShotType(isOffTarget) {
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `${player}${isAutogol ? ' (AG)' : ''} - ${minute}' (${quarter})`;
+            newScorer.textContent = `${player}${isAutogol ? '' : ''} - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-1').appendChild(newScorer);
             team1Scorers.push(scorerData);
 
@@ -4053,7 +4053,7 @@ function selectShotType(isOffTarget) {
 
             // 3. Creiamo l'oggetto del marcatore
             const scorerData = { 
-                player: isOwnGoal ? 'Autogol (Nostro)' : 'Avversario', 
+                player: isOwnGoal ? 'Autogol (Nostro)' : 'Giocatore', 
                 quarter: quarter,
                 minute: minute,
                 timestamp: Date.now(),
@@ -5041,7 +5041,7 @@ const team1ScorersText = ourScorers && ourScorers.length > 0 ?
 
 const team2ScorersText = theirScorers && theirScorers.length > 0 ? 
     `<br><span class="font-semibold text-red-400">Marcatori ${opponentName}:</span><br>
-    <span class="pl-2">${theirScorers.map(s => `• Goal - ${s.minute || 0}' (${s.quarter})`).join('<br>')}</span>` : '';
+    <span class="pl-2">${theirScorers.map(s => `• Goal Avversario - ${s.minute || 0}' (${s.quarter})`).join('<br>')}</span>` : '';
 
 // --- CODICE TIRI (SHOOTERS) MODIFICATO ---
 let team1ShootersText = '';
