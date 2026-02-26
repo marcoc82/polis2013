@@ -199,13 +199,20 @@
 
         /* Timer styles */
         .timer-container {
+        background-color: #2d3748; /* Il colore scuro che vedo in foto */
+        border-radius: 15px;
+        padding: 20px;
+        
+        /* QUESTE RIGHE CENTRANO IL BLOCCO */
+        margin: 20px auto;  /* Centra orizzontalmente rispetto alla pagina */
+        max-width: 90%;     /* Evita che tocchi i bordi del telefono */
+        width: 350px;       /* O la larghezza che preferisci */
+        
+        /* CENTRA IL CONTENUTO INTERNO */
         display: flex;
-        flex-direction: column; /* Gli elementi interni vanno in verticale */
-        align-items: center;    /* Centra gli elementi (orizzontalmente) */
-        justify-content: center;/* Centra gli elementi (verticalmente) */
-        margin: 0 auto;         /* Centra il contenitore stesso rispetto alla pagina */
-        width: 100%;            /* Occupa tutta la larghezza disponibile */
-        text-align: center;     /* Centra il testo all'interno */
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
         }
         .timer-display-container {
         display: flex;
@@ -235,11 +242,12 @@
             margin-left: 1rem;
         }
         .timer-controls {
-            display: flex;
-            justify-content: center; /* Centra i bottoni l'uno accanto all'altro */
-            gap: 15px;               /* Spazio tra un bottone e l'altro */
-            margin-top: 15px;
-            width: 100%;
+        display: flex;
+        justify-content: center; /* Centra i bottoni nel loro contenitore */
+        align-items: center;
+        gap: 10px;               /* Spazio tra i bottoni */
+        width: 100%;
+        margin-top: 15px;
         }
 
         /* Score display */
@@ -1204,6 +1212,10 @@
                 transform: translate(-50%, -50%) scale(0.9);
             }
         }
+        #edit-timer-button { 
+        margin-bottom: 15px; 
+        display: inline-block; /* Assicura che il margine funzioni bene */
+        }
     </style>
 </head>
 <body class="login-background">
@@ -1237,7 +1249,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 4.96 By Marco
+                        Versione: 4.97 By Marco
                     </div>
                 </div>
             </div>
@@ -1257,7 +1269,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 4.96 By Marco
+                Versione: 4.97 By Marco
             </div>
         </div>
     </div>
