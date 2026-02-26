@@ -753,6 +753,11 @@
         .player-btn:active {
             transform: scale(0.95);
         }
+        .player-btn[style*="background-color: rgb(255, 68, 68)"] {
+        margin-top: 10px;
+        font-weight: bold;
+        border: 2px solid darkred;
+        }
 
         /* Button grids */
         .button-grid-1 {
@@ -1227,7 +1232,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.92
+                        Versione: v4.93
                     </div>
                 </div>
             </div>
@@ -1247,7 +1252,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.92
+                Versione: v4.93
             </div>
         </div>
     </div>
@@ -3765,6 +3770,19 @@ Per evitare che lo schermo si spenga:
                 });
                 playerList.appendChild(playerButton);
             });
+            // --- AGGIUNTA TASTO AUTOGOL ---
+            const ownGoalButton = document.createElement('button');
+            ownGoalButton.textContent = 'Autogol Avversario';
+            // Aggiungiamo una classe speciale per farlo rosso o diverso, se vuoi
+            ownGoalButton.classList.add('player-btn'); 
+            ownGoalButton.style.backgroundColor = '#ff4444'; // Rosso per distinguerlo
+            ownGoalButton.style.color = 'white';
+            
+            ownGoalButton.addEventListener('click', () => {
+            addGoalTeam1('Autogol Avversario', quarter);
+            hidePlayerModal();
+            });
+            playerList.appendChild(ownGoalButton);
             document.getElementById('player-modal').classList.add('is-active');
             vibrate([50]); // Modal open feedback
         }
@@ -3964,9 +3982,11 @@ function selectShotType(isOffTarget) {
         // Goal functions
         function addGoalTeam1(player, quarter) {
             scoreTeam1++;
-
+            // Verifica se è un autogol
+            const isAutogol = (player === 'Autogol' || player === 'Autogol Avversario');
             // --- NUOVO: AGGIUNTA AUTOMATICA TIRO IN PORTA ---
             // Prepariamo i dati temporanei per il tiro
+            if (!isAutogol) {
             pendingShotTeam = '1';
             pendingShotType = 'on'; // Un gol è sempre un tiro "in porta"
             pendingShotQuarter = quarter;
@@ -3974,7 +3994,10 @@ function selectShotType(isOffTarget) {
             // Chiamiamo la funzione del tiro che aumenterà le statistiche e il contatore del giocatore
             addShotTeam1(player, quarter);
             // -----------------------------------------------
-            
+            } else {
+            // Se è autogol, aggiorniamo solo le statistiche generali senza aggiungere tiri
+            updateStats();
+            }
             // Calcola tempo di gioco accurato e timestamp per il marcatore
             const gameTime = getCurrentGameTimeForScoring();
             const minute = Math.max(1, gameTime.minutes + 1); // Minuto di gioco (min 1)
@@ -3984,6 +4007,7 @@ function selectShotType(isOffTarget) {
                 player: player,
                 quarter: quarter,
                 minute: minute,
+                isOwnGoal: isAutogol, // Segnaliamo se è autogol per Firebase/Storico
                 timestamp: Date.now(), // Timestamp di inserimento del gol
                 gameTimeSeconds: gameTime.totalSeconds, // Secondi di gioco al momento del gol
                 gameTimeFormatted: gameTime.formattedTime // Tempo formattato per debug
@@ -3991,7 +4015,7 @@ function selectShotType(isOffTarget) {
             
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `${player} - ${minute}' (${quarter})`;
+            newScorer.textContent = `${player}${isAutogol ? ' (AG)' : ''} - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-1').appendChild(newScorer);
             team1Scorers.push(scorerData);
 
@@ -4007,7 +4031,7 @@ function selectShotType(isOffTarget) {
             vibrate([150, 100, 150, 100, 150]);
             
             // Salva automaticamente lo stato dopo ogni goal
-            saveCurrentGameState({ type: 'goal', team: '1', player: player });
+            saveCurrentGameState({ type: 'goal', team: '1', player: player, isOwnGoal: isAutogol });
         }
 
         function addGoalTeam2(quarter) {
