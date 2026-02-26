@@ -1220,7 +1220,7 @@
             <div class="login-form">
                 <div class="login-access-section">
                     <h2 class="text-2xl font-bold mb-4">Accesso</h2>
-                    <p class="mb-6">Inserisci il codice fornito dall'organizzatore per accedere all'app:</p>
+                    <p class="mb-6">Dirigente o Mister</p>
                     <input type="text" id="login-code-input" placeholder="Codice Accesso" class="w-full mb-4 modal-input">
                     <div class="flex items-center mb-4">
                         <input type="checkbox" id="remember-code-checkbox" class="mr-2 w-4 h-4 cursor-pointer">
@@ -1232,7 +1232,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: v4.93
+                        Versione: 4.94 By Marco
                     </div>
                 </div>
             </div>
@@ -1252,7 +1252,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: v4.93
+                Versione: 4.94 By Marco
             </div>
         </div>
     </div>
@@ -4035,41 +4035,54 @@ function selectShotType(isOffTarget) {
         }
 
         function addGoalTeam2(quarter) {
+            // 1. Chiediamo se è autogol
+            const isOwnGoal = confirm("È un AUTOGOL della nostra squadra? \n(OK = Si, Annulla = Gol normale avversario)");
+    
             scoreTeam2++;
 
-            // --- NUOVO: AGGIUNTA AUTOMATICA TIRO IN PORTA SQUADRA 2 ---
-            pendingShotTeam = '2';
-            pendingShotType = 'on';
-            addShotTeam2('on', quarter);
-            // --------------------------------------------------------
-            
-            // Calcola tempo di gioco accurato e timestamp per il marcatore
+            // Calcola tempo di gioco
             const gameTime = getCurrentGameTimeForScoring();
-            const minute = Math.max(1, gameTime.minutes + 1); // Minuto di gioco (min 1)
-            
-            // Crea oggetto marcatore con timestamp completo
-            const scorerData = {
-                player: 'Sconosciuto',
+            const minute = Math.max(1, gameTime.minutes + 1);
+
+            // 2. Registriamo il tiro SOLO se NON è autogol
+            if (!isOwnGoal) {
+                pendingShotTeam = '2';
+                pendingShotType = 'on';
+                addShotTeam2('on', quarter); 
+            }
+
+            // 3. Creiamo l'oggetto del marcatore
+            const scorerData = { 
+                player: isOwnGoal ? 'Autogol (Nostro)' : 'Avversario', 
                 quarter: quarter,
                 minute: minute,
-                timestamp: Date.now(), // Timestamp di inserimento del gol
-                gameTimeSeconds: gameTime.totalSeconds, // Secondi di gioco al momento del gol
-                gameTimeFormatted: gameTime.formattedTime // Tempo formattato per debug
+                timestamp: Date.now(),
+                gameTimeSeconds: gameTime.totalSeconds,
+                gameTimeFormatted: gameTime.formattedTime,
+                isOwnGoal: isOwnGoal
             };
-            
+
+            // Aggiungiamo all'array dei marcatori Team 2
+            team2Scorers.push(scorerData);
+
+            // 4. Aggiorniamo l'interfaccia visiva
             const newScorer = document.createElement('div');
             newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `Goal - ${minute}' (${quarter})`;
+            newScorer.textContent = `${scorerData.player} - ${minute}' (${quarter})`;
             document.getElementById('scorers-list-2').appendChild(newScorer);
-            team2Scorers.push(scorerData);
+
+            // Feedback e update
+            document.getElementById('score-team2').classList.add('is-pulsing');
+            setTimeout(() => {
+                document.getElementById('score-team2').classList.remove('is-pulsing');
+            }, 1000);
+
             updateScores();
             updateStats();
-            
-            // Special vibration pattern for goals
             vibrate([150, 100, 150, 100, 150]);
-            
-            // Salva automaticamente lo stato dopo ogni goal
-            saveCurrentGameState({ type: 'goal', team: '2' });
+
+            // 5. Salva lo stato per il tasto "meno"
+            saveCurrentGameState({ type: 'goal', team: '2', isOwnGoal: isOwnGoal });
         }
 
         // Card functions
