@@ -199,17 +199,20 @@
 
         /* Timer styles */
         .timer-container {
-            background-color: #334155;
-            padding: 1rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
+        display: flex;
+        flex-direction: column; /* Gli elementi interni vanno in verticale */
+        align-items: center;    /* Centra gli elementi (orizzontalmente) */
+        justify-content: center;/* Centra gli elementi (verticalmente) */
+        margin: 0 auto;         /* Centra il contenitore stesso rispetto alla pagina */
+        width: 100%;            /* Occupa tutta la larghezza disponibile */
+        text-align: center;     /* Centra il testo all'interno */
         }
         .timer-display-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;    /* Fondamentale per la centratura orizzontale */
+        gap: 10px;
+        width: 100%;
         }
         #timer-display {
             font-size: 3rem;
@@ -233,8 +236,10 @@
         }
         .timer-controls {
             display: flex;
-            justify-content: center;
-            gap: 0.75rem;
+            justify-content: center; /* Centra i bottoni l'uno accanto all'altro */
+            gap: 15px;               /* Spazio tra un bottone e l'altro */
+            margin-top: 15px;
+            width: 100%;
         }
 
         /* Score display */
@@ -1232,7 +1237,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 4.95 By Marco
+                        Versione: 4.96 By Marco
                     </div>
                 </div>
             </div>
@@ -1252,7 +1257,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 4.95 By Marco
+                Versione: 4.96 By Marco
             </div>
         </div>
     </div>
