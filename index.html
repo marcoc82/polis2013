@@ -1249,7 +1249,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 4.99 By Marco
+                        Versione: 5.0 By Marco
                     </div>
                 </div>
             </div>
@@ -1269,7 +1269,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 4.99 By Marco
+                Versione: 5.0 By Marco
             </div>
         </div>
     </div>
@@ -1696,6 +1696,25 @@
         </div>
     </div>
 
+    <div id="goal-type-modal-team2" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box has-text-centered">
+                <h3 class="title is-4">Tipo di Gol</h3>
+                <p class="subtitle is-6">Chi ha segnato?</p>
+                <div class="buttons is-centered">
+                    <button class="button is-success is-large" id="btn-goal-normal">
+                        ⚽ Gol Avversario
+                    </button>
+                    <button class="button is-danger is-large" id="btn-goal-own">
+                        Autogol Nostro
+                    </button>
+                </div>
+                <button class="button is-light mt-3" onclick="closeGoalTypeModal()">Annulla</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Timer setup modal -->
     <div id="timer-setup-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1858,7 +1877,8 @@
         let team1ShootersOff = {}; // Qui finiranno i tiri FUORI (se vuoi tracciarli per nome)
         let shotsOffTeam1 = 0;
         let shotsOffTeam2 = 0;
-        
+        let pendingGoalQuarter2 = null;
+
         // Variabili temporanee per memorizzare il tiro in corso
         let pendingShotTeam = null;
         let pendingShotQuarter = null;
@@ -4052,12 +4072,26 @@ function selectShotType(isOffTarget) {
         }
 
         function addGoalTeam2(quarter) {
-            // 1. Chiediamo se è autogol
-            const isOwnGoal = confirm("È un AUTOGOL della nostra squadra? \n(OK = Si, Annulla = Gol normale avversario)");
+            // Salviamo il tempo corrente per usarlo dopo il click sul modale
+            pendingGoalQuarter2 = quarter; 
     
+            // Apriamo il modale che hai aggiunto nell'HTML
+            const modal = document.getElementById('goal-type-modal-team2');
+            if (modal) {
+            modal.classList.add('is-active');
+            }
+            vibrate([50]);
+        }
+
+        function processGoalTeam2(isOwnGoal) {
+            // 1. Chiudiamo il modale
+            const modal = document.getElementById('goal-type-modal-team2');
+            if (modal) modal.classList.remove('is-active');
+
+            const quarter = pendingGoalQuarter2;
             scoreTeam2++;
 
-            // Calcola tempo di gioco
+            // Calcola tempo di gioco (dalla tua logica originale)
             const gameTime = getCurrentGameTimeForScoring();
             const minute = Math.max(1, gameTime.minutes + 1);
 
@@ -4065,34 +4099,41 @@ function selectShotType(isOffTarget) {
             if (!isOwnGoal) {
                 pendingShotTeam = '2';
                 pendingShotType = 'on';
+                // Assicurati che addShotTeam2 esista nel tuo codice
+                if (typeof addShotTeam2 === 'function') {
                 addShotTeam2('on', quarter); 
+                }
             }
 
             // 3. Creiamo l'oggetto del marcatore
             const scorerData = { 
-                player: isOwnGoal ? 'Autogol (Nostro)' : 'Giocatore', 
-                quarter: quarter,
-                minute: minute,
-                timestamp: Date.now(),
-                gameTimeSeconds: gameTime.totalSeconds,
-                gameTimeFormatted: gameTime.formattedTime,
-                isOwnGoal: isOwnGoal
+            player: isOwnGoal ? 'Autogol (Nostro)' : 'Avversario', 
+            quarter: quarter,
+            minute: minute,
+            timestamp: Date.now(),
+            gameTimeSeconds: gameTime.totalSeconds,
+            gameTimeFormatted: gameTime.formattedTime,
+            isOwnGoal: isOwnGoal
             };
 
             // Aggiungiamo all'array dei marcatori Team 2
             team2Scorers.push(scorerData);
 
             // 4. Aggiorniamo l'interfaccia visiva
-            const newScorer = document.createElement('div');
-            newScorer.classList.add('scorer-list-item');
-            newScorer.textContent = `${scorerData.player} - ${minute}' (${quarter})`;
-            document.getElementById('scorers-list-2').appendChild(newScorer);
+            const list2 = document.getElementById('scorers-list-2');
+            if (list2) {
+                const newScorer = document.createElement('div');
+                newScorer.classList.add('scorer-list-item');
+                newScorer.textContent = `${scorerData.player} - ${minute}' (${quarter})`;
+                list2.appendChild(newScorer);
+            }
 
             // Feedback e update
-            document.getElementById('score-team2').classList.add('is-pulsing');
-            setTimeout(() => {
-                document.getElementById('score-team2').classList.remove('is-pulsing');
-            }, 1000);
+            const scoreElem = document.getElementById('score-team2');
+            if (scoreElem) {
+                scoreElem.classList.add('is-pulsing');
+                setTimeout(() => scoreElem.classList.remove('is-pulsing'), 1000);
+            }
 
             updateScores();
             updateStats();
@@ -5737,6 +5778,21 @@ async function saveMatchEdits() {
                 }, 1500);
             }
             
+            // Collega il bottone "Gol Avversario"
+            document.getElementById('btn-goal-normal').onclick = function() {
+                processGoalTeam2(false);
+            };
+
+            // Collega il bottone "Autogol Nostro"
+            document.getElementById('btn-goal-own').onclick = function() {
+                processGoalTeam2(true);
+            };
+
+            // Funzione di utilità per chiudere se clicchi "Annulla"
+            function closeGoalTypeModal() {
+                document.getElementById('goal-type-modal-team2').classList.remove('is-active');
+            }
+
             // Menu buttons
             document.getElementById('start-match-btn').addEventListener('click', showMatchSetup);
             document.getElementById('manage-players-btn').addEventListener('click', showPlayersManagement);
