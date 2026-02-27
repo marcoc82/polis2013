@@ -1320,7 +1320,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.02 By Marco
+                        Versione: 5.03 By Marco
                     </div>
                 </div>
             </div>
@@ -1340,7 +1340,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.02 By Marco
+                Versione: 5.03 By Marco
             </div>
         </div>
     </div>
@@ -5661,6 +5661,14 @@ function hideEditMatchModal() {
     vibrate([30]);
 }
 
+        // Funzione di utilità per chiudere se clicchi "Annulla"
+        function closeGoalTypeModal() {
+            const modal = document.getElementById('goal-type-modal-team2');
+            if (modal) {
+                    modal.classList.remove('is-active');
+            }
+        }
+
 // Funzione per salvare le modifiche
 async function saveMatchEdits() {
     if (currentEditingMatchIndex === null) return;
@@ -5864,13 +5872,6 @@ async function saveMatchEdits() {
                 if (btnOwn) btnOwn.onclick = () => processGoalTeam2(true);
             });
 
-            // Funzione di utilità per chiudere se clicchi "Annulla"
-            function closeGoalTypeModal() {
-                const modal = document.getElementById('goal-type-modal-team2');
-                if (modal) {
-                    modal.classList.remove('is-active');
-                }
-            }
 
             // Menu buttons
             document.getElementById('start-match-btn').addEventListener('click', showMatchSetup);
