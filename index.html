@@ -1320,7 +1320,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.03 By Marco
+                        Versione: 5.04 By Marco
                     </div>
                 </div>
             </div>
@@ -1340,7 +1340,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.03 By Marco
+                Versione: 5.04 By Marco
             </div>
         </div>
     </div>
@@ -4160,65 +4160,7 @@ function selectShotType(isOffTarget) {
             }
         }
 
-        function processGoalTeam2(isOwnGoal) {
-            // 1. Chiudiamo il modale
-            const modal = document.getElementById('goal-type-modal-team2');
-            if (modal) modal.classList.remove('is-active');
-
-            const quarter = pendingGoalQuarter2;
-            scoreTeam2++;
-
-            // Calcola tempo di gioco (dalla tua logica originale)
-            const gameTime = getCurrentGameTimeForScoring();
-            const minute = Math.max(1, gameTime.minutes + 1);
-
-            // 2. Registriamo il tiro SOLO se NON è autogol
-            if (!isOwnGoal) {
-                pendingShotTeam = '2';
-                pendingShotType = 'on';
-                // Assicurati che addShotTeam2 esista nel tuo codice
-                if (typeof addShotTeam2 === 'function') {
-                addShotTeam2('on', quarter); 
-                }
-            }
-
-            // 3. Creiamo l'oggetto del marcatore
-            const scorerData = { 
-            player: isOwnGoal ? 'Autogol (Nostro)' : 'Avversario', 
-            quarter: quarter,
-            minute: minute,
-            timestamp: Date.now(),
-            gameTimeSeconds: gameTime.totalSeconds,
-            gameTimeFormatted: gameTime.formattedTime,
-            isOwnGoal: isOwnGoal
-            };
-
-            // Aggiungiamo all'array dei marcatori Team 2
-            team2Scorers.push(scorerData);
-
-            // 4. Aggiorniamo l'interfaccia visiva
-            const list2 = document.getElementById('scorers-list-2');
-            if (list2) {
-                const newScorer = document.createElement('div');
-                newScorer.classList.add('scorer-list-item');
-                newScorer.textContent = `${scorerData.player} - ${minute}' (${quarter})`;
-                list2.appendChild(newScorer);
-            }
-
-            // Feedback e update
-            const scoreElem = document.getElementById('score-team2');
-            if (scoreElem) {
-                scoreElem.classList.add('is-pulsing');
-                setTimeout(() => scoreElem.classList.remove('is-pulsing'), 1000);
-            }
-
-            updateScores();
-            updateStats();
-            vibrate([150, 100, 150, 100, 150]);
-
-            // 5. Salva lo stato per il tasto "meno"
-            saveCurrentGameState({ type: 'goal', team: '2', isOwnGoal: isOwnGoal });
-        }
+        
 
         // Card functions
         function addCardTeam1(player, cardType, quarter) {
@@ -5667,6 +5609,66 @@ function hideEditMatchModal() {
             if (modal) {
                     modal.classList.remove('is-active');
             }
+        }
+
+        function processGoalTeam2(isOwnGoal) {
+            // 1. Chiudiamo il modale
+            const modal = document.getElementById('goal-type-modal-team2');
+            if (modal) modal.classList.remove('is-active');
+
+            const quarter = pendingGoalQuarter2;
+            scoreTeam2++;
+
+            // Calcola tempo di gioco (dalla tua logica originale)
+            const gameTime = getCurrentGameTimeForScoring();
+            const minute = Math.max(1, gameTime.minutes + 1);
+
+            // 2. Registriamo il tiro SOLO se NON è autogol
+            if (!isOwnGoal) {
+                pendingShotTeam = '2';
+                pendingShotType = 'on';
+                // Assicurati che addShotTeam2 esista nel tuo codice
+                if (typeof addShotTeam2 === 'function') {
+                addShotTeam2('on', quarter); 
+                }
+            }
+
+            // 3. Creiamo l'oggetto del marcatore
+            const scorerData = { 
+            player: isOwnGoal ? 'Autogol (Nostro)' : 'Avversario', 
+            quarter: quarter,
+            minute: minute,
+            timestamp: Date.now(),
+            gameTimeSeconds: gameTime.totalSeconds,
+            gameTimeFormatted: gameTime.formattedTime,
+            isOwnGoal: isOwnGoal
+            };
+
+            // Aggiungiamo all'array dei marcatori Team 2
+            team2Scorers.push(scorerData);
+
+            // 4. Aggiorniamo l'interfaccia visiva
+            const list2 = document.getElementById('scorers-list-2');
+            if (list2) {
+                const newScorer = document.createElement('div');
+                newScorer.classList.add('scorer-list-item');
+                newScorer.textContent = `${scorerData.player} - ${minute}' (${quarter})`;
+                list2.appendChild(newScorer);
+            }
+
+            // Feedback e update
+            const scoreElem = document.getElementById('score-team2');
+            if (scoreElem) {
+                scoreElem.classList.add('is-pulsing');
+                setTimeout(() => scoreElem.classList.remove('is-pulsing'), 1000);
+            }
+
+            updateScores();
+            updateStats();
+            vibrate([150, 100, 150, 100, 150]);
+
+            // 5. Salva lo stato per il tasto "meno"
+            saveCurrentGameState({ type: 'goal', team: '2', isOwnGoal: isOwnGoal });
         }
 
 // Funzione per salvare le modifiche
