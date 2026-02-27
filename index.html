@@ -1370,7 +1370,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.15 By Marco
+                        Versione: 5.16 By Marco
                     </div>
                 </div>
             </div>
@@ -1392,7 +1392,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.15 By Marco
+                Versione: 5.16 By Marco
             </div>
         </div>
     </div>
@@ -1488,7 +1488,7 @@
                 <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.15 By Marco
+                Versione: 5.16 By Marco
             </div>
         </div>
     </div>
@@ -4004,7 +4004,7 @@ function addShotTeam1(player, quarter) {
     updateStats();
     
     if (typeof showActionConfirmation === 'function') {
-        showActionConfirmation(pendingShotType === 'off' ? 'Fuori 🥅' : 'In Porta ⚽');
+        showActionConfirmation(pendingShotType === 'off' ? 'Tiro Fuori 🥅' : 'Tiro In Porta ⚽');
     }
 
     // Salvataggio stato locale
@@ -4030,7 +4030,9 @@ function addShotTeam2(type, quarter) {
         eventsByPeriod.team2.shots[period]++;
     }
     updateStats();
-    showActionConfirmation('⚽');
+    if (typeof showActionConfirmation === 'function') {
+        showActionConfirmation(pendingShotType === 'off' ? 'Tiro Fuori 🥅' : 'Tiro In Porta ⚽');
+    }
     saveCurrentGameState({ type: 'shot', team: '2', shotType: pendingShotType });
     
     pendingShotTeam = null;
@@ -6079,7 +6081,7 @@ async function saveMatchEdits() {
                             }
                             updateStats();
                             // Show visual confirmation
-                            showActionConfirmation('+');
+                            showActionConfirmation('✋');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
                         } else if (type === 'yellow-card') {
@@ -6088,6 +6090,7 @@ async function saveMatchEdits() {
                                 return;
                             }
                             const quarter = `${currentPeriod}°T`;
+                            showActionConfirmation('🟨');
                             if (team === '1') {
                                 showCardPlayerModal('yellow', quarter);
                             } else if (team === '2') {
@@ -6099,6 +6102,7 @@ async function saveMatchEdits() {
                                 return;
                             }
                             const quarter = `${currentPeriod}°T`;
+                            showActionConfirmation('🟥');
                             if (team === '1') {
                                 showCardPlayerModal('red', quarter);
                             } else if (team === '2') {
