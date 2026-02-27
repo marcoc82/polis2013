@@ -61,6 +61,49 @@
             color: #E2E8F0;
         }
 
+        body {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important; /* Questo centra tutto ciò che è nel body */
+        justify-content: flex-start !important;
+        }  
+
+        /* Forza il modale in primo piano assoluto */
+        #goal-type-modal-team2 {
+            z-index: 9999 !important;
+            display: none; /* Di default è nascosto */
+            position: fixed; /* Fondamentale per stare sopra a tutto */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Quando il modale ha la classe 'is-active', deve apparire */
+        #goal-type-modal-team2.is-active {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Assicurati che lo sfondo scuro copra tutto */
+        .modal-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Sfondo semi-trasparente */
+        }
+
+        /* Il contenuto del modale deve essere centrato e cliccabile */
+        .modal-content {
+            position: relative;
+            z-index: 10000;
+            width: 90%;
+            max-width: 400px;
+        }
+
         /* Schermate overlay */
         #loading-screen, #welcome-screen, #login-screen, #menu-screen, #players-management-screen, #main-app { 
             position: fixed; 
@@ -1249,7 +1292,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.0 By Marco
+                        Versione: 5.01 By Marco
                     </div>
                 </div>
             </div>
@@ -1269,7 +1312,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.0 By Marco
+                Versione: 5.01 By Marco
             </div>
         </div>
     </div>
