@@ -293,6 +293,34 @@
         margin-top: 15px;
         }
 
+        /* Centramento Modale */
+        .modal.is-active {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        }
+
+        /* Centramento Timer (La soluzione definitiva) */
+        #timer-section, .timer-container {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        left: 0;
+        right: 0;
+        text-align: center;
+        }
+
+        /* Stile per i bottoni dentro il modale (per farli uguali agli altri) */
+        .player-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
         /* Score display */
         .score-display {
             font-size: 6.5rem;
@@ -1292,7 +1320,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.01 By Marco
+                        Versione: 5.02 By Marco
                     </div>
                 </div>
             </div>
@@ -1312,7 +1340,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.01 By Marco
+                Versione: 5.02 By Marco
             </div>
         </div>
     </div>
@@ -1740,20 +1768,26 @@
     </div>
 
     <div id="goal-type-modal-team2" class="modal">
-        <div class="modal-background"></div>
+        <div class="modal-background" onclick="closeGoalTypeModal()"></div>
         <div class="modal-content">
-            <div class="box has-text-centered">
-                <h3 class="title is-4">Tipo di Gol</h3>
-                <p class="subtitle is-6">Chi ha segnato?</p>
-                <div class="buttons is-centered">
-                    <button class="button is-success is-large" id="btn-goal-normal">
+            <div class="box has-text-centered" style="background-color: #2d3748; border-radius: 15px; padding: 20px;">
+                <h3 class="title is-4" style="color: white; margin-bottom: 20px;">Tipo di Gol Avversario</h3>
+                
+                <div class="buttons-container" style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="player-btn" id="btn-goal-normal" style="background-color: #48bb78 !important;">
                         ⚽ Gol Avversario
                     </button>
-                    <button class="button is-danger is-large" id="btn-goal-own">
-                        Autogol Nostro
+                    
+                    <button class="player-btn" id="btn-goal-own" style="background-color: #f56565 !important;">
+                        🚩 Autogol Nostro
+                    </button>
+                    
+                    <hr style="border: 0; border-top: 1px solid #4a5568; margin: 10px 0;">
+                    
+                    <button class="player-btn" onclick="closeGoalTypeModal()" style="background-color: #718096 !important;">
+                        Annulla
                     </button>
                 </div>
-                <button class="button is-light mt-3" onclick="closeGoalTypeModal()">Annulla</button>
             </div>
         </div>
     </div>
@@ -4121,9 +4155,9 @@ function selectShotType(isOffTarget) {
             // Apriamo il modale che hai aggiunto nell'HTML
             const modal = document.getElementById('goal-type-modal-team2');
             if (modal) {
-            modal.classList.add('is-active');
+                modal.classList.add('is-active');
+                vibrate([50]);
             }
-            vibrate([50]);
         }
 
         function processGoalTeam2(isOwnGoal) {
@@ -5822,18 +5856,20 @@ async function saveMatchEdits() {
             }
             
             // Collega il bottone "Gol Avversario"
-            document.getElementById('btn-goal-normal').onclick = function() {
-                processGoalTeam2(false);
-            };
-
-            // Collega il bottone "Autogol Nostro"
-            document.getElementById('btn-goal-own').onclick = function() {
-                processGoalTeam2(true);
-            };
+            document.addEventListener('DOMContentLoaded', () => {
+                const btnNormal = document.getElementById('btn-goal-normal');
+                const btnOwn = document.getElementById('btn-goal-own');
+    
+                if (btnNormal) btnNormal.onclick = () => processGoalTeam2(false);
+                if (btnOwn) btnOwn.onclick = () => processGoalTeam2(true);
+            });
 
             // Funzione di utilità per chiudere se clicchi "Annulla"
             function closeGoalTypeModal() {
-                document.getElementById('goal-type-modal-team2').classList.remove('is-active');
+                const modal = document.getElementById('goal-type-modal-team2');
+                if (modal) {
+                    modal.classList.remove('is-active');
+                }
             }
 
             // Menu buttons
