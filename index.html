@@ -1305,15 +1305,37 @@
         }
 
         div[id="timer-section"], div.timer-container {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 20px auto !important;
-    width: 100% !important;
-    max-width: 400px !important;
-    float: none !important;
-}
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 20px auto !important;
+        width: 100% !important;
+        max-width: 400px !important;
+        float: none !important;
+        }
+
+        .btn-edit-timer {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        width: fit-content;
+        background-color: #8b5cf6 !important; /* Viola vivido */
+        color: white !important;
+        border: 1px solid #7c3aed;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        }
+
+        .btn-edit-timer:hover {
+            background-color: #7c3aed !important; /* Viola un po' più scuro al passaggio del mouse */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-edit-timer:active {
+            transform: translateY(0);
+        }
 
     </style>
 </head>
@@ -1348,7 +1370,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.14 By Marco
+                        Versione: 5.15 By Marco
                     </div>
                 </div>
             </div>
@@ -1370,7 +1392,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.14 By Marco
+                Versione: 5.15 By Marco
             </div>
         </div>
     </div>
@@ -1378,9 +1400,9 @@
     <!-- Schermata gestione giocatori -->
     <div id="players-management-screen" style="display: none;">
         <div class="welcome-content">
-            <h1 class="font-normal text-white text-3xl">Gestione Squadra</h1>
+            <h1 class="font-normal text-white text-3xl" style="text-align: center;">Gestione Squadra</h1>
             <hr class="my-6">
-            <h2 id="players-team-name" class="text-xl font-bold mb-4">POLIS</h2>
+            <h2 id="players-team-name" class="text-xl font-bold mb-4"></h2>
             
             <!-- Selettore numero di tempi -->
             <div class="mb-4 p-4 bg-gray-700 rounded-lg">
@@ -1466,7 +1488,7 @@
                 <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.14 By Marco
+                Versione: 5.15 By Marco
             </div>
         </div>
     </div>
@@ -1481,7 +1503,7 @@
                 <div class="timer-display-container" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                     <span id="timer-display">18:00</span>
                     <span id="current-period-display" class="current-period-indicator" style="display: none;"></span>
-                    <button id="edit-timer-button" class="btn btn-start" style="padding: 0.5rem; font-size: 0.875rem; width: fit-content;">Modifica</button>
+                    <button id="edit-timer-button" class="btn btn-edit-timer">Modifica</button>
                 </div>
                 <div id="recovery-display" style="font-size: 1.5rem; color: #fbbf24; text-align: center; margin-top: 0.5rem; display: none;">+ 0:00</div>
                 <div class="timer-controls" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; width: 100%;">
@@ -1503,15 +1525,15 @@
             </div>-->
 
             <div class="score-display">
-                <span id="score-team1" class="score-digit">0</span>
+                <span id="score-team1" class="score-digit">0  </span>
                 <span>-</span>
-                <span id="score-team2" class="score-digit">0</span>
+                <span id="score-team2" class="score-digit">  0</span>
             </div>
 
             <div class="teams-container">
                 <!-- Squadra 1 -->
                 <div class="team">
-                    <h2 id="team1-title" class="team-title">Squadra 1</h2>
+                    <h2 id="team1-title" class="team-title" style="text-align: center; width: 100%;">Squadra 1</h2>
                     <!-- First row: Gol and Tiro side by side -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="flex flex-col items-center">
@@ -1553,7 +1575,7 @@
 
                 <!-- Squadra 2 -->
                 <div class="team">
-                    <h2 id="team2-name" class="team-title">Squadra 2</h2>
+                    <h2 id="team2-name" class="team-title" style="text-align: center; width: 100%;">Squadra 2</h2>
                     <!-- First row: Gol and Tiro side by side -->
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div class="flex flex-col items-center">
@@ -1757,8 +1779,8 @@
         <div class="modal-content">
             <div class="modal-header">Com'era il tiro?</div>
             <div class="flex flex-col gap-3 mb-6">
-                <button id="shot-on-target-btn" class="btn btn-goal w-full" style="background-color: #19b964;">⚽ In Porta</button>
-                <button id="shot-off-target-btn" class="btn btn-pause w-full" style="background-color: #f59e0b;">🥅 Fuori</button>
+                <button id="shot-on-target-btn" class="btn btn-goal w-full" style="background-color: #19b964;">⚽ Tito In Porta</button>
+                <button id="shot-off-target-btn" class="btn btn-pause w-full" style="background-color: #f59e0b;">🥅 Tiro Fuori</button>
             </div>
             <button id="cancel-shot-type-btn" class="btn bg-gray-500 hover:bg-gray-600 w-full">Annulla</button>
         </div>
@@ -3494,7 +3516,7 @@ Per evitare che lo schermo si spenga:
                 
                 return `
                     <div class="period-breakdown">
-                        <h5>Stat. per tempo:</h5>
+                        <h5 style="text-align: center; width: 100%; margin-bottom: 10px; font-weight: bold;">Stat. per tempo:</h5>
                         <table class="period-stats-table">
                             <thead>
                                 <tr>
@@ -4008,7 +4030,7 @@ function addShotTeam2(type, quarter) {
         eventsByPeriod.team2.shots[period]++;
     }
     updateStats();
-    showActionConfirmation('+');
+    showActionConfirmation('⚽');
     saveCurrentGameState({ type: 'shot', team: '2', shotType: pendingShotType });
     
     pendingShotTeam = null;
@@ -6029,7 +6051,7 @@ async function saveMatchEdits() {
                             }
                             updateStats();
                             // Show visual confirmation
-                            showActionConfirmation('+');
+                            showActionConfirmation('🚩');
                             // Salva automaticamente lo stato dopo ogni statistica
                             saveCurrentGameState();
                         } else if (type === 'shot') {
