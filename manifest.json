@@ -1,5 +1,5 @@
 {
-  "name": "StaKick - Contatore Partite POLIS 2013",
+  "name": "StaKick",
   "short_name": "StaKick",
   "description": "Applicazione web per il conteggio delle partite di calcio con statistiche in tempo reale",
   "start_url": "index.html",
