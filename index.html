@@ -242,20 +242,21 @@
 
         /* Timer styles */
         .timer-container {
-        background-color: #2d3748; /* Il colore scuro che vedo in foto */
+        background-color: #2d3748;
         border-radius: 15px;
-        padding: 20px;
+        padding: 30px;
         
-        /* QUESTE RIGHE CENTRANO IL BLOCCO */
-        margin: 20px auto;  /* Centra orizzontalmente rispetto alla pagina */
-        max-width: 90%;     /* Evita che tocchi i bordi del telefono */
-        width: 350px;       /* O la larghezza che preferisci */
+        /* CENTRATURA E LARGHEZZA */
+        margin: 0 auto !important; /* Centra rispetto alla pagina */
+        width: 95%;               /* Quasi tutta la larghezza disponibile */
+        max-width: 900px;         /* Ma non più largo di 900px (circa quanto le due colonne sotto) */
         
-        /* CENTRA IL CONTENUTO INTERNO */
+        /* ALLINEAMENTO INTERNO */
         display: flex;
         flex-direction: column;
         align-items: center;
-        text-align: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         .timer-display-container {
         display: flex;
@@ -286,11 +287,10 @@
         }
         .timer-controls {
         display: flex;
-        justify-content: center; /* Centra i bottoni nel loro contenitore */
-        align-items: center;
-        gap: 10px;               /* Spazio tra i bottoni */
+        justify-content: center;
+        gap: 20px;
         width: 100%;
-        margin-top: 15px;
+        margin-top: 20px;
         }
 
         /* Centramento Modale */
@@ -1340,7 +1340,7 @@
                     <button id="login-btn" class="btn-green btn-large w-full">Accedi</button>
                     <!-- Versione dell'app aggiunta sotto il pulsante Accedi -->
                     <div class="app-version mt-4 text-center text-sm text-gray-500">
-                        Versione: 5.13 By Marco
+                        Versione: 5.14 By Marco
                     </div>
                 </div>
             </div>
@@ -1362,7 +1362,7 @@
                 <button id="back-to-login-btn" class="btn-back-login btn-large w-full">Esci</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.13 By Marco
+                Versione: 5.14 By Marco
             </div>
         </div>
     </div>
@@ -1458,18 +1458,18 @@
                 <button id="start-game-btn" class="btn-green btn-large w-full">Inizia Partita</button>
             </div>
             <div class="app-version mt-4 text-center text-sm text-gray-500">
-                Versione: 5.13 By Marco
+                Versione: 5.14 By Marco
             </div>
         </div>
     </div>
     
     <!-- App principale -->
     <div id="main-app">
-        <div class="container">
+        <div class="container" style="max-width: 1000px; margin: 0 auto; padding: 20px;">
             <p id="current-date" class="date-display"></p>
             
             <!-- Sezione Timer -->
-            <div class="timer-container" style="margin-left: auto !important; margin-right: auto !important; float: none !important; display: flex; flex-direction: column; align-items: center;">
+            <div class="timer-container" style="margin: 0 auto 20px auto !important; float: none !important; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px;">
                 <div class="timer-display-container" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                     <span id="timer-display">18:00</span>
                     <span id="current-period-display" class="current-period-indicator" style="display: none;"></span>
